@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Southfields - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.20582081360370399, 51.450039793055737], [-0.20525748714452799, 51.45006883234727], [-0.20406756053823999, 51.450065784609869], [-0.20311563256565901, 51.449980799844951], [-0.202523806754668, 51.4499568279304], [-0.202189370214296, 51.450455847334482], [-0.202050683766689, 51.450734740698543], [-0.201582112509853, 51.451854710069291], [-0.20144312558467101, 51.452026661593557], [-0.201269212712127, 51.45214862827892], [-0.20077175369720399, 51.452400651511425], [-0.199587032792617, 51.452812557318772], [-0.198476636737211, 51.453141576460453], [-0.19877037972211201, 51.454340403055951], [-0.19933481588586099, 51.455496322735456], [-0.19937522234687399, 51.45581828681442], [-0.19936119011341399, 51.455923175293819], [-0.199317444953619, 51.456029145195565], [-0.199230511408029, 51.456135160753483], [-0.19911149824479499, 51.456233095801679], [-0.198748465410371, 51.456634140561015], [-0.198307594219399, 51.456978074982693], [-0.197249107291913, 51.457128170630057], [-0.196142448463204, 51.457336099046259], [-0.19583476484186699, 51.457359044809664], [-0.19559839395773901, 51.457353160244004], [-0.19431741254197399, 51.457122115443624], [-0.19367252279490901, 51.4569361267868], [-0.19337115770083799, 51.456890165290609], [-0.19289138392798899, 51.456760253940956], [-0.19270085263979, 51.455935342988482], [-0.192697304625151, 51.45572924229397], [-0.19280200780644099, 51.455196422206036], [-0.19278087025938601, 51.454843416591309], [-0.19273436231182101, 51.454699528227799], [-0.19256617333239501, 51.454311519855317], [-0.192389373322708, 51.454050536552124], [-0.192102744855977, 51.453768613867673], [-0.19181894500056501, 51.453597593432477], [-0.19166728309307801, 51.453474560273726], [-0.191591012463769, 51.453378675867036], [-0.191504762379235, 51.453193703185519], [-0.19178725339354499, 51.453124716132493], [-0.191722536326626, 51.452986725247662], [-0.19173567056941199, 51.452836721175871], [-0.19211873808562299, 51.452293802088249], [-0.192148192395767, 51.452185791106672], [-0.19206292995142299, 51.451975814933547], [-0.19186921562519199, 51.451778788900896], [-0.19157895720311399, 51.451566783045386], [-0.19152714156612, 51.451511884638187], [-0.191736919268573, 51.45046004553646], [-0.191784478932259, 51.450371973729013], [-0.19204002634590001, 51.450119066408419], [-0.192091527953868, 51.450044969098052], [-0.19235199165716599, 51.449235022080636], [-0.19235743221646301, 51.449120029121623], [-0.19227062095441799, 51.448881096428607], [-0.19226508716367499, 51.448634273122615], [-0.192288355406151, 51.44854625009846], [-0.19250289216543601, 51.44826123519335], [-0.193065936940608, 51.447783198126118], [-0.19317676210175799, 51.447664350466354], [-0.19337774691725601, 51.447289334386021], [-0.19342052372601101, 51.447071368742208], [-0.19343273004985401, 51.446625439426811], [-0.193411377373363, 51.446209490999721], [-0.19304115477611999, 51.444195634334008], [-0.192594102518549, 51.443422827431689], [-0.192429286871972, 51.443200813932194], [-0.192220399165273, 51.442978820368175], [-0.192103489687528, 51.442887797512341], [-0.19187982694591199, 51.44276687669705], [-0.191462297685248, 51.442726862061456], [-0.19110546885104601, 51.442766873303256], [-0.19085304140194201, 51.442713943230302], [-0.190471458312898, 51.4426748941938], [-0.19033524531018001, 51.442639908369621], [-0.19022152732575801, 51.44258195408883], [-0.19015640427073, 51.442522917509002], [-0.19012340026730201, 51.442447939858432], [-0.190114295609149, 51.442245887350644], [-0.19018394323184301, 51.441939983213793], [-0.190187682254569, 51.441799926369171], [-0.19013547003435299, 51.441551120395189], [-0.19008389127508801, 51.44144508155275], [-0.19252411039342299, 51.441095069979411], [-0.194549984537701, 51.440738065067045], [-0.19461176019717699, 51.440836109543326], [-0.196455096551823, 51.440455044262293], [-0.19690698207323301, 51.440284108773895], [-0.19889282379681, 51.439914046494394], [-0.20128332543372099, 51.439498032226211], [-0.20294832119555101, 51.439167104294299], [-0.20365079549044399, 51.439003216475548], [-0.204494931234871, 51.43887311592826], [-0.204517060849811, 51.438905067188294], [-0.205090867573301, 51.439706040644431], [-0.205374062527827, 51.44021297791793], [-0.205835643804229, 51.441193900842912], [-0.206104567762665, 51.441996666261531], [-0.206368264134383, 51.443116624663709], [-0.206411660116228, 51.443684513828721], [-0.20646591891539701, 51.443952597930235], [-0.20657161185418901, 51.444777561068655], [-0.206599307937015, 51.445483362641319], [-0.20684896719019299, 51.447261095928525], [-0.20697540629413, 51.447638048911813], [-0.20709586463162699, 51.448214013047824], [-0.20724521477555599, 51.448740951612649], [-0.20748894327380599, 51.449453822156137], [-0.20766679373025401, 51.449850805719436], [-0.20582081360370399, 51.450039793055737]]]]}, "type": "Feature", "id": 1625, "properties": {"pk": 1625, "name": "Southfields"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Southfields, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Southfields, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Southfields</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Wandsworth</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Southfields
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Southfields, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Southfields: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>24</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Southfields</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-831"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-831" id="name-831">
+                    Earlsfield, London During The War <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-831" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by theearlsfieldlibrary (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/06/a4044106.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>In 1938, as Chamberlain flew to Munich I was evacuated to Wiltshire together with two of cousins. We were to stay with my auntie's sister. However, the crisis passed and I was back in Earlsfield a week later. But in 1939 as it became obvious that war was inevitable I was sent again to Wiltshire.  This time I stayed for 3 months but I came home for Christmas and stayed home. </p>
+<p>I can't remember whether it was just before my first or second evacuation that I witnessed the Irish navvies in Earlsfield digging the foundations for the shelters.  However, a lot of the shelters including ours at home flooded and had to have a concrete wall built around the inside which made them smaller.</p>
+<p>My cousin Ruth who had been evacuated with me returned to London a little later and she began work at Arding and Hobbs Department Store at Clapham Junction. She witnessed one of the early bombings at the back of the Store. It was terrible and very frightening.</p>
+<p>The bomb which affected me most was probably a small one. It damaged a wall at the back of the former Workhouse in Swaffield Street in Earlsfield.  The vibration knocked over a broom by the back door and the noise seemed to go  on through my head.  </p>
+<p>Where there is now a block of flats, between Dingwall and Inman Roads in Earlsfield, a time-bomb fell and went off at about 2.00 a.m. This was in the middle of the Blitz on London.  At one stage<br/>
+a mysterious hole appeared in Inman Road near the junction with Wilna Road. The whole area was roped off as far as Dingwall Road. I think this turned out to be a shell.</p>
+<p>One of the worst incidents was a direct hit on an Anderson Shelter at the corner of Bassingham Road, almost opposite the School. My father and our immediate neighbour, (one of the old-time railway guards), and his son who was home on leave from the Air Force went to help the local Air Raid Wardens to dig people out but alas - all dead. I don't think the Wardens got enough recognition for their work during the War.</p>
+<p>After tbis incident my father insisted that my mother and myself be evacuated and my father telegraphed to my aunt's cousin  and all the country-folk were on standby to receive us.  As we left there was a time-bomb in Brocklebank Road, where the block of flats and modern houses now stand. While we were away yet another bomb wiped out houses in Earlsfield Road between Brocklebank and Dingwall Roads, (where the flats now back onto Dingwall Road.)</p>
+<p>When I was back in London, one of the most terrifying nights was when a German plane was hit by our guns and we could hear it getting lower and lower. It came down in Merton Park.  The younger generation now would no doubt think first of the pilot and crew but our first thoughts were that it was one less 'B' to bomb us.  My father knew someone in that direction and we acquired a piece of metal from the plane. We kept this with a lump of jagged metal(shrapnel(?)), which fell with a thump in our garden one night. Both were kept for many years in our hall-stand until they smelled and went mouldy. Sometimes, I wish I had kept them to show my great-nephews or to give to the Wandsworth Museum in Garratt Lane.</p>
+<p>At one stage during the War I was attending night-school on West Hill. As we left one evening the sirens sounded. My cousin Ed was going to Cadets nearby. With a barrage of guns sounding, Jerry appeared to be coming for us from the Richmond direction. I flew down Wandsworth High Street, followed by my cousin until I saw the Warden and asked where was the nearest shelter. We found it and tumbled in. Ed said: " I never knew you could run like that!" - but that is what fear does.</p>
+<p>I belonged to the girl's club at my church, (Congregational), at the foot of Earlsfield Road. As we left one evening a Raid was hotting up and at first we ran to one of the girl's houses in Algarve Road. I think it was the grandmother who opened the door, but understandably, she did not want the responsibility of all of us, so several of us made for the main road and for a time took shelter in Earlsfield Station but with Jerry overhead this was not a good place to be, so we took our chances with the shrapnel and raced to one of the basement shelters below the shops in Garratt Lane.</p>
+<p>My father worked in the Sorting Office,then at the High Street end of St. Anne's Hill. He cycled to work on his old bike. One evening he reached as far as Swaffield School and the frame of his bike split and he came off, shedding all his pens and pencils needed for his work. This in the middle of a Raid and in the Blackout!</p>
+<p>Between short raids at night everyone used to go up and down the road looking for incendiaries. There was a contraption the Germans used, known as a 'Molotov Bread Basket'. This shed hundreds of incendiaries as opposed to High Explosive Incendiaries, (H.E.S.)  The Church was damaged by one of these.</p>
+<p>The German planes sometimes dropped Verey Lights earlier than the main night raids. They lit up the area.  The Garratt Lane area towards King George's Park was a big factory area and therefore a target. There was a quieter period after I started work, between 1942-43. However, in one of Jeffrey Archer's books about a London Store one would think the war had ended as far as air raids were concerned but this was not the case.</p>
+<p>Alas, there were even more terrifying times to come.  In 1944 came the Flying Bombs, V.I.S. or Doodle Bugs, ( a nickname which stuck).  I believe that Wandsworth together with Croydon, Lewisham, New Cross and Catford had the highest rate of V.I.S.  No one could forget the terrible rattling sound and the engine cutting out. One counted to ten and if you were still alive you knew someone else had 'copped it'.</p>
+<p>As the raids went on the piles of debris in the streets mounted higher and higher. One night, together with a friend I arrived at our stop - Brocklebank Road at Garratt Lane on the 77 bus. As we dismounted we could feel the silence that came after a bad attack. We feared the worst and asked someone: "Where did it fall?"  The reply: Wilna Road.  Our road.  Fearing the very worst, my friend and I joined hands and turned the corner. Thank God! Our houses and folk were safe but at the bottom of the road all we could see was a mass of white helmets as the Wardens dug for any survivors. The windows in our house were all blown out but as I recall later replaced by the Royal Navy (?).  My mother who had been at home at the time the bomb fell and who hated the Anderson Shelter had taken cover under the stairs. Her friend, Mrs Dell had just left the house when the raid started and only just made into her own home in Vanderbilt Road. I shall never forget that homecoming.</p>
+<p>There was a big incident in Clapham Junction when a 77 bus was blown to bits. My father, then Assistant Head Postman at the West Central Post Office just missed catching this bus but caught the one behind and narrowly missed being killed himself. Apart from the bus and its passengers the bomb also destroyed Battersea Sorting Office at Lavender Hill and I believe, a gas main. My father said he would never forget it as long as he lived. He was asked to return to work - at the Lavender Hill Sorting Office and was back on duty even bfore they had finished clearing away the bodies - some of them no doubt his former colleagues.</p>
+<p>Later during a lull and when I was working in the basement of the Music Shop in Holborn, I was about to go laden with the post to the Post Office further down High Holborn. I got as far as the foot of the stairs of the shop (all shop basements were shelters as well), when a V2 rocket landed further down the street. It blew in the windows of the shop. I was helping my manageress clear the window when my father came rushing along to see if I was safe, having heard where the incident was. I think it actually landed on an already bombed site.  I remember going to the Post Office later that day,(life had to go on), and passing someone bleeding and in  state of shock.</p>
+<p>It was a good job that the Germans did not have those weapons at the time of Dunkirk, which the younger of my two brothers survived - just.  He was missing for a few days.  My elder brother, who had not passsed the forces medical tests acted as fire warden at the White Horse Whiskey premises underneath Waterloo Station, and Dad at Store Street Post Office, off Tottenham Court Road.</p>
+<p>I feel my experiences of the War at Home are few compared to those of my sister-in-law and her sister. They used to travel from Peckham to Perivale,( a bomb alley),  every day to the Hoover factory for war work all through the Blitz and the blackout.  People talk about stress nowadays but I think those who worked in London or any big city during the War certainly had their fair share of it!</p>
+<p>Before the bombing began the Council had been trying to move people if there was severe overcrowding in the house. A friend, one of a family of 10 was moved to then new Henry Prince Estate off Garratt Lane. He was killed in India on the last day of the War. He was training to be a fighter pilot.</p>
+<p>Eileen Bicknell<br/>
+Silver Circle Reading Group<br/>
+Wandsworth Libraries</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/06/a4044106.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-831">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-638"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-638" id="name-638">
+                    Memories of WW2 through the Eyes of an 8-14 Year Old (Part 1) <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-638" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Leicestershire Library Services - Countesthorpe Library (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/54/a3864954.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the People's War site by Anne Tester. She fully understands the site's terms and conditions</p>
+<p>Memories of the second world war through the eyes of an 8 -14 year old.</p>
+<p>Southfields, London. 1939.</p>
+<p>As an eight year old, growing up in London, I was first aware that something was threatening our serene life at home in Southfields, when our local park, Wimbledon Park, was suddenly dug up and an underground air raid shelter, complete with sandbags, was built in the middle of the grass. At the same time a battery of search lights was placed at the entrance to the drive to our school, Riversdale School in Southfields and barrage balloons appeared in the sky overhead. We were all issued with gas masks in brown cardboard boxes and I can remember the tinge of resentment because my sister was young enough to have a Micky Mouse one!<br/>
+There was then real concern in the family (as carefully hidden from my sister and me as possible) when a letter from school informed my parents that we were to be evacuated to Guildford to live with a family there. With this letter came a list of requirements we had to take including a grey blanket (always a puzzle to me as I had never seen one) My sister was five years old and therefore my mother was allowed to accompany us to Guilford but of course leaving my father on his own in London. As he had served in the first world war he was just too old to be ‘called up’ for this war. <br/>
+ Unknown to me, and never really discovered because my mother never liked talking about those years, arrangements were made for my sister and me to go and stay with my aunt and uncle in Countesthorpe just until the threat of war had subsided (as was the common feeling at that time).</p>
+<p>Countesthorpe, Leicestershire  July 1939.</p>
+<p>We were driven in another uncle’s car up to Countesthorpe, leaving my parents in London and I can well remember feeling very car sick and missing my teddybear which had been left behind in London. It was later sent to me by post after I had written a forlorn letter to my parents to say I wanted to come back to them. (I still have that letter which was saved by my mother and will stay in the family archives). It was also the first time I had seen a level crossing, probably the one in Station Road in Countesthorpe and also fields and cows other than from a train. <br/>
+Apparently we were quite a curiosity in the village as we spoke with a London accent and because we had arrived before any of the real evacuees, very few people had met any strangers. A little girl, called Iris, came as an evacuee to the house next door some time afterwards and I expect other children were evacuated to the village later but I was not made aware of them.</p>
+<p>The start of the war</p>
+<p>The war did break out and we had to continue to stay with my aunt, uncle, cousin and grandparents in the house, called St Donats, in Willoughby Road, opposite Clark’s Farm. We had such a lot of freedom compared with our life in London and were able to walk around at will and enjoy such things as viewing the steam train as it left Countesthorpe station with its smoke billowing out. The trick was to wait until the engine disappeared under the bridge then rush to the other side in time to see it emerge. The fun was to be quick enough to be engulfed by all the smoke!<br/>
+In the spring the embankment was covered with cowslips which we used to pick and on the lawns of some of the houses built along the line those cowslips still appear. Another event that occurred in the spring was the annual mass movement of frogs to and from the old brick quarry next to the railway line. I think they must have moved across to the farm pond in the Cottage Homes farm and in the process many were squashed on the road. It proved how many more frogs there were in those days.<br/>
+As we were so near to the farm we were also given the freedom to wander round and look at the animals. We learnt to take the cows round to the fields in the lane, feed the calves and hens, milk the cows and join in the haymaking. Herbert Clark, the farmer, had an old white horse which was used for all the farm work including the haymaking when he pulled a mechanical rake to gather the hay. The rake was curved and operated with a long handled lever. We were allowed to ride on this piece of machinery and pull up the handle when instructed. Of special interest to us as children was the history of the horse, called Bob, because he had survived the first world war and still had shrapnel showing below his skin! He had previously worked at Western Park in Leicester, so we were told. Being close to animals with fields to roam in, muck heaps to slide down and dens to build I am sure helped to take away the pain of separation from our parents.<br/>
+But I was very homesick and constantly worrying, as I picked up bits of news from the conversation around us but I did not know enough to be able to ask questions. Children accepted that adults had a world of their own and were not told too much for fear of upsetting them.<br/>
+As well as the strain of being away from our parents there were some bewildering things happening around us which must have caused some anxiety too. We saw Spitfires fly low overhead and were told that the brother of our neighbour was the pilot of one of them which was a thrill but for a couple of children who had probably never seen a plane so close before also very strange.<br/>
+ Those same neighbours turned their tennis court into a chicken run (such was the need to produce food) and we were always having to apologise to them when our fox terrier, Buster, chased and sometimes caught one of their hens. We were on a constant state of alert to make sure he did not get out, not only for the sake of the hens but because he and the collie in the farm opposite were on deadly fighting terms. Such were the lengths to which they would go to establish their superiority that an arrangement was made for the farm dog to be out in the morning and for our dog to be out in the afternoon. How peaceful our dogs are these days, taken for walks and quite content to stay in their gardens. Maybe the owners are more responsible these days or was it part of the upheaval of the war?<br/>
+Other strange activities included the strengthening the garage with extra wooden beams, the windows covered with strips of tape to prevent the shattering of glass and the curtains lined with blackout material. We had to be very strict about letting lights shine from the windows at night.<br/>
+With the increasing threat of bombing my uncle set about building an air raid shelter inside the house and the dining room floor was dug up. The shelter was built with bricks and concrete with a reinforced roof and steps down into the inside. I think it was called a Morrison shelter. It was a great place to play both inside and on top as it was about 4ft. high and 2ft. deep but I don’t remember ever having to use it as an air raid shelter.<br/>
+We had a game based around our doll’s house which had been made by my father from wooden boxes, decorated and furnished by my mother and carried by them both on the train up from London on the first Christmas of the war. It had lights powered by batteries (double ones with a 2 inch piece of connecting metal on the side) and curtains that could be drawn across the windows. With it we played out all the wartime activities that were part of our ordinary lives and the games always featured an irate warden(always played by my cousin), who would shout at us to ‘put those lights out!’<br/>
+ We also played with armies of tin soldiers and guns that fired match sticks, a game instigated by my cousin who was slightly older than us. He had a ready audience in the two of us and these games and the knowledge he had of the countryside (I learned the names of many birds, trees and flowers) added a lot of interest to our disrupted lives. I could point out to this day the spot along Banbury Lane where we used to set out the battle scenes in the ditch. These would be left there overnight and then we would return next day to continue our game.<br/>
+I learned to climb trees and on achieving a certain height was allowed to carve my initials on the tree. A particular willow on the bend in the lane leading to Cheney’s farm proved too difficult for me to climb because it had no lower branches and was the sole province of my cousin and some of his friends.<br/>
+ All these exploits were, I think, only in the early days of the war because as the war progressed, there was greater threat of attack and we had to keep nearer to home. We were also restricted as to where we could walk and we were not allowed to go beyond the crossroads of the two lanes in Willoughby Road without a pass. At the junction of the lanes in the field to the left of Willoughby Road there was a searchlight station which may have been why Willoughby was ‘out of bounds’. The city of Leicester did receive some daytime bombing but I only remember hearing an air raid warning during the day on one occasion when we had to go into the garage. I still hate to hear that noise.</p>
+<p>Going to school</p>
+<p>Our school was a County school, on the corner of Foston Road, Countesthorpe. It had a large room for the 5-7 year olds and two other rooms divided by a wood and glass partition for the older children up to the age of 11 years. There was a tarmac playground in the front of the building and another at the back and brick lavatories outside near the neighbouring house. I have a recollection of them being cold and dark and wet!<br/>
+I remember little of our lessons except using slate boards to write on and the horrible noise they made as you scraped away. We did have handwriting classes and my memory has been jogged by childhood feelings of embarrassment. The teacher would write on the blackboard a letter of the alphabet and to illustrate how your writing should ‘flow’, she would say  ‘your writing should go on and on and on’. As my name at that time was Anne Donne, this always made the class giggle. <br/>
+The desks were made for two children to sit at with the seat attached to the desk and it had ink wells which were not used and lift-up lids. I always liked to tidy out my desk, a task I seem to remember was left until Friday afternoon. I have vague memories, too of P.T. in the playground which consisted of very formal exercises involving the arms and legs all moving in a uniform fashion and I remember my difficulty in trying to keep up with all the others.<br/>
+ I remember, too, taking a contribution each Monday morning for my National Savings Certificates, of games in the playground such as Oranges and Lemons and hating to get caught and of funerals passing by on the way to the cemetery when we all had to stand still and the boys took off their caps.  <br/>
+  Typical of childhood memories, always focussed on food, I remember having to walk home to Willoughby Road for lunch and then walk back again for afternoon school. When winter arrived and it was not suitable to walk all that way (we were probably further away than most children) we brought an egg and bread and our kind teacher cooked us scramble egg on the top of the tortoise stove in our classroom.(the only form of heat) Later a kitchen was built onto the school and I was very impressed with the chocolate pudding that was included in the introductory menu we had to take home! I never did have a meal from that kitchen as I was then old enough to go to the secondary school but my sister did.</p>
+<p>Re-united with our parents</p>
+<p>When my parents left London they came to live with us until they found a house to rent. Houses to rent were in short supply especially as my parents were looking for something in the area of Countesthorpe with a garden and it was only by luck that they spotted a house in Winchester Road as they went by on the bus. The house had been rented out before and was in good condition by the standards of those days.  It had a bathroom and indoor toilet and three bedrooms and a lovely long garden backing onto open fields which stretched across to the village. There were open fields to the front too and still are.<br/>
+ I loved the garden and so did my father who set about growing all the vegetables he could to give us some variety in our diets. Everything that could not be eaten was composted and he saved his own seed. He only bought the odd plant from such places as Woolsworths as there were no garden centres and nurseries were expensive as well as being inaccessible unless within cycling distance. The government booklet ’Dig for Victory’ urged everyone to grow their own vegetables and flower borders were sacrificed to provide food. We did not, for some reason have hens, unlike many other people, and I can only think that neither parent would have been able to face killing them when the time came.<br/>
+ My father was so good at economising, using up any pieces of wood to make little cupboards, stools and toys or repairs to the house. He repaired our shoes and cut our hair, collected stones from the garden to make a terrace and path down the garden so that my mother could hang out the washing and saved all the spare pieces of grass to make a lawn. <br/>
+My mother also liked gardening but the burden of coping with household tasks took up most of her time. Washing the clothes consisted of boiling them in a galvanised boiler in the corner of the kitchen which was heated by gas. They were then lifted into the sink for rinsing and put through a mangle which had to be anchored to the edge of the sink. It was exhausting and time consuming, filled the non-centrally heated house with steam and because there was a need to use everything to its utmost, was followed by extensive cleaning to use up the valuable hot, soapy water. Condensation in the house was always a problem and the airing of clothes and beds a constant priority with glazed pottery hot water bottles very much in use.<br/>
+Coal fires created dust and had to be cleaned out, wooden and tiled floors had to be mopped or scrubbed and rugs shaken in the garden as there was no such thing in our household as a vacuum cleaner. I remember having to step onto newspaper when the floor had been scrubbed in order to keep it clean as long as possible and certainly until it was dry as so much energy had gone into the cleaning of it. Incidentally, coal fires created dirt everywhere and after visiting the town, our feet would be quite black with the dirt we had picked up.<br/>
+Economising was a way of life for everyone and of course was entirely accepted by us, as children. There were not the goods in the shops to tempt us and we rarely visited Leicester although there was a regular bus service.<br/>
+We made our own decorations for Christmas out of pieces of coloured paper, used up any fabric which we could find for rugs for the floor, unpicked knitted garments and re- knitted them. Except for school uniform, our clothes were all home made using a treadle sewing machine, very often from used material and nothing was wasted. This has had an everlasting influence on me and I still see possibilities for a use in all sorts of objects and materials. All this was widely accepted during the war and continued long afterwards as well when supplies of materials were almost nonexistent.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/54/a3864954.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-638">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-743"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-743" id="name-743">
+                    Molly&#39;s War Effort -part 1 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-743" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Tony Lockwood (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/63/a3379863.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The following is an actual account of my mothers introduction into military service in WW2. She had been writing this for some years before she passed away in 1997 and therefore sadly never managed to finish her lifes work. It was all hand written and I put it onto computer last year (at an average of 15 wpm!). It basically tells her story of her military service up to when she was promoted to a cook. Apart from using Molly as her name all other people mentioned have their real names or nicknames used.<br/>
+It starts at chapter 11 when her mum Jesse finds out she, Molly, has joined up in Wandsworth, England.<br/>
+                                 <br/>
+                                     Chapter 11</p>
+<p> Jessies Shock</p>
+<p>	Mollys friend Lily a perky faced sixteen years old all of 4ft 10in in her stockingd feet found themselves turning in the entrance to a new building. High on a board there was a poster with a young woman blowing a bugle with a banner underneath displayed on the banner was a cross in red. This is it said Lil. They climbed the steps and pushed open the main door.This must be the entrance hall, said Lil. The walls were covered in posters and there were several doors leading off the entrance hall. Lily timidly pushed one door open, withdrew and whispered No one there. Molly crept to the next one, Not there, said Lil look it says gents. Molly looked up and squinted Oh yes with a giggle said,lets try here she pushed a pair of double doors open, Nothing in there only a ruddy great dance hall. Wheres that go, Lil pointed to a staircase. That must be it, look that notice first floor enrolment room the nurses must be up there. <br/>
+With bated breath, they straightened their hats, forged ahead to the unknown. Molly timidly tapped on the door, a voice called out Come in As the door opened the brightness of the room startled her. She and Lily had been expecting rolls of bandages and stretchers slings but these were nowhere to be seen. The room contained a highly polished desk. Sitting at the desk underneath a powerful electric light bulb sat a woman of huge proportions. She was dressed in a kind of uniform which her brothers had worn when on leave but this persons outfit was obviously of much grander material. Upon her left breast there were some decorations and upon her shoulders and down the front of her jacket there were some of the brightest brass buttons one had ever seen, enhanced more so by the dazzling light. So sorry, weve come to the wrong room stammered Molly trying to hide her embarrassment. Come in my dears come in and let me help you said the company commander as Molly was to find out before long. Have you come to join us my dears The C.C. opened her arms wide and with a smile almost as wide urged them both to take a seat in front of the desk.<br/>
+Well we came looking for the place where you learn first aid said Lil. Then you have come to the right place answered the most charming creature behind the desk. Molly recalled the woman certainly knew how to put one at ones ease. Molly in latter years looking back could almost visualise that officers thoughts of how shed got a right couple of nannas here to deal with.  We do weekly sessions of first aid, a most valuable asset as you'll agree. Later on you will be issued with a uniform once we have got your measurements. The shoes are easier my assistant will show you into room 6 where you can both collect a pair after you have signed the forms. Shoes gasped Molly and Lil.  We have no money to pay for shoes, just a little weve saved to join the club. Not a thing to pay for dears everything is free. Molly glanced at Lil (exchanged glances) whatever next, this must be a lovely club to belong to. Just sign on the dotted line my dears repeat after me and you will be doing your king and country a wonderful service! Dazed by all this goodwill and being accepted so warmly almost hypnotised Molly and Lil, they automatically signed the papers and sat back to here the date of the first meeting. Friday evenings at seven o'clock prompt, now collect your shoes from room 6, you will meet lots more Territorials.<br/>
+Still dazzled by all the brightness and good will Molly and Lil were shown by her aide to room 6. Here they were issued with a pair of heavy leather lace up shoes. They will be rather hard to get used to at first, but here is a tin of dubbin to rub well into them as often as you can. This will help to soften the leather, said the person issuing the shoes. <br/>
+Goodbye, see you with the rest of the new recruits on Friday at 7 o'clock prompt the door was opened for them on that occasion as if they were two VIPs and they both beat a hasty retreat clutching their shoes.<br/>
+After they had gone several paces down the road towards home both deep in thought, Molly and Lil came suddenly to a complete halt and said as though in one voice TERRITORIALS! Never heard of them, I haven't said Lil Nor me replied Molly. Should'nt it have been Red Cross Territorials asked Lil. Well I can remember her saying something about volunteer auxiliaries and that we will be taught first aid and that it was now under another name replied Molly. Didn't expect to get any shoes did you Lil? No bit clumpy aint they, but I suppose this stuffle work. What was that bit about softening them up for marching. Do nurses march? <br/>
+Well we had money to join but we never expected to get a Bob and a pair of shoes er boots more like it said Lil. No it can't be such a bad club to belong to then, said Molly eh? They arrived outside the entrance to Mollys flats. Coming in Lil, No, I'd better get back and show my mum my shoes, Ta-ra for now, see you in the morning then we can talk on the way to work. Molly wished her cheerio then and made her way to her front door. In answer to her knock her mother opened the door. Broad smiles were exchanged between them. How'd you get on luv said mum. Then she saw the box holding the shoes. What's this? You'll never guess mum, we've joined a right good club. They paid us a Bob and gave us a pair of shoes, aint that grand, and whats more we are going to get a smart uniform later on when they've had time to make them.<br/>
+Molly's voice froze in her mouth at the look on her mothers face. For what seemed like several minutes but could have been no more than seconds there was complete silence in the room. Jesses hand had flown to her face covering her mouth. Her brows were knitting together in a deep frown of perplexity. She looked across at Bert, Molly&amp;'s gaze followed her and she saw her father sitting bolt upright in his chair by the fire. Whats this all about? said he stopping dead in his tracks with his Woodbine dog-end halfway to his lips. My gawd, Bert what've they been and gorn and done, the silly bitches! Red Cross, I told you Red Cross first aid, you remember up at the hall, like Mrs Murphy said they wanted? Well mum, and here Molly swallowed deeply, she had the foreboding all hadn't got according to her mothers plan. The only room there with anyone in was this lady. She hadn't a nurses uniform on but it did look nice and shiny, like a soldiers only better. She was so nice really. She said we would be quite good enough. Lily is a bit small and I am not sixteen yet but she said that she could make that OK and let us join. Let you join be buggered, her mother said now beginning to get her temper up. What did you say it was called Auxiliary Volunteer Service, we've got to meet the new Territorial recruits next Friday. Thats it then gel they've joined the Terriers by the sounds of it, said Bert, Shes under sixteen, lets get her out, said Jess anxiously to Bert. <br/>
+Oh no, said Molly, turning to Lil after all, Lil's me mate and she is just sixteen and I did say we'd go together. Well, said Jess, It is peacetime anyway and its true it will be somewhere for you and Lil to go every Friday and you can learn first aid. She nodded and winked at Bert. Now that her mother had got over the initial shock Molly recalled the fact that they had been told there were many other duties that they would find very interesting. In fact Molly and Lil began to look forward to the following Friday night.<br/>
+	Friday night came and with some intrepidation Molly and Lil wended there way along to the hall to find out what this first aid business was all about. They arrived to find several other girls and women of all different age groups gathered in the hall. As weeks went by Molly found she was the youngest of the squad. The evening passed all too quickly. They were told they would be instructed in discipline, marching, first aid, and various duties, including rifle drill.  Rifle drill! Molly and Lil looked at each other. Cor thats a bit stong eh, unless you shot em first, then applied the first aid. Whatever the were in for it certainly would be an interesting Friday evening and as mum said Oh Chamberlain has signed the peace pact now, it will be somewhere for her to go Bert instead of getting left on the shelf reading a book eh?. The weeks went by smoothly enough. In Molly's household the world news was rarely discussed in depth, as indeed it wasn't in most working class households where they were going at the weekend, if they could afford to go to the flicks or even a trip occasionally to the local dance hall seemed to bb the extent of the conversation for the less well educated teenagers. Molly and Lil had been promoted to machines in the laundry. Lil worked a heated machine, which as she put it ironed mens dickeys. That was a nickname given to the front of a mans shirt unattached to a white shirt. This front was heavily starched. Placed whilst still very damp on a flat machine. Then by pressing a pedal the cover was dropped down to stiffen the dickey. Molly ironed the collars. Her machine slid from side to side giving the collars a high polish. One set of collars Molly ironed she noticed had the name Ribbentrop printed inside the band.<br/>
+One Friday evening the members of the Auxiliary T.S. were given instructions on what to do if they received their enlistment telegrams. Molly recalled how there was a mixed reaction to the announcement from the commandant. She realised (in later years) the less well educated of the women's squad were taken aback more so than the better educated. Several of the women came from well to do homes, where world affairs were discussed over dinner table and in the office. The news came as no surprise to them. Others such herself and Lily whose parents were struggling to make a living, never bothered to read the newspaper to the extent to suspect anything between the lines. The football pools results and bits of scandal were as far as they got.<br/>
+The recruits had been selected who were going to be given a rank. They were about fifty women of various ages. They appointed four sergeants, four corporals and four lance corporals. They had been the first to receive their uniforms. The rest were informed their uniforms were coming along shortly, to compensate for using their own civvies they would each receive a few pence army pay. <br/>
+	Low and behold the very next week the telegram arrived instructing Molly she must report to the hall ready to depart to an unknown destination. Molly's life had been very hum-drum and although the last thing she wanted to happen was a war she felt fluttering of nervous butterflies in the pit of her stomach but at the same time nervous excitement at the prospects of being transported to a far off land.<br/>
+A frantic tapping of the knocker, Molly opened the door to Lil. Have you got what I got? She said in a breathless voice. Haven't lost much time have they? Said Jess, covering her eyes with he apron.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/63/a3379863.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-743">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-753"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-753" id="name-753">
+                    My War Years 1939-1945 (Part 1 1939-1942) <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-753" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Leicestershire Library Services - Melton Mowbray Library (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3816722.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Pre-War</p>
+<p>I was born in Melton Mowbray, a small market town now famous for pork pies and Stilton cheese, on the 19th August 1917.  The Great War was in its last stages, leaving many families without fathers and sons.  My father was an agricultural engineer and he spent his days going around the farms and great houses in the area mending farm machinery and servicing central heating installations in the large halls.  Mother always stayed at home, she was a wonderful cook and as food was plentiful, we lived well.  My brother was born two years later and a sister when I was ten.  My father was always happy with his life but my mother was ambitious for us to improve our station.</p>
+<p>The chance came in the form of my father’s sister, who had married a local builder and had two sons.  Their business was doing well but in order to be really successful the expanding South was the place to be.  By coincidence, as I was leaving school at the age of fifteen my Aunt was moving to London.   Her condition for moving was that I became her companion and the daughter that she had always wanted.</p>
+<p>In London I attended many social gatherings, tea dances and functions.  To be seen in the right places meant contracts and they were coming in thick and fast.</p>
+<p>We lived in Southfields and on a Saturday afternoon we would go to see the local team play football, Fulham.  My best friend Betty, whom I’d met at a dance, invited me to her house and I was surprised to find that she lived next door to Joe Edelston who was a former Fulham player and was now in charge of the reserve team who seemed to be winning everything.  He was one of the first coaches to gain qualifications and his methods were seen as too revolutionary in many quarters, but much more importantly he had three sons, all good looking and unattached!</p>
+<p>I soon started going out with Joe, the eldest son.  We had little money but when we did we would go to the local cinema to see the latest release.  My favourite was Humphrey Bogart, “a real man”.  At night we would listen to the radio to hear the latest play or short story.  In summer we would go for long walks by the river and during the tennis tournament at Wimbledon we could always get in for free when the doors were opened in the afternoon.  Life was always easy paced and gentle.</p>
+<p>The big crisis pre-war was the abdication of the king.  At the time everyone was confused as to what was really happening.  When Edward finally gave up the throne, everyone was very sad and Mrs Simpson was the most hated woman around.  The new king was seen as being weak and not groomed for the job, but everyone loved his wife.  However, during the Blitz they really came into their own, touring the bombed out areas and talking to everyone they came into contact with.</p>
+<p>I remember going past Croydon airport one day, on the runway were two large planes with black swastikas on them.  The sight sent a shiver down my spine and made many of us fear for the future as we watched the growing emergence of the military power of Germany once again.  It was no surprise to any of us when they marched into Poland, as no-one believed that Chamberlain and his piece of paper could halt the military machine that we had witnessed in action in Spain.  On a brighter note just before the war started uncle bought a television, the first one in our road.  Everyone came around to have a look at the new invention and the reception was really very good.  However, when war started programmes finished, much to the annoyance of the family.</p>
+<p>1939-1940</p>
+<p>The winter of 1939-1940 was long, dark and very cold.  Joe was one of the first to be called up as he worked for Shellmex and was an expert on petroleum.  He was sent at once to France with the British Expeditionary Force and so began a long and anxious time.  Prior to him going we had become engaged as so many of our friends had done.  He wrote to say how cold it was and how ill prepared the troops were, not all of them had the proper equipment and some didn’t even have a gun, but they survived with the help of the local wine and goodwill.</p>
+<p>Back home the criticism of the government had grown to alarming levels and it was a great relief to everyone when Winston Churchill took over as Prime Minister.  At last we had someone to look up to as a leader, a fighter who would never give in.  In June Dunkirk was turned from a disaster into a national triumph as the troops were evacuated.  Joe came home on a barge and was taken to Aldershot.  It was a great relief when I got a call from him to say he was Okay.  I was desperate to see him and got the train to Aldershot as soon as I could.  He looked so well but he had changed, he was much harder and more worldly wise but after witnessing so many tragedies, I couldn’t expect anything else.</p>
+<p>In August the bombs started to fall.  Joe was posted to Swindon and because women were not allowed to stay overnight with their boyfriends, we decided to get married.  I had to make all the arrangements and we were married in Wandsworth shortly afterwards.  Joe’s unit was moved to Yorkshire and the lovely couple whom he was billeted with said I could go back and stay with them to be near him.  Soon afterwards he was moved to just outside London at Hadlow Down and after moving back to the capital I would see him every Sunday.</p>
+<p>At that time the Blitz was on and from dusk until dawn we would spend our time in the underground shelters.  We would do our shopping in the daylight and hope that there was no air raid.  We did our shopping in Clapham and how I admired the stallholders who carried on as normal even though they had been up all night because of the raids.  On the bus you could see the bombed out ruins of houses and flats but somehow we never thought that a bomb would actually hit us.  At night the noise was terrific with the sound of ante aircraft guns and the mighty explosions of bombs landing.  Many times we put out incendiary bombs that had landed in the garden.  </p>
+<p>My luck was in when Joe’s unit was moved again, this time to Hatfield.  He had met a lovely lady in the village who had been evacuated from Cardiff.  She had a lovely house and needed help in looking after eight little girls who had been evacuated from London.  One of the girls was only three and was totally bewildered after leaving the city.  She became my special charge.</p>
+<p>The Blitz was still on and on many nights we heard the planes on their way to bomb London.  The country was a refuge for the girls and we would go for long walks in the woods that surrounded us.  One day as we were walking I found a pheasant’s nest with eight eggs in it.  It was a great temptation to take the eggs as we had no such luxuries but I let the pheasant have her babies and upheld the law of the countryside.</p>
+<p>On the whole we were a happy lot and I was able to see Joe frequently.  He would bring his army friends to see us and they always brought gifts of sweets and eggs, which were considered luxuries and strictly rationed.  It was a sad day for everyone when the unit was moved once again to Dene Park in Horsham, a lovely place with abundant wildlife and a herd of deer.  It didn’t take Joe long to find me a new billet close to him, with a family who had been evacuated from Portsmouth.  They lived in a cottage on top of a hill with no bathroom, no running water and an outside toilet.  If we wanted a wash we had to draw water from the well and heat it on the copper boiler.  To do this we had to light a fire under the copper, which, at times, was much easier said than done.  Washing day was always a Monday, which was easy, compared to keeping the deer off the washing line as they continually tried to eat the wet laundry.</p>
+<p>Joe had a friend who asked if I could find some accommodation for his wife in the village.  The people in the village were only too willing to help and from then on many wives would come down and stay for short breaks.  The only problem the men had in getting here was petrol for their bikes.  I don’t know how they did it or where the petrol came from, but the local pond was soon full of submerged petrol cans.  At the back of everyone’s mind was the fact that the men would soon be going overseas and some of them would not return.  Life at Dene Park was much easier than elsewhere as we had a plentiful supply of eggs, milk and cheese from the farms and game from the abundant wildlife, duck and rabbit.</p>
+<p>The air raids continued and several German planes were brought down close to us.  The dog fights in the sky above us were breathtaking.  The spitfires seemed to be more mobile and faster than their foes but our admiration for the pilots was unlimited, they were the true heroes of the hour. </p>
+<p>The winter soon came and brought with it short frosty days and long cold nights but we were tucked up in our cottage with warm log fires and time to ourselves and time to entertain the children with a game of cards.  At Christmas the cottage was cut off by snow and it seemed that the war could not touch us, but always at the back of our minds was the thought of how much time we had left together.  The family we stayed with had two children with whom we have stayed in touch to this day, exchanging letters and cards throughout the years.  Sadly, their parents died many years ago but we have treasured memories of their kindness and friendship in our time of need.</p>
+<p>1941</p>
+<p>The war was going badly for Britain throughout the year with the Axis powers taking over most of Europe, Africa and the Far East.  At home even Churchill was coming in for criticism.  The Japanese took Hong Kong and Singapore, pushed into Burma and started to threaten India, my worst nightmare was coming true, Joe was going to fight in Burma.</p>
+<p>At the start of the year I had wondered how long it would be before we would be separated and the thought of having a child and a bit of Joe forever had grown and grown.  In the spring I knew that I was with child.  The doctor advised me to move back to Melton Mowbray to be with my parents.  Back at home I kept very well.  My mother, who was still a young woman, was eligible for war work and had a job looking after the local doctor.  This meant that I looked after the rest of the family.  I was kept busy making clothes for the baby out of any piece of cloth I could get hold of.  My father was kept very busy looking after all the farm machinery in the area.  This of course meant many perks; a sack of potatoes, a sack of swedes, eggs, a rabbit, an old hen and if one of the farmers killed a pig, a bit of offal or even a roast.  We had so little meat and many times the only ration was corned beef, so it was corned beef hash with plenty of vegetables.  It is no surprise to anyone who lived through the war that nowadays they can’t abide the taste of corned beef.</p>
+<p>At the end of 1941 there was a brief hint of better things as America came into the war after the bombing of Pearl Harbour and Germany invaded Russia, thus opening up another front.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3816722.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-753">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-724"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-724" id="name-724">
+                    The Story of Bevin&#39;s Babes: Chapter 11 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-724" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by heather noble (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/81/a3674081.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>THE SUMMARY OF CAROL AND VIVIENNE’S STORY — <br/>
+“TWINS” - differs from the other girls in so much, that whilst they grew up enjoying the company of a sister, they were sadly denied the company of a Father, as when they were just 3 weeks old, he was tragically killed in Anzio, Italy. Their Mother’s struggle to survive in the post —world war of scarcity on a widow’s pension, which also had to meet the needs of her two growing daughters, and how she overcame her difficulties to successfully create a happy home for them all, is movingly told by the twins. In those days, when Wandsworth and Clapham Common were — in parts — still countrified suburbs, they have also told of how, whilst growing up there, they roamed freely and safely over them, recalling their many “attractions”, from H.M Prison to the Boating Pond! They conclude with an account of their Mother’s pilgrimage to Anzio, over forty years later, to visit their Father’s grave, when at last she was able to say goodbye. . .</p>
+<p>CAROL AND VIVIENNE’S STORY - Unlike the other girls, who did not have the pleasure of growing up in the company of a sister, we did have each other. But sadly, we were never to know the company of a Father. As when we were just 3 weeks old, he was tragically killed in Anzio, Italy. <br/>
+Our Father William Budd, had been born in South West London, as had our Mother Rose Collins. So upon her marriage on August 5th, 1939, at “St Michael’s Church”, Wandsworth Common, she charmingly, became known as “Rose Budd”! <br/>
+They set up home in the lower part of a house on Clapham Common, where they lived for most of the war. <br/>
+Our Father was employed as an aircraft fitter at “British Aerospace” in Kingston, Surrey, whilst our Mother “did her bit” working as one of a chain of fire-watchers. Sitting aloft on roofs, balconies and such-like, which did duty as their “headquarters”, they kept a lookout for incendiary bombs and similar substances — reporting any incidents to the local fire service.    <br/>
+Then in September, 1943, our Father was called up for active service and was subsequently sent to Canterbury, Kent for four months training. <br/>
+During this time, our Mother finding herself pregnant, decided to join him — living in “digs” in the city — so they could meet on his weekly days-off from the camp. <br/>
+On completion of his training  in January 1944,  they parted — he to join his regiment “The Sherwood Foresters” as a Lance Corporal — and she, back to their Clapham home. </p>
+<p>By the Spring of 1944, the worst of the London raids had eased off, and the new terrors of the “Doodlebugs” were yet to come, nevertheless, pregnant women were still routinely sent out of London to the peace of the countryside to give birth. And so it was, our Mother found herself safely installed in a Nursing Home in the Roman city of St. Albans, Hertfordshire, to await the arrival of her first child. But much to her surprise, in the event, she gave birth to two! <br/>
+On March 18th 1944, as Germany entered Hungary — the pair of us entered the world. Carol led the way, followed three quarters of an hour later by Vivienne — each of us weighing in at four pounds exactly. <br/>
+Immediately, a telegram was dispatched to Lance Corporal Budd’s regiment, informing him “That he was now the Father of TWIN daughters!” He replied saying, “That he couldn’t wait to get home to see us all”.  But sadly, it was not to be. On April 6th, 1944, whilst fighting in hand-to-hand combat in Anzio, he — together with the entire battalion — was killed. He was 28 years old. </p>
+<p>Although utterly devastated at the tragedy that had befallen her, it seems that — after three months convalescence in Hertfordshire - our Mother began to tackle her difficulties with commendable courage, as she tried to come to terms with her new, sad situation back in her Clapham home, where we grew up. .  </p>
+<p>On August 6th, 1945, the first Atomic bomb was cast upon Hiroshimahi by the U.S.A devastating the city and killing 75,000 Japanese citizens. Then on August 9th a second one was dropped on the city of Nagashi - codenamed “Big Boy” by an American Super Fortress aircraft - killing a further 65,000.  <br/>
+Thus it was that on August 14th at midnight, the new British Prime Minister Clement Atlee, announced to the Nation on the wireless, “That the Japanese has today surrendered and the last of our enemies is laid low”. So with the ghastly power of the atomic bomb, the 2nd World War finally came to an end.   <br/>
+Of course there was universal relief that soon the day would come when the men would be returning home and life for many families’ - after almost six long years of separation — would return to normal. <br/>
+It can only be imagined the overwhelming sense of loss that our Mother must have felt, that for her, that day would never come. But despite her shattered dreams, with the help and support of our parents large, extended families’, she successfully went on  to create a happy home for us all. </p>
+<p>During our early years, she decided to be “a-stay-at-home-Mum”, and as she had to be both Mother and Father to “her twins”, the bond between the three of us was unusually strong. But it was not until much later, that we realised just how much we owed to her constant care, companionship and incessant love. <br/>
+Looking back now, we realise what a terrible struggle she must have had as a young woman trying to make ends meet in a world of scarcity on the pittance of a widow’s pension, which also had to meet our own growing needs. As it was necessary for both of us to have clothes and shoes at the same time, nothing could be handed down. Although she did receive extra help in the form of a small bursary from “The Church of England Children’s Society”, she later told us that at one point, when our Father’s savings had been depleted, she was left with only one shilling in her purse. And she did not know whether to put this into the electric meter, or to buy a loaf of bread, until her pension was due the next day. <br/>
+Nevertheless, despite her many anxieties and lack of money, we all managed to enjoy life in a quiet way. </p>
+<p>As we were fortunate enough to live on Clapham Common and our Grandparents lived on neighbouring Wandsworth Common, daily, Mother wheeled us across them in our large twin pram and later, the pair of us spent many happy hours roaming freely and safely over these wide open spaces. Between us, on our expeditions to and fro, we made some interesting discoveries.  <br/>
+The area surrounding Wandsworth Common, which was originally developed in Victorian times, even by the 1940’s, in parts, still resembled a countrified suburb.   <br/>
+The top of the Common was generally considered to be the better part! Threaded with footpaths, over which we followed, secret gardens, belonging to the “big houses”, could be glimpsed in the roads in-between, where the two Commons — Wandsworth and Clapham — merged.  <br/>
+As well, we explored the little parade of shops, the cemetery, and the railway station — waving to the passengers on the passing trains further down the line - and of course, the ubitiquious bomb sites, which sadly abounded in those post-war days.  <br/>
+Hidden behind some large gates, there was what was then called  ”Springfield”,  known  locally as the  “Lunatic Asylum. Complete with its own farm, sometimes, the patients could be seen working here. <br/>
+There was also Wandsworth Prison, which was as large as a village, originally built with streets of Wardens houses and gardens. And beyond its high walls, lay acres of open ground, which was leased for bowls and tennis courts, where many of us later played. <br/>
+The façade of the prison was impressive, like a fortress with huge main gates resembling a medieval castle.  These gates had a small door let into them and now and again, a notice was posted there notifying the public of when a murderer was to be hanged! Often, on the appointed day, a small crowd collected outside waiting for the dreadful deed to be done.  <br/>
+In contrast, the attractions on Clapham Common were of a very different kind!  <br/>
+As Spring unfolded, we looked out for the early catkins on the budding hazel trees and in Summer, we took our picnics of bread, jam, fairy cakes and a bottle of homemade lemonade and played such simple games as — “film stars”, hop-scotch and skipping. <br/>
+On sunny, weekend afternoons, families’ flocked to the popular bandstand. Here, the grown-ups sat in deckchairs to listen to the music, whilst we children sailed our toy boats or fished for “tiddlers”in the nearby pond.  Then there was the annual arrival of  <br/>
+“The Horse Shows” and the excitement of “The Circus” with its impressive Big Top, which dominated the common. <br/>
+On misty Autumn days, we walked through the rustling leaves, collecting acorns and conkers and later when the common was covered with snow, the foggy smell of the winter’s coal fires, caught our throats.</p>
+<p>Our diet, compared to children’s of today, would be considered very, plain. But we were lucky - that even when our Mother later began working part-time - there was always a well cooked meal awaiting us when we returned home from school. We well remember her savoury suet, roly-poly puddings, dumplings, casseroles and pastry —topped pies, prepared from our meagre meat allowance, which unlike other commodities, were rationed by price, not weight. From 1941, the weekly allowance for an adult, was one shilling and for a child sixpence, and fell into two categories. A= the more expensive joints and B= the cheaper cuts. These were mainly used for stews, or put through the kitchen mincer for rissoles and cottage pies. <br/>
+Then of course, there were the American “Lend Lease” tins of “SPAM.” Used cold in sandwiches and hot in fritters, all these, became familiar fare to children of our generation. <br/>
+Beside the usual seasonal fruit and vegetables, of a limited variety, found in the local greengrocers, there was also garden fruit, starting with the early rhubarb and gooseberries and continuing through the Summer months to the last late plums and apples. Blackberries too, were collected for bottling and jam making and were stored in our larders for use in the Winter months. </p>
+<p>Alas, our home during those long, bitter Winter’s of the 1940’s were extremely chilly indeed. We could only afford one open coal fire in the living room and an oil heater in the hall, which made smuts when it smoked, and in the dark, made interesting patterns on the ceiling. And the pungency of the paraffin lingered on well into the Spring!  <br/>
+Our bedrooms, being totally unheated, all too frequently had icicles hanging from the INSIDE of the windows, when the temperature fell below zero! </p>
+<p>Needless to say, there was little money left over for luxuries, so we did not have a telephone or a television set. But we all enjoyed listening to the wireless together, to such programmes as — “Listen With Mother”, with Daphne Oxenford, “Children’s Hour”, “Children’s Favourites”, Dick Barton” and later “Life With The Lyons”. </p>
+<p>There was always a warm welcome awaiting us in both of our Grandparent’s homes and however busy they were, each of them could spare time and love for us. <br/>
+As sometimes happened with twins back then, Carol had the misfortune to be born with Talipes, a distortion of the foot. So, frequent visits to “Great Ormond Street Hospital for Children” were necessary for treatment and for the fitting of special shoes.  On those days when our Mother accompanied Carol to London, Vivienne looked forward to staying behind with our paternal Grandparents. Here, we remember Grandad Budd lifting the kettle onto the kitchen range to boil, whilst Granny Budd knelt in front of the fire with a toasting fork to make toast for our tea. <br/>
+Equally memorable, were our weekend visits to the Collins household where we regularly joined our maternal relatives for family occasions. <br/>
+And so surrounded by affection, the early years of our childhood slipped by. </p>
+<p>In the Autumn of 1986, over forty years since our Father’s death, our Mother was at long last, able to visit the war graves on a pilgrimage to Anzio, where he was buried. Arranged by the “British Legion”, she travelled in the company of other war widows with whom she had much in common. None of them had enjoyed an easy life. All had known the tragedy of war and the numbing poverty of its aftermath. And yet, almost all had gone on to build successful lives and loving families. <br/>
+Thus, it came about, that on a quiet September morning, our Mother finally found herself beside our Father’s last resting place. Alone, with head bowed, she stood motionless for a moment, before gently setting her wreath against his memorial cross. Later, she watched the “Union Jack Flag” being lowered upon it, whilst a solitary bugler sounded the Last Post. Who knows what she felt at that time … love, loss and a longing for what might have been?  <br/>
+Before turning to retrace her steps, she lingered to take a final look at the sea of graves around her and thought of all those thousands of young men — all missed and all mourned. <br/>
+Then as the dying strains of the salute echoed across the cemetery, she reluctantly said her last goodbye and slowly walked away into the Autumnal stillness.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/81/a3674081.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-724">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-835"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-835" id="name-835">
+                    The Story of Bevin&#39;s Babes: Chapter 7 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-835" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by heather noble (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/84/a2964684.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>9) THE SUMMARY OF JUDY’S STORY — opens with her early thoughts of when she first moved from her Grandparent’s home in Bath, Somerset, to a Pre-Fab on Wandsworth Common, South West London in December 1946. She thinks back to her parent’s wartime roles — of her Father who joined the Army and was posted to South Africa but en route at Egypt, was seriously injured and of her Mother, who enlisted as a Fire-fighter in Bath. As well, she thinks about the paraphernalia of wartime Britain — the ration books, the tins of dried egg, dried milk, pig bins, pig clubs, and Lord Woolton’s British Restaurants. And on her Father’s return, she remembers her christening, her holidays with her Grandparents and a visit to Broadstairs, Kent, where they witnessed an absconding “P.O.W” being shot. She closes with her thoughts of the time she performed in an early post-war dancing display that took place in a “B.O.A.C” hanger — later to become part of Heathrow Airport... </p>
+<p>JUDY’S STORY — On a snowy, December day in 1946, I moved with my parents to our new home in South West London, from the city of Bath in Somerset, where I had earlier been born. There, my Mother and I had lived with my maternal Grandparents for much of the war. <br/>
+I had plenty to think about as I sat on a suitcase, munching a “Lord Woolton’s” mince pie in a freezing pre-fab in Bellvue Road on Wandsworth Common. </p>
+<p>My Father had just found a job as a personnel officer with “B.O.A.C” in London, which was the main reason for our move.<br/>
+Eight years before, my Mother, Audrie May Ford had married my Father, Harold Ash in her native city of Bath. However, as they were first cousins, they faced strong opposition to this union, from both branches of their family’s. Nevertheless, their marriage survived for over half-a-century. </p>
+<p>In 1939 my Father was called up, joined the Army and was posted to South Africa.  Unfortunately just a short time into his posting - whilst en route to Cape Town - he was involved in a jeep accident in Cairo, Egypt. As he was leaving the vehicle on his way to the barracks, he sustained serious injuries from a ricochet bullet. On his arrival at Cape Town he was immediately hospitalised where he stayed for a considerable length of time. He never recovered sufficiently for future active service and sadly he suffered from the effects of his wounds for the remainder of his life. </p>
+<p>Meantime, my Mother had courageously enlisted as a fire fighter in Bath. Before the war, she had studied dance and it seems her training stood her in good stead as she adapted well to her new role. With her natural agility she soon learnt to slide down “The Pole” in double-quick time, giving her, I understand, quite an advantage over her wartime fellow fire fighters! </p>
+<p>From 1942, the Luffwaffe launched a sustained offensive against Britain’s historic cities and Bath was a key target. So for a while my Mother was in the thick of the bombing and saw unimaginable horrors. <br/>
+Later, she told me about one elderly couple who would wait for her at their gate after her shift was over and kindly give her a cup of tea. Then one day, as she was passing by, she was shocked to see that during the night their house had been hit and both were killed outright.</p>
+<p>During my early years of living in the city and being in daily contact with Granny Ford, I have many memories of how she and my Mother struggled with all the paraphernalia of wartime Britain. I particularly remember my special child’s ration book for which the points were exchanged for such unforgettable wartime substitutes as tins of Dried Eggs, which made rubbery omelettes and “National Dried Milk”, which made lumpy puddings. And soon the homely blue and cream tins became familiar household objects. </p>
+<p>I remember too, another wartime food scheme — “The Pig Bins” which were devised to collect vegetable waste for swill to feed the pigs. Granny Ford was a keen supporter of them! Daily we collected our potato peelings and scraps of left over vegetables and together we carefully stowed them in a bucket, which she kept by her back door. I believed it was emptied weekly. <br/>
+Then later, when we moved to London, Pig Bins were to be seen on most corners of the suburban streets. “SAVE YOUR BACON, SAVE YOUR SCRAPS”, proclaimed the conspicuous posters!</p>
+<p>As well as the Pig Bins, it was here in Wandsworth in 1940, that the first of the “A.R.P” Pig Clubs were opened and these soon became popular in other towns and cities. Pigs were bought, fattened up and when they were killed — usually in November — all members of the clubs were entitled to a prize, piece of pork for their Christmas dinners!</p>
+<p>Also in 1940 London, the first of Lord Woolton’s British Restaurants were opened. Their original purpose was to cater for bombed out Londoners, but soon the idea spread countrywide. Many were accommodated in dingy church halls, run by the “W.I” and the “W.V.S” and became known locally under such names as “Maisie’s Menu’s and Dora’s Dinners”!<br/>
+The meals they provided were cheap but rarely cheerful! 3 courses for a shilling — children ate for half-price. <br/>
+After customers had collected their tickets from a pay desk at the door, they queued with their trays in front of a counter on a self-service basis. The food was served on plain white, utility crockery and a typical mid-week menu would be — soup, rabbit pie or braised liver and on Friday’s — pilchard pancakes or snoek — an unpalatable tinned Australian fish. These dishes would be accompanied by potatoes, parsnips and watery cabbage, followed by either sultana roll or a baked but burst suet apple dumpling with runny custard, all washed down with a penny cup of stewed tea! <br/>
+On the wall a notice read - “PLEASE DO NOT ASK FOR BREAD UNLESS YOU REALLY NEED IT”!<br/>
+These schemes continued for long after the war had ended. </p>
+<p>My paternal Grandparents lived in an old cottage in the market town of Ringwood on the edge of the New Forest in Hampshire. And my main memories of my visits there, was going to bed by candlelight and waking up in the mornings to see Granny Ash appearing in the doorway, carrying a tray upon which there was a jug of hot water — there was no bathroom here — a cup of tea and a slice of delicious home-made bread, spread with real, country butter. In those days this was a rare treat! </p>
+<p>Thinking back now, I suppose it was due to my Father’s long absence abroad, but several years had elapsed from the time of my birth to the time of my baptism, which eventually took place at St. Mary’s Church, Bath. <br/>
+As a young woman, Granny Ash had trained as a tailoress and so it was she, who naturally undertook to make my Christening dress — from white PARACHUTE SILK!  It was beautiful. I have been told that I looked very fetching standing beside the font surrounded by my family and friends. I had looked forward eagerly to the ceremony -only to have my hopes dashed when unexpectedly I looked up to see the kindly Vicar depositing a full jug of water over my head. I was four years old! </p>
+<p>Although Ringwood was our usual holiday place at that time, I particularly remember a Summer visit to Broadstairs, Kent. One day when we were sitting on the sand dunes, we saw a lone man running in the direction of the sea. Suddenly a shot rang out and we watched in horror as he fell down into the rock-pools before us!  Later we learnt that the fleeing figure was that of a “P.O.W” making an ill-fated bid for his freedom. <br/>
+The memory of that tragic incident has remained with me over the years. </p>
+<p>Back in London, the aftermath of the war was felt everywhere. Food continued to be in short supply. But now and again there would be the occasional treat. I well remember the day I was taken out to lunch at a smart restaurant, where I was given some creamy, delicious soup. So unaccustomed was I to such richness, that before my bowl could be whisked away, I unashamedly lifted it up and licked it clean! I hardly need to say my parents were utterly shocked! <br/>
+I also remember the day I tasted my first pineapple. A colleague of my Father’s at “B.O.A.C” had brought it back to England on a flight from South Africa. Until then the nearest we “War Babies” had ever come to this tropical fruit, was some wartime concoction called “ Pineapple Spread” made from parsnips, golden syrup and a dash of pineapple essence. There was no comparison! </p>
+<p>It was during this early post-war period that my Mother decided to open her Dancing Classes — “The Ash School of Dancing” in Wiseton hall on Wandsworth Common. And later several of the girls from “Upper Tooting High” became her pupils. One was my special friend Susan, whose Mother Frances, became my Mother’s pianist.  <br/>
+One particular performance, which stands out in my mind, took place in a “B.O.A.C” hanger near a runway on the outskirts of London. <br/>
+Every Christmas a wonderful party for the children of “B.O.A.C” employees was held there, and “we girls” were lucky enough to be invited to provide the entertainment. A coach was sent to collect us from Wiseton Hall and we were driven there in style. <br/>
+After the performance came, in our eyes, the highlight of the afternoon - when superb refreshments, sweets and presents were distributed amongst us. We loved it all! </p>
+<p>Then laden with our treasures, we were driven away through the flat fields of Middlesex, which over the succeeding years became Heathrow Airport — one of the busiest airports in the world!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/84/a2964684.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-835">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-608"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-608" id="name-608">
+                    The Story of William Ewins [W.Ewins : Part 1] <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-608" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bournemouth Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/87/a3958987.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>29th August 1916 was a very hot summers day in Wandsworth, London and in the largest bedroom of a small terraced house in Bendon Valley I was born. It was so hot the midwife had to remove her collar, so mother told me many times. It was 4 o’clock in the afternoon and the children were just coming home from school. I was the eighth child born to Rebecca and Charles Ewins. Brother Fred was the eldest and the first born, Mother lost three boys, the next living child was Harry, then Annie and Gladys. I came next, followed by Pat six years after. She was the youngest.</p>
+<p>My father, Charles Fredrick had lived in Wandsworth for many years. Born in 1874, he married mother nee Hanner Rebecca Barratt at St Anns Church, Wandsworth around 1894. He had been a policeman, then a Drayman at Youngs Ram Brewery, then a Stoker at Wandsworth Gas Works, where he worked until he retired. His age and work stopped him going into the army in World War 1. At the time I was born my eldest brother Fred was 17 years old. He went into the army. He was on a course when the rest of his regiment were sent out to France, they were all killed. It was just before the end of the war when he was demobbed he went to work in WanGas with his father. Harry joined the army under age 3 times, twice my parents got him out but the third time he changed his name to Smith and was in India by the time my parents found him.</p>
+<p>Annie and Gladys were at home. Even in this tiny house in Bendon Valley, my mother would take in lodgers. It was a very cramped existence but compared with others around us we were comparatively well off as father was always in work. Mother did a part time job in a laundry nearby when she could. The house was lit by gas as there was no electricity then. An outside toilet in the small backyard, where we also kept rabbits and chickens. These were kept and fattened for food. Mother looked after them. She wore an old peaked cap and a sack apron around her waist. At Xmas the big cockerels were killed for dinner. Father would never let anyone see him doing this. I went to just one school from the age of 3 to 14 years. We graduated from Infants to Juniors then to Big Boys. The infants were mixed but after that it was all boys or all girls.</p>
+<p>Lots of children in our school were very poor, they had no shoes on their feet and they wore tom or patched trousers. Some were dirty and from poor homes. I was able to go home every day for a good hot dinner, but the children from poor homes, or whose fathers were out of work were given a green ticket. They took this along the road to another school where they got a free dinner.</p>
+<p>I suppose I was one of the best-dressed boys in the class. My father always bought me good strong lace up boots and my grandfather on my mother’s side used to repair them when they needed it. My schooldays were happy days, I loved going. We respected our teachers, our parents and the police. It was a pleasure to help them. I remember very often being left in charge of the class if the teacher was called away to a meeting. I felt very important doing this and would pace up and down the rows of desks keeping them in order with a ruler in my hand although I never used it.</p>
+<p>I was often called upon to read to the class. I suppose it was because I had a loud clear voice and was a good reader. I enjoyed most though, the sporting activities. Cricket in summer, football in winter. These were my chosen subjects, English and Maths were next on my list. I am 82 years old now and my mental arithmetic is excellent still. I did not do much swimming. In summer after an afternoon of cricket on Wandsworth Common, usually a Friday afternoon, I used to be allowed to take the bag of cricket gear home with me for the weekend and take it back to school on Monday morning. It was very heavy and a long walk from the common to Bendon Valley. But I was so proud being in charge of the bag. In winter it was football. We played on Clapham Common in a spot called the Frying Pan. I was in our school team. I also played for the Wandsworth and Putney schools team and was also selected for the South London schools team.</p>
+<p>When I was 13 years old, the grocer in a shop on the main road Garret Lane, asked me if I would like a Saturday job. I always wore a peaked cap with a button on the top. He would tease me, pulling it down over my eyes whenever I went in. This day he said ‘would you like a job boy?’, ‘Yes please’ I said. So that next Saturday I started my part time job. I would weigh up Soda, Rice and Sugar, etc. Food in blue bags, non-food like soda in grey bags. After a few weeks I had a stall on the pavement outside selling eggs and broken biscuits. Later I used to boil York hams in a big copper at the back of the shop. They used to have frozen rabbits in from Belgium, which I was taught to skin. Skinning cheeses used to make my fingers very sore. On Saturdays I worked from 8am to 9pm. During the evening I would take the deliveries out on a big old iron bike with a big basket on the front.</p>
+<p>Quite often when I knocked on the door the lady of the house would shout out, ‘come in boy’ and I would pull the string and enter. The mother would be bathing the children in a big tin bath on the kitchen table in front of the fire. I would take in the groceries and she would give me a sprasy. That was a small silver sixpence, this was my tip which I put in my pocket. My wages I gave to my mother and very proud I was to do so.</p>
+<p>Another memory is of joining the Sunday school held in an old iron hut at the end of the road and called the ‘Mission’. I attended well before Xmas so that I could go to the Xmas parties. Derby Day also brings back memories of the Charabancs going and coming home from Epsom races as they passed along Garret Lane. We would shout out ‘throw out your mouldy coppers’. Then we would all scramble and fight to pick them up.</p>
+<p>My mother always had a day out on Derby Day. She and her friend would go. She used to dress beautifully, with huge hats and ribbons and feathers. She loved the horses and used to bet, but we never knew if she won or lost. Dad on the other hand, if he lost would be a misery and take it out on everyone. He was very fond of a pint although never drunk, but he liked the pub atmosphere. Mother on the other hand, enjoyed parties at home with good food and used to get very cross if in the middle of a Saturday night party, dad and all the men would clear off up to the pub for an hour, leaving all the women and children. They came back merry and would gather round the piano in the front room, singing songs till well after midnight. Dad used to do shift work, so it he was on night shift, he would have to leave to go to work which did not please him.</p>
+<p>There were factories at the bottom of our road and lunchtime and knocking off time, the siren would sound and all the workers would come rushing out. It was like a football crowd turning out and as children, if we were playing marbles or fag cards in the road, we would gather up our bits and go indoors until the rush had passed to get out of the way. During school holidays, mother would pack me sandwiches and a bottle of pop and with my mates, we would go to London on the tram. We would spend all day in the museums in Kensington, the Science, Victoria and Albert and Natural History, which were all free.</p>
+<p>Other days we would spend on Wimbledon Common fishing for tiddlers in the lakes and taking them home in a jam jar with string tied round the top for a handle.</p>
+<p>Other days we spent in St Georges Park. On some waste ground near the park we would have brick fights. We would get sheets of corrugated iron to make shields for protection. It was all good, clear fun. We never abused people, in fact we were only too willing to help older people by running messages for them, helping them cross the road. The police we also respected. They used to wear black leather gloves which they carried. If you were doing anything wrong, they would clip you around the ear with them and you would laugh and run off. Summers Town Football Club was also very close. I enjoyed going to see them play. Over the back was a knackers yard where horses were brought from all over London to be slaughtered for cat and dog food. We would stand on the top of the bank and watch them.</p>
+<p>My father worked in the furnaces in Wandsworth Gasworks and sometimes I had to take him his dinner. This was on a plate covered with another to keep it hot and was tied in a red and white cloth to carry it. Most days he took sandwiches, they had no canteens then. They all had an enamel mug and could boil water so mother would put a teaspoon of tealeaves in a spoonful of condensed milk. This would be put in a piece of greaseproof paper and screwed up. He called this his ‘tommy’. He only had to put it in his mug and add boiling water and had a good cup of tea.</p>
+<p>One day when I took him a hot dinner the foreman said ‘would you like to see where your dad works’ I said ‘yes please’ and he took me into the retorts. I could not recognise my father, all the men’s faces were black with soot. You could just see their eyes, but I knew dad by his voice. It was so hot in there. They used to have to rake out the red-hot clinker from the ovens where the coal was burnt to extract the gas. The residue that dropped down below this was coke and was sold later. It was a cheap fuel. People would queue up outside the gates with prams and barrows to buy it.</p>
+<p>My elder brother Fred also worked in the Gas works all his working life, apart from two short spells in the army. In the First World War he was called up. He was very lucky to be on a course when the rest of his squad were sent to France and were all killed. This was in 1918, almost at the end of the war. He married and had two daughters, Lily and Lottie and continued to work in the Gas works. He became a Foreman. Harry was in India. Annie and Gladys went into service like many girls did at that time, working very long hours for very little pay. I continued at school and by the time I left was Head Boy. My first job was at the Colombia Gramophone Company in the machine shop. We wore short trousers until we left school. My first long trousers suit which I had to start work was a second-hand one.</p>
+<p>By the time I was 16, the Columbia had amalgamated with HMV and I had become redundant. They offered me a job with HMV in Hayes but it was too far to cycle, so the Manager approached a firm called Corfields in Battersea to see if they could take me. They did and I went into the machine shop there making tone arms for gramophones. Then after a while I was again made redundant. I next went to Mullards at Wallington, they made radiograms. Then again there was talk of closing down so I came away from that industry and went into painting and decorating. Then building and carpentry becoming a jack-of-all-trades and a master of none!</p>
+<p>My brother Fred was doing well in the Territorial Army and advised me to join his regiment saying war is coming and if you join you will get training and you will be with chums you know. This I did, I joined the 54 City of London Regiment. The drill hall was in Putney we had to do three drills each week and one summer camp a year. We were paid £5 per year for this. I did two summer camps, 1936 and 1939. When we returned from this camp we were all called for war service. We were all taken by lorries to a stadium and billeted under a football stand. It was dark and we were not told where we were. As soon as it was light and I looked out. I knew we were in Woolwich. I remembered playing on that pitch when I played for Wandsworth &amp; Putney at school against Woolwich Boys. We were in the army stadium on Woolwich common. I told everyone where we were.</p>
+<p>There were four 4.5 heavy anti aircraft guns on Woolwich common outside the stadium. We did 24 hours guard duty and 24 hours off, resting in the stadium while the huts were being built. We were part of the defence of London. My job was on the height finder. Many tales are written about those days but only if you were there could you know what it was like. Night after night on watch with very little rest during the day, so tired that you could sleep on bricks. You would lay down anywhere and drop off to sleep. My brother was a sergeant in our regiment but I got no favours from him apart from making sure I was not on duty when our parents visited us. Most of us were the T.A. boys from Putney, we also had conscripts drafted in to us. Our parents could visit on Sundays in the early days. They came on the train a good hours ride. There was a big iron hut on the site, it was taken over by the church army, we could take visitors in there. It was warm and we could buy mugs of tea and cocoa.</p>
+<p>As time went on and we settled in, our huts were finished and they called them spiders. Everything was connected by corridors. While at Woolwich Xmas 1939 our officers decided to organise a dance to which they invited nurses from the Brook Hospital. This changed my life for I met my wife, (read the story of Lillian), I will continue with my army story.</p>
+<p>I made two very good friends in those early days, one was Teddy Bence who was in the T.A. in Putney, he also married a Charlton girl who he met in the church army hut. I was the best man at this wedding. I still see him as he lives near me and it is now fifty years on. He lost his wife a few years ago. My wife invites him to lunch sometimes and we have a good chat. Another good pal was Sid Doze, he was one of the conscripts from Bethnal Green in London. He had never been away from home so I took him under my wing and helped him all I could. He told his wife after the war that I was like a mother to him. He was the best man at my wedding. He passed away some years ago. I had planned to be married at Easter 1942.</p>
+<p>In 1941 they started bringing A.T.S. girls on to the gun sites, training them to do our jobs, leaving us free to be sent overseas. In the middle of December we were kitted out with tropical gear and we were given two weeks embarkation leave. My wife who had been planning a big white wedding at St Thomas’s Church the following year did not want to wait until after the war so, it was a special license and we were married at Greenwich Town Hall on 18th December 1941.</p>
+<p>After my leave when I rejoined the Regiment we were all held back as Singapore had fallen and that’s where we had been bound. The troop who had gone before us and were already on the high seas were taken prisoners as they stepped off the ships. So we had to wait awhile on various London gun sites and it was not until May 1942 that we were rekitted out and sent to Leeds. From there we were sent to Liverpool to board the Troopships. We had to do a lot of zigzagging about to dodge the U boats. We called in to Scotland to pick up more troops. We also had a lot of tractors and farm vehicles which were off loaded on route. The ship was the Athlone Castle. There were three to four thousand troops packed in. Our first stop was Sierra Leone, they got rid of a lot of the farm vehicles there. We did not stay there long, it was a terrible place.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/87/a3958987.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-608">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Southfields: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>24</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Southfields </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Walbrook - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922233600000, 5]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.092581121214785997, 51.50928030648322], [-0.092178985163658994, 51.510110071551154], [-0.091945871895562997, 51.510666628158887], [-0.091884931263704006, 51.510745583940427], [-0.091974334690602996, 51.510761375894049], [-0.091889348952160999, 51.510833752460584], [-0.092130615244921998, 51.510923112844395], [-0.092116651141324002, 51.510955345253407], [-0.092043326178687004, 51.510985626703082], [-0.092008867467559999, 51.510969743370993], [-0.091884459211615005, 51.511058495695337], [-0.091490980233386004, 51.510926196353822], [-0.091425102386974003, 51.511079825253745], [-0.091570360570155995, 51.511095670050572], [-0.091416689395305006, 51.511496855941893], [-0.091361435378876005, 51.511503968068752], [-0.091321432629217006, 51.51157764717675], [-0.090834349236920006, 51.511486530809663], [-0.090756581295046004, 51.511666099195331], [-0.090745591727417002, 51.511756696587604], [-0.090464456613614005, 51.512233221133101], [-0.091175734444565004, 51.512391350894269], [-0.090951391822853001, 51.512759064504912], [-0.090926702958750993, 51.512810929443425], [-0.090972187371748003, 51.512821504348331], [-0.090827591212427006, 51.513069959515491], [-0.089853823314985995, 51.51330828360684], [-0.089808845497216003, 51.513392839157326], [-0.089559557978352994, 51.513344375996688], [-0.089136954277835995, 51.513305041186037], [-0.088606025857285997, 51.513443079525615], [-0.088286439651991996, 51.51348185009428], [-0.087757923569549007, 51.51354067654033], [-0.087529078747826006, 51.513541862486029], [-0.087472236869163, 51.513565669339073], [-0.086887200677481, 51.513619076515155], [-0.086636362362774, 51.513586180845373], [-0.086598191896349999, 51.513830740737319], [-0.086561867391057007, 51.513859375565104], [-0.086258366461226005, 51.513836439788591], [-0.086284344837655, 51.513732468148099], [-0.086125063375071004, 51.513707382208395], [-0.086023457657923005, 51.513703053726836], [-0.085884280431311993, 51.513799698963254], [-0.085664788900804006, 51.513749890517893], [-0.085475959588434, 51.513741752897616], [-0.085420204726463, 51.51376107360317], [-0.085378866788112004, 51.513737497524133], [-0.085298831546578996, 51.513734367709212], [-0.085293274340833003, 51.513694791403246], [-0.084949003416039004, 51.513720644917875], [-0.084951565736994, 51.513831270336759], [-0.084837964345452002, 51.513833909091524], [-0.084836334263866997, 51.513765454911159], [-0.084661737557321995, 51.513761756617576], [-0.084709535578033998, 51.51393213734336], [-0.084571380085549999, 51.513918499600081], [-0.084561057173431001, 51.513971435812387], [-0.084473071933610006, 51.513964667203979], [-0.084508727751355997, 51.513694485956385], [-0.084410738540695002, 51.513689791553709], [-0.084384025006840002, 51.513660974980695], [-0.084374097208564994, 51.513575386568299], [-0.084218637979589006, 51.513566521186441], [-0.084376463819086006, 51.513154178057093], [-0.084501328973142997, 51.513161972661095], [-0.084552133813483005, 51.513046039961772], [-0.084911338765938996, 51.513093638215949], [-0.085230991470780004, 51.513075108771247], [-0.085229136990160007, 51.513011991796184], [-0.085339349971635003, 51.512789539062624], [-0.085289713364889996, 51.51277032116419], [-0.085332443093002003, 51.512696274203769], [-0.085504664701718996, 51.512735053563944], [-0.085595477766219993, 51.51245959349081], [-0.085091879733893996, 51.512332639294527], [-0.085173855877940005, 51.512182085232979], [-0.085219464538728001, 51.512190003185651], [-0.085257477196553993, 51.512142565163828], [-0.085296578334703999, 51.512026579196885], [-0.084959631213955999, 51.511963608353568], [-0.084903958998425996, 51.51200247037012], [-0.084849684179853002, 51.511986546813368], [-0.084830640819778994, 51.512010969598634], [-0.084695224018337997, 51.511975451495161], [-0.084627538623279, 51.512107554784009], [-0.084424342228871005, 51.512077255606954], [-0.084371749771205998, 51.512128525340778], [-0.084240229903152997, 51.512107407833099], [-0.084199548291480006, 51.512175170905422], [-0.084120904660025003, 51.512160395963043], [-0.084076818615320001, 51.51222347155813], [-0.083842875396131999, 51.512174685102636], [-0.083787061036161001, 51.512216905336807], [-0.083745127096674005, 51.512207232811122], [-0.083596059143472998, 51.512346845879861], [-0.083616827289638998, 51.512431497296078], [-0.083195969639647996, 51.512393421850135], [-0.083180385923073002, 51.512357199165677], [-0.083106043661805004, 51.51236862727017], [-0.083096935604294, 51.512456575135438], [-0.083002799359941995, 51.512489181265714], [-0.082863580423199995, 51.512243684292891], [-0.08275043434057, 51.512257010185046], [-0.082665408998932002, 51.512286680167009], [-0.082382049621988002, 51.512492523875274], [-0.082194602973385003, 51.512430166078907], [-0.081757748061253993, 51.512344336169114], [-0.081082567191697, 51.512335538170831], [-0.081049195268788995, 51.512164977489469], [-0.080916276433568995, 51.511898365049248], [-0.080385463887203995, 51.512055199306843], [-0.080074798579996997, 51.511603156810104], [-0.080154370597163002, 51.511574384734004], [-0.080497471266737994, 51.511554990518988], [-0.080760439298461995, 51.511598779666656], [-0.081044638814346995, 51.511587554704917], [-0.081070009540709004, 51.511648247994842], [-0.081187484361018997, 51.511639350122906], [-0.081188997966436, 51.511581905263405], [-0.081552417391340004, 51.511528833765496], [-0.081541412893396004, 51.511361871228353], [-0.081842378538394003, 51.511337566412834], [-0.081840183518406995, 51.511282316950926], [-0.081767217023540006, 51.511282808704784], [-0.081750077146690997, 51.511133306255928], [-0.081981582395118005, 51.511154229288856], [-0.081992417154245004, 51.511024862712958], [-0.082487876054042994, 51.511044622057867], [-0.082498262839551001, 51.511140623682358], [-0.082647555566482997, 51.511167512719169], [-0.082642091963747, 51.51123331869988], [-0.082750666914828006, 51.511221603337276], [-0.082769707779302995, 51.51108970041453], [-0.083089112940286994, 51.511119645845611], [-0.083082017172456002, 51.511224349065301], [-0.083354862835182994, 51.51124763939778], [-0.083352566654565002, 51.511280899439321], [-0.083561533185286002, 51.511302307393272], [-0.083579509536822, 51.511217165618973], [-0.083772436686155, 51.5112346553788], [-0.083895042609733003, 51.511232155596517], [-0.083927086482721, 51.511198258117226], [-0.084081455394120999, 51.511211461698103], [-0.084153485600073005, 51.511083085412039], [-0.084197912663857996, 51.511076223409404], [-0.084536610022990996, 51.511140210379679], [-0.084584431160376006, 51.511073539877714], [-0.084637123328700006, 51.511084244184723], [-0.084666815557535996, 51.511042011336357], [-0.084731217389805005, 51.511052897620615], [-0.084738146072233997, 51.511102330937639], [-0.084837075272474, 51.511127409422954], [-0.084883165990750006, 51.511123806474352], [-0.084908857508344995, 51.51102670907391], [-0.084990445565182995, 51.511035628995337], [-0.085035007193421996, 51.510939686851074], [-0.085201475034542007, 51.510964891671037], [-0.085213345645062999, 51.510918297614126], [-0.085353446312113002, 51.510949388699707], [-0.085436444563895, 51.510752901233772], [-0.085357655566089, 51.510741642339958], [-0.085328045908557998, 51.510416581411164], [-0.085673233396100001, 51.510433036043857], [-0.085813496059120004, 51.510224001892624], [-0.085716514724653997, 51.510195438405184], [-0.085904786449604004, 51.509894026390754], [-0.085922733904086002, 51.509809454717249], [-0.085968132243703005, 51.509736427156845], [-0.085886046703911006, 51.509717950674876], [-0.085915942821669006, 51.509670803557235], [-0.085817086724136002, 51.509644042018145], [-0.085878496652319003, 51.509532628175833], [-0.085918705500037995, 51.509540457745949], [-0.085966356838896002, 51.509435145481078], [-0.085828832399433994, 51.509406767577794], [-0.085906351613711004, 51.509212022808661], [-0.086039197021493, 51.508965066851573], [-0.086280365672807002, 51.508131848459989], [-0.086352050713485007, 51.507753650547059], [-0.087666256311414004, 51.50785728106176], [-0.090830811923545002, 51.50818845130766], [-0.091969272705887006, 51.508338778027571], [-0.092444344416989996, 51.508436564001386], [-0.093070784995238007, 51.508597382093441], [-0.092581121214785997, 51.50928030648322]]]]}, "type": "Feature", "id": 1026, "properties": {"pk": 1026, "name": "Walbrook"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Walbrook, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Walbrook, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Walbrook</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">City of London</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Walbrook
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Walbrook, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Walbrook: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>34</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Walbrook</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-676"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-676" id="name-676">
+                    A Bermondsey Boys War. Part 5 - Home once again. <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-676" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by kenyaines (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/57/a2335457.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>I arrived home at Bermondsey from Torquay in 1941 to find that things had changed dramatically.<br/>
+The Shop-windows were still plate-glass, but all the window-frames of our House were covered in opaque plastic, which only let a little light in.<br/>
+I was the last one to come home.<br/>
+My eldest brother John, had left School and was now a GPO Telegram Boy, with blue uniform complete with red piping, Pillbox Hat and red Bicycle.<br/>
+Percy took his place at the Borough Polytechnic, a Technical School in Southwark, so he was settled.<br/>
+Iris and Beryl had also come home from Exeter, as they were unhappy there, and were back at the local Junior School, which was open again.<br/>
+However, the biggest change was in the Shop, and to explain things properly, I must digress a bit.<br/>
+At the top of Galleywall Road where it joined on to Southwark Park Road was the "John Bull Arch", named after the Pub alongside it.<br/>
+It was (and still is), a wide brick-built Railway Arch with steel girder framework over the roadway on each side, carrying many of the lines into London-Bridge Station from Kent and the Suburbs.<br/>
+There were paved foot-tunnels either side of the Roadway.These had been bricked-up at each end, and were used as Air-Raid Shelters.<br/>
+They were fitted out with bunks, and many of the local people who didn't have a Shelter at home slept there every night.<br/>
+The Arch suffered a direct hit on Sunday 8 December 1940, and over a hundred people were killed, including most members of a family who lived across the road from our shop.<br/>
+One of them was a boy about my age, Charlie Harris, who went to my School before the war.  <br/>
+Recently, while doing some research on my Uncle, who was missing in WW1, I found that the War Graves Commission has a Civilian War-Dead Register, and there, sure enough, I found Charlie's Record of Commemoration. To read it made me feel very sad, but it's good to know that Civilian Casualties aren't forgotten altogether.<br/>
+That Arch was a very unlucky place, apart from more near misses with casualties in the bombing, there were two direct hits on it by V2 Rockets in November 1944. The first one was on a Friday Morning. It demolished most of the Arch and devastated the area. Two Sundays later, when the wreckage had been cleared and a Temporary Bridge put up, another Rocket landed in exactly the same place, so the Workmen were back to square one, and we lost many more Friends and Neighbours in both incidents.<br/>
+But back to 1941.<br/>
+Along by the "John Bull" Pub, there was a large Greengrocer's Shop, which also sold a bit of Grocery. It was damaged in the bombing of the Arch, and the Couple who ran it had had enough by then, so they decided to close down and move out of London.<br/>
+One had to be licensed by the Ministry of Food to sell Foodstuff during the War, and the local Food-Office asked Dad if he was interested in taking over the License, as his was the nearest Food Shop.<br/>
+Dad was only too pleased to take it, as he was having a thin time of it with the Rationing.<br/>
+He bought all the Scales and Equipment, so he was now also a Greengrocer, selling fresh Fruit and Vegetables, as well as some Grocery, Eggs and Butter.<br/>
+This meant an early morning visit to Market for fresh produce every day.<br/>
+Dad had a friend with a Greengrocery Business a little way away who had a Horse and Cart.<br/>
+He would pick Dad up very early in the mornings, on his way to the Borough Market, near London Bridge, and drop our stuff off on the way back.<br/>
+His name was Bill Wood, and he rented a Stable a few streets away from us, with a little Yard for the Cart.<br/>
+I was home for the Summer Holidays, and of course I wanted to go to Market with them, and help in the Shop to earn some pocket-money.<br/>
+I enjoyed my trips to the Market, and didn't mind getting up in the small hours. London was so quiet, with hardly any traffic before the Buses started running.<br/>
+Bill's Horse was a Welsh Cob, Strawberry Roan in colour, named "Girl" or "Gell" as pronounced by Bill, who was a real Cockney of the old order, always immaculate in his tweed suit with Poacher's pockets in the jacket, cap, silk scarf or "choker", and brown boots. <br/>
+Gell was a very intelligent animal with a mind of her own. Most mornings she was in a hurry to get to Market so that she could get her Nose-bag on, and would get a bit impatient at road-junctions if we had to wait. She knew all the horse-troughs on our route, and would snort and toss her head when we came to a corner near one if she was thirsty. Bill knew the signs and always let her have a drink.<br/>
+Bill showed me how to hold the reins between my fingers and guide the Horse with one hand, and soon I was able to drive the Cart, under supervision of course.<br/>
+I would meet Bill at the stable every morning and learned to groom the Horse, harness her up, and hitch her to the Cart, actually with a lot of help from "Gell", who knew exactly what to do, and would hold her head down while I slipped the collar upside-down over her head, then turned it the right way-up on her neck.<br/>
+She would even back on to the shafts without being told while I held them up, pushed the ends through the slings and fixed the Traces. Soon, I was doing it on my own while Bill "mucked" the stable out and spread fresh wood-chips for the next night's bed.  <br/>
+Bill had trained Gell very well, he had a way with Horses as he was an old Cavalryman. <br/>
+He never used the whip on her, but would let her know he had it by flicking it gently along her flank if she got the sulks.<br/>
+I learned a lot about horses from him. He showed me how to look out for ailments and said "Always look after your horse and she'll look after you". When he showed me how to do something and he caught me trying a shortcut, he would say "There's only one way to do a thing Ken, and that's the right way!" I've always remembered that, and it's stood me in good stead.   <br/>
+I suppose it's not generally known, but Horse-food was actually on the ration during the war, at least oats and grains were. Hay-chaff was plentiful, but not much good for a working horse. We used to go to the Corn-chandlers every so often for Gell's<br/>
+allowance of clover-chaff and oats, which was ample anyway. Every month, Bill was also allowed a bale of Clover, which had a lovely smell and was a treat for Gell. I don't know why, but horse-food was always referred to by the old cockneys as "bait".<br/>
+Our way to the Borough Market took us across Tower Bridge Road, along Druid Street past the burnt-out roofless shell of St John's Church on the corner, it's slender white Spire with Weather-Vane still intact after being fire-bombed. <br/>
+The first time I saw the gutted Church, surrounded by wreaths of mist at daybreak, I thought it was still smouldering. It was a very sad sight. The smell of damp, burnt timber that hit the nostrils as we passed was unforgettable.<br/>
+Our route then led us into Crucifix Lane and St Thomas Street past the bricked-up Arches of the roads underneath London-Bridge Station that lead to Tooley Street.   <br/>
+These Arches were used as Air-Raid Shelters by the Residents of the many Tenement Buildings nearby. They thought they were safe, and used to sleep in them, but around 300 people died when the Stainer Street Arch received a direct hit through the Station at the height of the Blitz.<br/>
+Later in the War, many more people sheltering in the Joiner Street Arch opposite Guy's Hospital suffered the same fate <br/>
+It was a bit creepy, and I felt a bit uneasy going past these places in the small hours at first, but gradually got hardened to it and became fatalistic like Dad and Bill.<br/>
+The "stand" for our Cart was right at the top of St Thomas Street between Guy's Hospital and the Borough High Street junction. <br/>
+The trader's vehicles were tended by a Cart-Minder, who would direct the Market-Porters to the right vehicle when they brought the goods out on their barrows.<br/>
+Our Cart-Minder was called "Sailor". He was a quiet old chap. You couldn't see much of him as he wore a stiff-peaked Cap over his forehead, and his face was covered in whiskers and a walrus moustache. He always wore a black oilskin coat down to his ankles, and rubber Wellington boots, perhaps that's why he was called "Sailor". <br/>
+The Borough Market was a fascinating place to be at in the early morning before dawn. Because of the Blackout, the open-fronted Shops only had a small lamp at the back above the Salesman's desk. <br/>
+My faourite place was the open Square behind the "Globe" Public-House, backing on to Southwark Cathedral. Here the Growers from the Farms in Kent and Essex had their Pitches, and did business by the light of Oil-Lamps.<br/>
+There was always a lovely aroma of Apples, Plums and other Fruit round there.<br/>
+I can still imagine the delicious scent of fresh-picked Worcester-Pearmains and Cox's Pippins even now. <br/>
+The Growers didn't mind us sampling the wares, and I had many a good feed of fruit before Breakfast. <br/>
+There was a Cafe in the other open Square known as the "Jubilee" behind the covered Market. Dad and Bill took me there for a snack when they'd done their business. The tea was always good, and the Sausage Sandwiches with Brown Sauce were out of this World.<br/>
+Then I'd go back and wait on the Cart for the Porters to bring the goods out, and help load it up.<br/>
+London Bridge and St Thomas Street was a very busy place first thing in the morning.<br/>
+Swarms of People made their way down Borough High Street from the Railway Station, and many passed us in St Thomas Street on their way to Guy's Hospital. <br/>
+I'd see a lot of the same faces every morning. <br/>
+Guy's had already suffered a bit of bomb damage, but was still up and running, as it remained throughout the War.<br/>
+In 1943, I had occasion to visit a friend who was injured in a road accident and taken in there. <br/>
+The Wards were shored up with massive timber scaffolding to protect the Patients from roof collapse if there was a hit by a bomb.<br/>
+I marvelled at this, one never stopped to think of the fact that bed-ridden Patients couldn't go to the Air-Raid Shelter, and there were hundreds of Patients in Guy's Hospital.<br/>
+By the time the School Holidays came to an end, I was an old hand at looking after the Horse and helping in the Shop.<br/>
+Luckily for me, Colfe's Grammar School at Lewisham had opened as the South-East London Emergency Grammar School for Boys who were not evacuated, and I was able to prevail upon my Parents to let me stay at home and go there.<br/>
+I never saw Aunt Flo and her family at Torquay again, but George came round to see me a few times when he was home for the holidays, so I got all the news.<br/>
+I enjoyed my couple of years at Colfe's, although it was a long Bus journey to Lewisham every morning, and I was usually late, because the Bus service was unreliable with hold-ups for one reason or another.<br/>
+Because of the fuel shortage, some Buses towed a little trailer behind them carrying a gas-tank, and one of the strangest sights to be seen on the road was the Doctor's Car with a rectangular fabric gas-bag on the roof-rack billowing in the wind.<br/>
+Things were a bit more free and easy at Colfe's than they'd been at St Olave's, and as we all came from different Schools, Uniforms didn't matter so much.<br/>
+Some of us who came from a long way off, and needed School-Dinners, used to make our own way to the Convent at the top of Belmont Hill near Blackheath Village where our meal was waiting for us.<br/>
+On the way up the hill, on the right-hand side of the road, there was a shoulder-height brick wall enclosing some open ground, and you could see over it across the rooftops below to Deptford and Bermondsey beyond.<br/>
+One bright sunny day in 1942, while walking up Belmont Hill on our way to the Convent, my friends and I heard the sound of Aircraft engines and loud explosions. There hadn't been any Air-Raid Warning, but as we peered over the wall, we actually looked down on two German Planes swooping low and dropping bombs. <br/>
+It was all so clear in the bright sunlight, like something out of a colour movie.  <br/>
+I could plainly see the khaki, green and yellow camouflage, the black crosses, swastikas, and numbers on the Planes.<br/>
+I even saw the heads of the two crew-men in the nearest one as it turned after it's dive, with the sunlight flashing on the cockpit glass. Then the bombs exploded and smoke rose from below. <br/>
+Just then, a shadow fell across us, and we heard loud engine noise as another Plane dived from behind us towards the lower ground, it's Machine-Guns chattering.<br/>
+We crouched down close to the wall, hearing splinters flying, and as soon as he'd passed over, ran hell for leather up to the Convent.<br/>
+This must have been the Plane that callously bombed and machine-gunned the School at Catford, close by Lewisham, where children were playing in the Playground at Lunch-time, and many were killed and injured.<br/>
+I heard afterwards that Jerry had made a hit-and-run attack with Fighter-Bombers. Flying low under our Radar-screen, they caught our defences napping.<br/>
+This was why there'd been no Air-Raid Warning, and the Barrage-Balloons hadn't gone up.<br/>
+One of the bombs we saw being dropped landed quite near home. On a road-junction near Surrey Docks, known as the "Red Lion", after the name of a Pub on the corner. <br/>
+It demolished the Midland Bank, killing the Manager as well as injuring Staff and Customers.<br/>
+Also killed was the Policeman on Point-Duty at the Junction. He must have been blown to pieces, as only scraps of Uniform were found.<br/>
+He was a Special Constable, a friendly man, and a familiar figure in the district. <br/>
+He had a large Hook-Nose, which often had a dew-drop on the end in the Winter. Some people referred to him as "Hooky," and others as "Dew-Drop."<br/>
+It was very sad that he went like that. If the Warning had sounded, he'd have taken cover.<br/>
+To be Continued.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/57/a2335457.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-676">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-523"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-523" id="name-523">
+                    An Interesting Day
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-523" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by merlinel (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/41/a2216341.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p> A story about my mother which someone else told me and may have grown a bit with time and telling concerns the time when she was a driver for the Ministry of Defence , returning to her base from a trip south of the river.</p>
+<p>This would  , probably be 1940 with German air raids most days , and although people would take shelter somewhere most drivers kept going, particularly those in uniform on the basis of " it can't happen to me " and anyway the military<br/>
+should not be seen cowering in doorways.</p>
+<p>My mother was in a line of traffic crossing London Bridge when there was a lot of noise, bangs , flashes and smoke and holes appeared  not only in my mothers car but in others and the traffic all stopped.</p>
+<p>There was then a lot more noise , gunfire and smoke and an aircraft passed over the bridge which everybody recognised as German , distinguished , of course by the black crosses on the side and so low she could see the chipped paint and oil stains</p>
+<p>Almost at once, although it must have been a few seconds later a second aircraft passed at seeing the oil stains height, this was followed by gunfire and seconds later a loud explosion.</p>
+<p>My mother , at that point got out her car and   then learnt what had happened</p>
+<p>Apparently there were a number of people standing on the bridge or crossing it on foot when they saw an aircraft, very low , flying down the river towards them ,"Its' OK, its one of ours" was the word , but at that point  the nose of "one of ours" lit up with flashing lights and bullets were flying everywhere , however the German pilot was  concentrating so much on flying at that low level he failed to look in his rearview mirror.</p>
+<p>Had he done so he would seen his Nemesis coming down the river behind him in the shape of a Spitfire, which as he lifted to clear the bridge, opened fire and knocked him into the river with a loud and very satisfying bang<br/>
+The Spitfire then circled back and after a very  low pass over the bridge  pulled up in a victory roll, waggled his wings and turned south for his base, possibly Biggin Hill or Manston.</p>
+<p>My mothers car was not drivable so it was towed back to her base where she was allocated another one for the next trip.</p>
+<p>Several days later she was told how luck she was as the German aircraft had been recovered and it was found the cannons were empty and the holes in her car were caused " only by machine bullets which of course were not explosive " her reply, which was recorded on the paperwork<br/>
+cannot be printed here</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/41/a2216341.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-523">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-862"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-862" id="name-862">
+                    The War for River People <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-862" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by hereward (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/65/a1955865.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>I was born just before the war, 1938, and my mother died when I was eight months old. My grandmother and grandfather then stepped in, and I lived in Bermondsey with them and other assorted members of the family. My family were lightermen and watermen and lived near the docks. They had worked for Hay's Wharf for years, my grandfather since 1912 - at the start of the war he was bosun at Hibernian wharf, west of London Bridge - and on researching the family history I have found that three branches of our family had lived in London since circa 1585, some 400 years, all watermen, and in the usual tradition, apprenticed to uncles and relatives - the Houghs, the Sholts(initially the Van den Scholtes) and Collins'. All very ordinary people, hard-working and involved in the early union organisations, my grandfather being a friend of Ben Tillet, helping to raise money for the widows and orphans of injured rivermen thru' Boxing matches and socials. They were also keen sportsmen, rowing, of course, to a very high competitive level, Doggetts Coat and Badge, and in another sport, my grandmother's brother, William Hough, was the professional Lightweight Boxing Champion of England in 1902, sadly dying at the age of 19 of cholera- one wonders how far he might have progressed had he been spared? On the day the Germans first bombed London, we were out at the seaside, Margate, having a picnic, and returned to find our house had disappeared -nothing was left and neighbours were dead. we lived for some time under the railway arches in Raymouth Road, then moved down to a cottage my grandfather had rented since 1936 in kent. my grandfather, father and uncles then lived with my aunt Rose in Sidcup, (she was the secretary of Mr Chiesmans' Homeguard detachment in Chislehurst - her husband, a cooper, reserved occupation, served with this Dad's Army unit - after war he became vault keeper of the Rum vault at the Docks and thus had Prince Charles' birthday cask of very special port under his protection, given on the birth of the Prince by the Portugese government. Approaching the date of the Prince's 21st birthday, it was decided to remove this cask from bond when it was to be taken to the Prince's residence. However, my uncle, on dipping the cask, found out that over the years most of it had been drunk by Customs officers and various other dock workers, ostensibly checking that it was still okay...he was then faced with the task of replacing it surreptitiously from sources all over London, friends and companies in the wine trade. He sat down and calculated roughly the ullage - loss of liquid thru' evaporation, and in the finish was even topping it up from petrol cans of port given to him by these associates - the cask was 250 gallons - The great day dawned, representatives of all the famous wine companies attended a celebrative broaching of the cask, my uncle using a silver spiggot and silver schooners to serve them and the Duke of Edinburgh, and the general opinion was that the port was first class!! My uncle then told me that it showed how much the Great and the Good knew about Port...) whilst working on the river and my grandmother and I lived in the kentish cottage. my father slept many nights in Chislehurst caves and the underground stations whilst still working. my uncle Tom was the Captain and pilot on the river fire float "massey shaw" and took part in the evacuation of dunkirk, where the "massey shaw" rescued some 600 odd men from the beaches. He was a trained navigator (Mr George Allagiah, of the BBC, on a report of the Massey Shaw on TV, said that none of the crew were trained navigators...) who had worked on boats up the Seine before the war, transporting cheese(his birthday and name were the same as his father's, and for many years they only paid one lot of income tax by only completing one person's details instead of two...PAYE stopped all this...) My father was then called up for the navy, but decided that perhaps the army was the better bet and joined the Royal Engineers water transport section, rising to become a WO 1. At this rank, he commanded an LCT in the Normandy landings and took some of the Canadian Commandos ashore at Juno beach. He said he was more afraid of them than the Germans- they spent a lot of time on the craft painting their faces with warpaint and sharpening knives -His craft contained Hobart "funnies" and he had some part in placing tanks with ramps on the Corseulles promenade. The landings at this beach took place an hour after most of the other landings because of the tides and the Germans were well prepared - something like 20 out of the first 24 boats to the beach were destroyed. After the initial landings he helped build the Mulberry harbour, and was in Caen after it was rased to the ground.<br/>
+Following this, he moved up the coast with various craft taking food to the Dutch and Belgians finally thru' the canal system and once took the surrender of a group of SS men who preferred to be taken prisoner by the English (As he approached the town where they appeared, seeing lots of black uniforms on the canalside, he told his sergeant to run up the white flag, but before this could be done, the SS unit ran up their white flag). Before this time, my uncle in the fire service went thru' the massive fire in the docks and carried a scorch mark on his face all his life from the incredible heat of the spirit warehouse fires. The "massey shaw" did sterling work throughout this period and Tom Collins found out that he could knock down walls of warehouses by training the massively powerful hose of the Massey Shaw on them and running the jet up and down - this allowed firemen to access parts of the docks blocked to them by falling debris. Other boats used by the Fire Service at this time were the Alpha, Beta and Delta, but none were so powerful as the "Massey" - now apparently in the London Museum.<br/>
+In Kent, we lived more quietly, but were still machine-gunned one day by a roaming German plane near Knoxbridge- we jumped in the ditch - and listened to the German bombers every night going overhead to London. In August 1944 a V1 landed some 50yds behind our cottage in Staplehurst and we were thus homeless for the second time before I was six...this same bomb blew all the windows out of the village church. <br/>
+How we learned to read and write I do not know, as I had attended some six schools before I was eleven, and lived in seven homes. During this time my grandfather had slipped down between two barges which then came together on his ankle...his footballing days were over...he was taken to Guy's hospital during an air raid, set and plastered, and collected by some railmen whom he knew and walked up the ramp at London Bridge railway station on a mail trolley to catch the train home and early retirement. His retirement would nowadays be called "active retirement", as he became involved in the black market and it was known locally in Staplehurst that if anything had gone missing, my grandfather either knew about it, had organised it, or had it...A local farmer who helped with these misdeeds was even banned from Ashford Market. In his younger days, my grandfather had been a King's swanupper, and served for many years in this honorary position under Mr Turk of Windsor. He was an avid hater of Mr Churchill, and told me tales of how Churchill had brought the troops against the miners in Tonypandy, of how he personally had fought with the police and strike breakers in the '26 strike...advised me on how to use ballbearings against police horses in union conflicts. I was told of the King wearing makeup to visit the docks during the war, and of Edward the VIII's drunken escapades... An odd thing apart from this, was that one of our forebears was the Mayor of London during the 1830's, stood as prospective Tory MP for Maidstone afterwards, became the Lord of the Manor of Wateringbury, and has a notable memorial in the village church where he built an additional extension. I can possibly claim also to be the youngest cub scout ever, because I made such a nuisance of myself to the local pack when 5 years old that they allowed me to be the pack mascot with cap and uniform...Despite all this activity, we lost no one in our immediate family so can consider ourselves lucky...My grandfather would turn over in his grave to know that my daughter is now married to a senior German civil servant and lives in Berlin, and my son, a Cambridge-educated doctor, also works in Germany - his great-great grandson is a small German boy, learning two languages and at the moment possessing dual nationality, and on his father's side of the family although no one served in the second war, one was an officer in the Kaiser's army...</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/65/a1955865.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-862">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-788"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-788" id="name-788">
+                    Wartime Diary of a Customs Officer: Ch 2 - Nov - Dec 1939 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-788" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/44/a3693044.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>NOVEMBER 1939</p>
+<p>2	THU	Another day “on reserve”. Got rather bored and was glad when 4 o/c came. One of the regimental broadcasts irritated me so much that I left home for the cinema, only to see the same thing there!</p>
+<p>7	TUE	Very dull and miserable. I had a job standing by the radio room of the “Lech”, a vessel at the pier opposite the “Harpy”, still flying Poland’s flag in spite of Poland’s “conquest”. Put in a good evening’s work again at studying. Now doing “Firearms”.</p>
+<p>8	WED	Appointed to assist in the office and did fairly well. Recurrence of depression fit, leaving was an anathema to me, walked streets for an hour. Returned home, then went to cinema, which saved me. (Bette Davis in “DK Victory”)</p>
+<p>9	THU	8/4. Undertook duties of “second hand” i.e. hailing passing vessels as to their destinations. This ensured my retention in the office and I was able to amend my Green Books. In the evening I wrote a couple of letters; long one to Kay.</p>
+<p>10	FRI	8/4. Tragedy in the job today. One of our boys, Bill Pedder, fell down a ships hold and received multiple injuries and was taken to Guy’s. He was to be married soon, too. Everyone gloomy and upset. Dad’s radio programme coinciding with my studying. I had to give up.</p>
+<p>11	SAT	Obtained permission to leave the “Harpy” at 11.30 am and was thus just able to secure a gallery seat (9d only) for “Carmen” at Saddlers Wells Theatre, Islington, matinee performance. I was in top row, so did not hear perfectly at it’s best. However, it was my first experience of opera and I was mediumly impressed. Dad had fitted a proper blind to my room (at last!) so now I have a room of my own to retire to. Radio still a worry though.</p>
+<p>18	SAT	Asked permission to leave office for my half day at 11.30 as I wanted to be sure of a gallery seat for “Il Trovatore” at Saddlers Wells. Fortunately secured a pit seat and enjoyed the show much better than last week in gallery. Called in on Dad at Crown House on my way home. Had a little time before I was due out again, being on duty night watch at “Harpy”</p>
+<p>19	SUN	It almost blew a gale in the night and I was thankful “blackout” dangers minimised our patrolling the river. Spray shot completely over the boat as we went along. A good sleep, 10 — 3 and an easy evening. Poor Dad at work 9 — 8pm.</p>
+<p>21	TUE	My big girls birthday. Kay has promised her a tea party, I wish I were there to see her enjoyment. Mum and I sent cards and I a Bourneville chocolate playbox. Mum’s present, an aluminium tea set will be taken back by Kay.</p>
+<p>22	WED	No message arrived from Kay as to what time she would be at Euston, but Mum phoned from Dad’s workplace after she had met Roy at Waterloo, now back from evacuation. Just met Kay in time at 6.50, train on time. Betty fine.</p>
+<p>23	THU	Had quite a good night with Beryl, save that she fell off the ottoman on her head! Thereafter she slept with us! As well as ever afterwards. Kay and I made a first visit to the splendid new Odeon at Shannon Corner. Saw Wuthering Heights” Very Good.</p>
+<p>27	MON	Last evening with Kay. Mum kindly looked after Beryl whilst Kay and I went to Shannon Corner “Odeon” again as on Thursday. Not so good a film, however, but enjoyed each others company. Looking forward to when we’re together again, which may be about Easter.</p>
+<p>28	TUE	Took leave from work to meet Kay at Waterloo, Mum having seen her into train at Raynes Park. Travelled across London by bus and once again saw Kay and my baby slide from my sight as 1 pm train left Euston. Fred came on a visit in evening. Did some general clearing up.</p>
+<p>		DECEMBER 1939</p>
+<p>1	FRI	8/4. Office John C. took half day, so I was left in sole charge. Managed OK. Spent evening trying to stretch my £17 salary to cover a budget of about £20. Kay not coming home during December so I save £2/2s/6d fares and 10/- keep.</p>
+<p>2	SAT	Bolted away from the office at 11.30 am to assure myself of a good place in the pit queue at Saddlers Wells Theatre for the performance of “Cavelleria Rusticana” and “Paglicaci”. Need not have rushed, however for there was a pit stool available. I filled in the time at the “Angel” Lyons. Found a wallet containing £3/3s/0d near theatre and gave to policeman, signing his notebook.</p>
+<p>3	SUN	8/4 Second hand “Harpy”. This meant I did all the week-end returns, as well as hailed all ships to and from above London Bridge. Far from being a slack day, worked harder than a week-day! A quiet evening (thank heaven) and to bed early.</p>
+<p>8	FRI	Pouring with rain today- and one of my jobs was to walk from the “Harpy”, over Tower Bridge, and visit three vessels on the south side, to deliver documents to the PO. He was on the last one, of course. Spent evening compiling an address list for Kay (Christmas Cards) and writing a letter.</p>
+<p>9	SAT	Morning soon passed, I left “Harpy” at 11.30 am as last week. To Islington to see “La Boheme” at Saddlers Wells. Rather disappointed by comparison with last week’s performance and returned home hardly more elevated. Mum, Dad and Roy Christmas shopping at Kingston. “Black-out” spoiled usual Christmas jollity. Roy spent his few shillings on presents for us and was so excited as almost to give the game away.</p>
+<p>11	MON	Replacing a colleague on the north side between bridges, not very active, but had a look round a fresh Dutch vessel, which arrived with eggs, bacon and butter. Instruction amending getting behind-hand, against a background of noise, and interruptions (Roy with his homework etc) did a little.</p>
+<p>13	WED	Received letter from Kay, asking from where she is to get gas —protective helmet for baby. Wrote to her this evening telling her to get one at Blackpool, and made sundry other arrangements re Christmas. Wants to avoid continually parting between us, and thinks it best to return home. Have suggested after my examinations in March, but would like her home much sooner really.</p>
+<p>14	THU	Acquired fine leather gas mask case which Mum bought Jack, but with which he was not satisfied. Cow hide, with zip fastener. Wrote Kay, asking if she would buy it for me for Christmas. Also enclosed a surprise £ note, saying it is lent. Hope not to have to ask for it back.</p>
+<p>15	FRI	Only a small Dutchman at Brewers Quay on the north side, between bridges. But boarded a fresh vessel, and visited another on south side when the officers that side took a half-day. Received a small package in Christmas wrappings from Kay, “not to be opened till Christmas”.</p>
+<p>16	SAT	A very cold day, and when we took over the river station and went full speed against the wind, our faces were frozen. There was a “general alarm” (practice) which we took to be a genuine one. George came in evening and brought me 2 presents for Blackpool parcel. </p>
+<p>17	SUN	On duty 8/4 in river. Weather very cold, whipped like a knife as launch forged against it. Found Dad had spent his day putting up the Christmas decorations. Very good. Are to have a 5/- Christmas tree, bought between us, this year. </p>
+<p>20	WED	Great dearth of ships in the pool. About 5 in all. Consequently, work conditions easy. Helped Mum pack up Fred and Mabel’s parcel. She also decorated the tree with gifts. Pretty sight. </p>
+<p>21	THU	The great event of the day was my visit to Westminster Theatre, a cosy place near Buckingham Palace, where I saw G.B. Shaw’s “Major Barbara”, and enjoyed it immensely. Strolled across Green Park to Piccadilly and back. Christmas cards from all over, I had one from Betty.</p>
+<p>22	FRI	A 4/11 turn today. Mum left early to see Lou, and Lou came here! Missed each other by 10 minutes when Lou went. Mrs Close also came over for a chat (!). 4/11. In view of rush hour walked to Shadwell from “Harpy”, (!) and in black-out walked back. — A night-mare! </p>
+<p>25	MON	Joyful present exchange at bed-side as usual, but only one stocking being un-packed. Present — Mum, Dad, Arthur, Jack and Roy. Sid and Doll visited, Sid only to dinner. Albert and Lou and children as usual, and Mrs Salter’s 2 children. Walk over Wimbledon Common; sing-song.</p>
+<p>26	TUE	My one day of the holiday on duty — 8/4 “Harpy”. A miserable foggy day, and plenty to do both indoors and out. Felt very tired, having had disturbed night in a strange bed. Another evening of romping, noise and games with Fred and Pam, George, Elsie and children as well as those above. Bed 1am.</p>
+<p>27	WED	With one of “Harpy” rummage crews for 6 days. Did a fairly good day’s work on 2 of many vessels which have arrived on station. Spent an excellent evening making references to dictionaries, writing Kay etc.</p>
+<p>28	THU	Dark fog turned to mushy snow in London, whilst in Raynes Park, the snow was quite thick and remained crisp. Had a fairly good rummage round again on duty, found the stoke-hold and engine rooms the best places! Mum and Roy, Lou and children to panto in Kingston.</p>
+<p>29	FRI	My zeal for rummaging has proved my un-doing. From walking to a ship in bridge coat and uniform clothing, I went to walking about snowy decks in overalls. Result, illness. Spent a fearful night, unable to breath. </p>
+<p>30	SAT	Forced myself to my usual routine, although I should have reported “sick”, but under our ridiculous regulations, absence on Saturday debars one from working Sunday, and I am on Sunday overtime tomorrow, which would mean the loss of income on which I rely. Felt better for being about and active, indeed, put on a good rummage on an Italian at Butler’s. Nice quiet afternoon in warm, Mum and Lou, Dad, out, children good. Enjoyed Jack’s “rhythm” records.</p>
+<p>31	SUN	Foggy dark and cold. Hoped to clear up outstanding jobs to start new year afresh, but spoilt it by lying abed till 10 am (!) and after giving a hand re the taking down of beds etc, which had been put up for Christmas visitors, had about ¾ hour left to myself. This briefly is the whole position with regard to my spare time, by the time I had cut my next day’s sandwiches, given a hand somewhere with a household job, out of a sense of duty, I am left with no time to myself, or no energy left to enjoy it. Left the family with Lou, Albert and children, to enjoy New Year’s Eve, whilst I went, unwillingly, to work 4/11.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/44/a3693044.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-788">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-713"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-713" id="name-713">
+                    Wartime diary of a customs officer, Ch 9 - Jan &amp; Feb 1941 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-713" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a4100473.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>JANUARY 1941</p>
+<p>1	WED	Mum and Dad spent New Year’s Eve  (as usual) at Lou and Albert’s. I, on reaching home (after paying electricity bill at Wimbledon Town Hall) Found Dad ill in bed with attack of pleurisy, Jack in bed with general debility, Mum (waiting on both) with sore throat, George visiting with strained arm! Kay arrived safe.</p>
+<p>2	THU	Early morning, very cold as well as dark. Later, walking across desolate docks, face chilled to bone with blast of wind. On Kay’s behalf, called on a cleaner’s in Morden re skirt re-pleating, change disputed. Called Home Guard Headquarters for Dad.</p>
+<p>3	FRI	Weather still excessively cold — probably 40 deg F or thereabouts. Stayed in warm in evening. Found Dad better and did an odd job or two for him. George en-route to visit Elsie and children, here, picking up train at Wimbledon at 1 am.</p>
+<p>4	SAT	Dad being unable, I sent off his Income Tax for him, whether whole or part assessment, I don’t know - £3 — 11 — 4. Half day, spent it amongst our furniture looking for necessary articles. Used rummaging tactics, flat on stomach with mirror and lamp (!) at times. Found some borrowed records which owner has been worrying me for. Had some enjoyment with playing them over.</p>
+<p>5	SUN	Very cold. Helped Mum as much as possible, and straightened up furniture. Damage to date - one picture broken. To work for 4-8 duty, meeting PO en route. Usual air raid but all clear about 11 pm.</p>
+<p>7	TUE	Snow everywhere, steady fall, attempted to clear front path but soon re-covered. To food office where there were long queues, so deferred business, visiting cleaners re Kay’s skirt. AA shells blasting overhead at loan raider as I walked through streets.</p>
+<p>8	WED	Spent the night watch with Mr Blake, PO, my own PO on leave for 9 days. There were no night raids so perused last year’s official notebook, making a fresh start for 1941. Had a few hours sleep at home then went to see film version of “Pride and Prejudice”: much enjoyed.</p>
+<p>9	THU	First thing down to the food office at Merton to notify removal and to change retailer. Then called cleaners, Martin Way, and collected Kay’s skirt, sun-ray pleated and dispatched that to Blackpool. 4 pm duty: Air raid 7.12, all planes passing over.</p>
+<p>10	FRI	The violent AA explosions finished at 2 am and the comparative quiet was eerie. Left office at 8 am in moonlight and had what seemed a speedy journey home after the slower route taken over last few months. Bought Mum some flowers in return for her kindness the day Kay returned to Blackpool. </p>
+<p>11	SAT	One of the hardest day’s on duty in my official career. Mr Blake, my PO, one time athlete, walked me around Surrey Dock and it’s environs sight seeing. The afternoon was similar, walking to Pier Head to meet launch (change of stations) and hunting for a fresh arrival (small ship). Left office footsore and weary, not regretful at losing Mr Blake for a time. The change of minute places me on reserve air raid at night, finished early.</p>
+<p>13	MON	Change of station for PO’s , renewed acquaintance with a man I haven’t seen for some years, among whom was my own PO for the week, Mr Bishop. George brightened his solitary life by visiting us, and was immediately engaged by Roy, and later, Jack in chess playing. No night raid, read my book — Jane Austin’s “Northanger Abbey”. </p>
+<p>15	WED	Wintry conditions lead to a fall of snow today, making conditions mushy underfoot. As yesterday there was much to do in the dock, principally duty taking. The evening was quiet, Mum reading, Dad relaxing; Jack and Roy playing chess, whilst I amended.</p>
+<p>16	THU	Was awoken by distant and local AA guns and found a night air raid was in progress. The “all clear” went as I got up at 6 am. Damage was to be seen at a Bermondsey church, and at shops, on way to work. Half day, beautiful afternoon, sun shining on snow. Lou at Mum’s helping. Walked Merton returned records.</p>
+<p>17	FRI	Snow everywhere still but hard and rutty underfoot and still dangerous. Getting aboard vessels at buoys in dock by boat was a risky business. A Mr Rix called and examined Dad’s radio. He is a friend of a friend of Jack’s (!) Heard from Kay and replied.</p>
+<p>18	SAT	Still cold and during the morning, more snow fell, to about 4”. Not on duty till 4 pm today. Spent the morning parcelling up bedding to be put away in the furniture storeroom somewhere. I am gradually straightening things out there. The guns were booming as I reached Surrey Dock: bombs were dropped elsewhere. There was no night raid and I was able to peruse at length the second story in my Jane Austin book, “Persuasion” and find it very engrossing</p>
+<p>20	MON	My first day on the “reserve”. To the “Harpy” and before the day was out received my first commission, relieving a “Harpy” rummage officer from Wednesday — end of week. Saw the damage to the Custom House in which one man was killed and two injured a fortnight ago. Met my fellow “reserve” and other acquaintances.</p>
+<p>21	TUE	Snow having now completely melted and a grey drizzle adding to soggy ground, walking conditions require strong shoes, thankful for my brogues. Sky gave opportunities to sneak raiders and we had three “alerts”. Sent off parcel to Kay containing Betty’s shoes and tobacco for Kay’s Dad. No raid again.</p>
+<p>22	WED	Attached to rummage crew 8/4 today. In walking to and from wharves in region of Tower Bridge, saw the extensive damage done by the fire raiders about fortnight ago. Shells of buildings stand only. Mr Rix, the wireless serviceman repaired Dad’s radio: refused payment.</p>
+<p>23	THU	A dull misty day and very muddy under foot: consequently a walk to Free Trade Wharf and back to rummage a coaster was unpleasant. However, other air raid damage was to be seen and so lent a morbid interest to the week. Quiet evening around fire side. To read.</p>
+<p>24	FRI	Less congestion on the old 245 bus route (now 127), as double deckers are now employed, actually Manchester buses loaned to L.G.OC. Half day, went to Globe theatre, Piccadilly and saw Barrie’s “Dear Brutus”, an amusing and touching play. No bed-mate, I stayed at George’s.</p>
+<p>26	SUN	8/4 Rummage. Set off in pitch darkness for South Wimbledon Station soon after 7 am. Fortunate in picking up a bus at Nelson Hospital. Dull and thick mist on the river, one or two ships got through. Quiet evening, contrast to yesterday, wrote part letter to Kay, Budget and helped Roy with homework.</p>
+<p>28	TUE	The rainy, misty day gave “sneak” raiders opportunities for doing their nasty work and four times we had warnings. Found supervisors in office rather trying, but harmonised satisfactorily. Very quiet evening, Mum, Jack, Roy and I all reading or writing. Dad — Home Guard.</p>
+<p>29	WED	Not quite so misty and only two air raid “alerts”, one early, one late.(5.40 pm). Heard from Kay, last letter was twelve days ago, Says she has not been well (pregnancy) and disinclined to write. All well otherwise. Completed letter to her started Sunday (gv) in order to send money tomorrow.</p>
+<p>30	THU	The feature of the war activity on the home front, on misty days, is the continuous “alerts” caused by low flying German aircraft with the accompanying vibrating “crumps” of bombs and AA gun explosions. We had another such day today. Staff do not shelter now.</p>
+<p>31	FRI	A morning in the “Harpy” office, spent in preparing the Sunday duty lists for the ensuing year. Half day, went to Shannon Corner Odeon and saw a delightful film “Hired Wife” Rosalind Russell and Brian Aherne, and a nasty one (war) “Pastor Hall”</p>
+<p>		FEBRUARY 1941</p>
+<p>1	SAT	A few stray sunbeams in the early afternoon gave us a break from the grey misty weather. This observed from the “Harpy” office where I spent the time, the office PO having left for his half day. The great invasion is due to begin at the first sign of good weather — hence the interest in it. Having acquired a set of boxwood chessmen cheaply (ex previous staff sports club), spent evening repairing knights, cleaning and re — lacquering other men.</p>
+<p>2	SUN	Was awakened from deep sleep at 4 am by Mr Willoughby (neighbour No 2) knocking up Jack for his 4-6 turn firewatch. Awakened again when he returned (with frozen feet) to bed. Jack is a recent volunteer. George left at 2.30 to give first aid lecture in Croydon to women. Spent much time in spare room.</p>
+<p>7	FRI	Dad about before us all this morning having been on Home Guard duties all night. Sent off a 10 lb parcel of sheets and clothing to Kay. Hope she receives it before weekend. Again attached to London Dock officer. Spent over 30 shillings on linen etc. in Ely’s Wimbledon. Also paid electricity bill. £1/14s/6d.</p>
+<p>9	SUN	Another Sunday off duty — pleasant in itself but rather worrying with it’s financial implications. Last time Kay and the children received a billeting allowance of 11s from the government, but this time they went from a non-evacuable area. Had a pleasant walk and did a few odd jobs.</p>
+<p>10	MON	Standby on the “Harpy”. Called National Registration Office (Dorset Hall) and had my identity card altered. This should have been done when I first removed. Workmen commenced erecting brick shelter at side of house. (Concrete foundation was laid last December). George came and stayed overnight. Roy met Dad from pictures. </p>
+<p>11	TUE	Day of contrasts: thick fog in morning so that patrol launch cannot proceed much below Tower Bridge, and sunshine in the afternoon so inviting that the PO (whom I was assisting) went out onto a deck seat. and revelled in it for ½ hour. Letter from Kay, replied, enclosing 5s/5d postal order. </p>
+<p>12	WED	Very ordinary day: At “Harpy” assisted office PO  with revised Sunday list for Shadwell and RC stations. In the evening, Dad went off to Home Guard Headquarters, (Grand Drive). Was deputed to 8/10 pm watch and spent rest of night there. I played chess with Roy; mended letter rack.</p>
+<p>13	THU	Sent off Sid a set of brass buttons, 9 numerals for which he had asked, and to which we had all contributed. On arrival home, found Lou had been, leaving me a suitcase of clothes she had washed for me. The complete wash-up of all dirty linen and bedding, etc. has cost me nearly 10 shillings.</p>
+<p>15	SAT	A dull day turned into a glorious bright one by 1 pm. Worked at the Sunday List (see prec.) and left for half day at noon. There was a raid on so I walked over to London Bridge Station where the underground terminate during raids due to the line running under the river when continuing northwards. Dad and I put in some Spartan work, replacing the furniture in the “furniture room”. Drawers and cupboards are more available and a much broader gangway made.</p>
+<p>18	TUE	Continued clerical work as prec. And completed second copy of list. There was an air raid after I had made entry in diary yesterday. Bombs at Garesfield and slight traffic dislocation. Dad “Home Guarding” all night. Helped Roy with homework, listened to Handel’s “Water Music”.</p>
+<p>19	WED	Upon reading in newspaper that Puccini’s opera “Madam Butterfly” was to be performed at 2.30 pm at New Theatre today, I decided to go and secured a half day, lined up at the head of the gallery queue and saw a splendid performance (to a half filled house!!). Madam Butterfly = Joan Cross. Fine view of orchestra = 28 performers.</p>
+<p>20	THU	A cold but clear day. Finished up my Sunday scheming job in office and was told my job for tomorrow would be rummage West India Docks. Saw Mr W in room 11 who said he had in mind my travelling difficulties but the job was unavoidable. Dad and I spent evening trying to mend cleaner hose — no good.</p>
+<p>21	FRI	In West India Docks today. A straight forward journey via South Wimbledon, London Bridge and Blackwall tunnel was accomplished in 1¾ hours. Total fares (workman’s ticket) 1s/9d! — far too much expense for my pocket. Met many old friends, saw part of dock damage. George came evening, Dad brought chess board home from his work — a fine job!</p>
+<p>24	MON	Had my half day very early and spent it with Fred and Mabel and children who had come on a birthday (Fred’s) visit. Doll also called in so we had a brt gathering. Keith, quite a big boy running about and talking: Pam quiet by contrast. All left at 6 pm. Dad to Home Guard.</p>
+<p>26	WED	Police dragging river this morning, it being suspected someone having fallen overboard, owing to our launch crew recovering a wallet (no money) floating on the water. “Wharves” officer reporting sick gave me a job for the day. Sent off month’s money to Kay. Quiet evening round fireside. Read evening.</p>
+<p>27	THU	Am reading the second book of A. Bennett’s works “Imperial palace”, the other one was “Riceyman’s Steps”. It is proving very engrossing. Had plenty of opportunity for making headway on the "Harpy" reserve during work, 2 “alerts”, sneak raiders owing to clouded sky. Roy returned school today — better now. Budget.</p>
+<p>28	FRI	During morning, learnt that I shall be required for duty at Surrey Dock on Sunday: Welcome news so far as my packet is concerned for I have been off duty four Sundays consecutively. Obtained time off to see “La Traviata” at the New Theatre: Liked the opera, but touring stage props only, and small chorus.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a4100473.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-713">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Walbrook: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>34</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Walbrook </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_36.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Patience &#39;Boo&#39; Brand and Rachel Bingham serve tea to men of the Royal Engineers from the back of a WVS tea car, donated to the WVS by the American Red Cross. The Royal Engineers had been building bridges across bomb craters in main thoroughfares. This photograph was taken somewhere in ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197958">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#236-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_36.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="236-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_36.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Patience &#39;Boo&#39; Brand and Rachel Bingham serve tea to men of the Royal Engineers from the back of a WVS tea car, donated to the WVS by the American Red Cross. The Royal Engineers had been building bridges across bomb craters in main thoroughfares. This photograph was taken somewhere in ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197958">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

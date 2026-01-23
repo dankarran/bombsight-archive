@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Abbey - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.201056541152934, 51.419380456089556], [-0.200717251076723, 51.419299370672292], [-0.20042171027038699, 51.419248468916017], [-0.199820530648223, 51.419175450030345], [-0.19884738749174999, 51.419143490959115], [-0.197703315027905, 51.41918351103984], [-0.194159505104537, 51.41958055999315], [-0.19387139625095701, 51.419300531521955], [-0.193552221881754, 51.418818635791936], [-0.193276051925761, 51.418527739711521], [-0.19042962430450799, 51.418860670431265], [-0.18759034101352301, 51.419216691315228], [-0.18743523318185301, 51.419274708967961], [-0.187351366318735, 51.419326664118017], [-0.18737172294755999, 51.418948725241641], [-0.18282702395414999, 51.419240727495911], [-0.182454053869398, 51.419397656733672], [-0.18238074143299501, 51.419319657175372], [-0.18234686267216199, 51.419244801459271], [-0.181366616837454, 51.419323732487513], [-0.18107591409675, 51.417815919961647], [-0.18090836314106901, 51.417122992140378], [-0.180833486426527, 51.416541110308387], [-0.181880176751511, 51.416281109174669], [-0.18207137493473299, 51.416242057108569], [-0.18236048883008099, 51.416227157644947], [-0.182289435461886, 51.416047044033483], [-0.182646787741189, 51.415898169992396], [-0.182793479460509, 51.415803065602013], [-0.18326197904885499, 51.415344125270508], [-0.18332201301272399, 51.415258073170172], [-0.18338216469173299, 51.415056116522969], [-0.18345229800638599, 51.41491922468775], [-0.18354720347164599, 51.414815314555838], [-0.18365915904890801, 51.414621177481031], [-0.18387914881630499, 51.413515405195177], [-0.18396027635266399, 51.412624569146878], [-0.184108333577159, 51.412131570057703], [-0.18415477649103101, 51.411753611797522], [-0.18415402604404099, 51.410955653641729], [-0.184276269456634, 51.410410825241172], [-0.184264198535183, 51.410284740667976], [-0.184189365056833, 51.410154727745692], [-0.18404036661366999, 51.409990838832584], [-0.18402671069125201, 51.409904777095399], [-0.184091735335316, 51.409669864867816], [-0.18427728563389401, 51.409341844351793], [-0.184319433068558, 51.409275892829285], [-0.184342036154267, 51.409181819842566], [-0.18425683023032599, 51.408927866589728], [-0.18421312895244399, 51.408669915303051], [-0.18431532109140999, 51.408427024171338], [-0.18438891166020199, 51.408315885986994], [-0.18537929154311, 51.407429996992413], [-0.18694465746647199, 51.405933214555226], [-0.19238079626869201, 51.408631682903149], [-0.19369477636962801, 51.409250756928706], [-0.197813969547188, 51.411250527423995], [-0.19880759773135101, 51.41176335148679], [-0.199208472762404, 51.411991231870282], [-0.199714242497401, 51.412317253910807], [-0.20043279924066801, 51.412855203659106], [-0.20111350396997399, 51.413442155094017], [-0.20162216270892, 51.413969987418788], [-0.202136317275355, 51.414449990447594], [-0.19975891703933099, 51.415183907403701], [-0.20139625048798199, 51.418718540314622], [-0.20150552519603501, 51.418911447876198], [-0.20195452776751099, 51.419541349124962], [-0.201056541152934, 51.419380456089556]]]]}, "type": "Feature", "id": 1456, "properties": {"pk": 1456, "name": "Abbey"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Abbey, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Abbey, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Abbey</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Merton</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Abbey
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Abbey, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Abbey: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>32</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Abbey</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-644"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-644" id="name-644">
+                    Wartime Diary of a Customs Officer: Ch 5 - Aug - Sep 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-644" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a3750888.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>AUGUST 1940</p>
+<p>2	Fri	Busied about the house today but seemed to achieve very little. A lengthy argument with plumber re necessity of creating trouble about the matter (see 1/8) he promised to fix on 17/5 ! Job fixed finally. Awaiting local councils decision re amending air raid shelter — constant 2” water.</p>
+<p>5	Bank HolMon	Of course, there was no bank holiday and work continued as usual, only they didn’t penalise us this time as on Whit Monday (13/5 — g v) of those profit making concerns, the shops, half closed as usual (including the co-op) national effort or no. Hunted town all over for bread e.g.</p>
+<p>9	Fri	Half day today. Clarice went to HQ of ARP at Merton to effect a replacement of Betty’s gas mask. (Window damaged) but was too late. I went in to play billiards with Mr Hersey. (I play a poor game though!) and he offered me a radiogram for £5.</p>
+<p>10	Sat	At work until 4 pm. Whatever I could say about work and shipping conditions I do not insert herein in case of loss of the diary might be to enemies advantage. Thus, notes are restricted to other than work hours. Kay and Betty left me in charge of Beryl in the evening whilst they went to Morden “Odeon” to see the film I saw Tuesday (evening). They greatly enjoyed the programme. I was in bed when they reached home.</p>
+<p>15	Thu	It was a fine day for the zoo outing. Kay and Betty went off at 10 am to Mum’s where they found Lee and Tony, Mum and Roy. I was left in charge of Beryl, who was handed to a near neighbour, (suitably decked up) on my departure for work. Short air raid warning at 8 over Croydon.</p>
+<p>16	Fri	An air raid warning at 12.30 whilst Kay was out shopping with Beryl in pram caused me some concern, but they sheltered in the Co-op employees place and were well treated. Betty ran home (from school homeward bound) quickly and joined me in the Anderson. To dentist in Morden and had teeth examined.</p>
+<p>17	Sat	Completed yesterdays entry somewhat prematurely. There was a second air raid at 5 pm and screaming bombs were dropped on South Wimbledon and New Morden Stations (with but little delay in service of trains) and on public house opposite Shannon Corner “Odeon” (meant for one of the factories on Bushey and bypass road) Kay and Mrs Hersey trembling in latter’s air raid shelter. Today, up to 9.30 pm, no raid so far. (front and back of house painting this week) </p>
+<p>18	Sun	Off duty. First air raid 1 pm. Kay, children and I in shelter with cross boards in place, but too crowded. Afterwards therefore, bailed out water from floor, removed clay, made side channels to receive water. Second raid 6 pm. Conditions in shelter more comfortable.</p>
+<p>19	Mon	Being off duty yesterday, I was not worn out after work today having had opportunity for a good sleep overnight. Called library, bought a bookcase for my books, visited Mum to see all well after nearness of Friday’s bombs, finally, Kay and I romped with kiddies.</p>
+<p>21	Wed	Kay and Mrs Hersey have decided to sleep in back room downstairs, and I arranged with Mr Hersey a mutual assistance pact. At same time enrolled in a “Neighbours Stirrup-pump Corps, remaining men in last 8 houses each side road belonging. Pump to be purchased by contributors.</p>
+<p>22	Thu	Air raids are concerning us not a little at present causing us all to look to our shelters, and, in the case of Mr Hersey and I, to move our bedroom furniture downstairs for use in room nearest shelter. Engaged ourselves on this but did not complete.</p>
+<p>23	Fri	Raid at 3.30 am. Whisked children out of bed, wrapped them up, and all in shelter, which thank goodness is dry after Sundays labours (evening). Both children slept, Betty on one at full length, and Beryl in Kay’s arms. Helped Mr Hersey with his furniture and collected radiogram from him.</p>
+<p>24	Sat	Air raids continue, one at 1.30 am. I was on duty and the whole “Harpy” staff filed quietly to basement of Custom House. The basement stretches the whole length of Custom House and is strongly reinforced with a network of steel girders. Kay and children were still in bed (as Betty had not to go to school). They took refuge in our own “Anderson”. Likewise, we sheltered at 3.30 pm when another raid took place. In both cases, heard no reports.</p>
+<p>25	Sun	On duty 11/8. An air raid at 11.30 pm lasting one hour. “Harpy” staff again in basement. On emerging, fires could be seen in dock district and in City itself. Slept most of day, getting up for dinner at 2. Couple of raids, one at 11 pm and about midnight.</p>
+<p>26	Mon	Regularising of getting up and mealtime determines success or failure in use of the day. Going to try to keep to a schedule this week. Air raid as I boarded tube at Morden 3.30, over by 4 pm, no delay in tube. Long raid commenced 9.30 continuing.</p>
+<p>27	Tue	Both 4/11 and 11/8 watches as well as other evening and night operatives, in Customs House basement shelter until 4 am. Dozed fitfully in a deckchair, others similar or on ARP beds. Resumption of transport and reached home 5 am. Up 11 am to Raynes Park shopping. Visited Mum.</p>
+<p>28	Wed	A raid started same time as before (9.30 am), lasted till midnight, recommencing 12.20 till 1 am. Walked home from Morden Station during the latter. Saw and heard nothing. Did a domestic job or two, during day. At 9 pm as I was homeward bound, siren again.</p>
+<p>29	Thu	This was a nuisance raid and aircraft flew around till 4 am, occasionally dropping bombs. Did not risk my 25 minute walk home under the circumstances in a Morden shelter, newly erected and unfinished. Not so comfortable. Had a morning supper with Kay at 4 am!</p>
+<p>30	Fri	The important events in our lives are now air raids. We expect them occasionally in the day, but almost for certain at dusk. Taking it in turns to leave duty on 4/11 earlier and tonight was my turn. There was a raid soon after I reached home.</p>
+<p>31	Sat	This raid finished at 4 am. Kay, Betty, Beryl and I tossed and turned, swapped places trying to get some sleep, but as the shelter is only 4’ 6” long, if Kay and I lay down, we had to stretch our legs up the “walls”. Further more, the air gets stale. “All clear” gave us 4 hours in our beds before the next round, and then another at 1 pm in which our “Harpy” ship keeper, at home, received a severe shaking. Allowed away from work early. Just joined Kay and kiddies before night raid.</p>
+<p>		SEPTEMBER 1940</p>
+<p>1	Sun	A day off duty. After experience of last night in shelter, this night was a great improvement after I had a reorganization. All clear about 4 am, thence sleep till 10. Other raids during day. Vera came and went out visiting in evening. I dug patch for grass sowing.</p>
+<p>2	Mon	Shortly, air raids will become so common-place that I shall cease to mention them, unless of course, the bombs dropped are unpleasantly near etc. Raids at 8.10 am, 4.15 pm (Whilst HB) and, of course, all night. Attended dentist at 6 for teeth-filling.</p>
+<p>3	Tue	Night raid finished 3 am. Thus had 3 hours undisturbed sleep only. Dead tired on reaching home, played with kiddies to radio before finally going up at 5 pm. It was literally a case of ‘head on pillow — then sleep’ — until 11.30 pm when the night raid began.</p>
+<p>4	Wed	The night raid was a short one and Kay and I questioned whether we should stay awhile in the shelter. She returned to bed with Beryl at 1 am; Betty and I at 3 am. During the day there were other raids in which we took cover in Customs House shelter. Pop brought valve re radiogram — OK.</p>
+<p>5	Thu	Apart from a short late raid last night, our night was undisturbed. Kay, Betty, Beryl and I do our best to settle ourselves in the shelter where we are forced to spend most nights but we are much cramped and seeping water makes it unhealthy.</p>
+<p>6	Fri	An air raid lost us an hour and a half of morning and led to my late departure from “Harpy” for my half day. Furthermore, at Morden I was caught again and lost a further hour in that uncomfortable shelter near station (see 29/8). Slept nicely in late afternoon, however, and only a short raid at night.</p>
+<p>7	Sat	It is now allowed for two 8 hour watches to run concurrently, providing each watch is on different days. Thus, being scheduled for night work at 11 pm. tonight, I may do the 4/11  watch also. Exchanged with a colleague to effect this. During the 4/11 watch, the firing of Surrey Docks and the Thames Wharf side took place presenting a terrible spectacle to us as we patrolled the river. Later, the Nazis returned and bombed fire and rescue squads. 400 dead, 1400 injured.</p>
+<p>8	Sun	Late relief owing to transport difficulties. I was soaked through with rain on my way home. Hardly had I laid down to recoup after night watch when alarm went. Later, earthed up shelter a bit more, night raid at 8 pm, in shelter and under stairs.</p>
+<p>9	Mon	Saw the tremendous amount of damage done to city as I walked from Bank (Station) to Customs House and later as I travelled from “Harpy” to Surrey docks to where I have been transferred 8/4. Almost whole dock in desolation, burnt out. (See 7/9).</p>
+<p>10	Tue	Arrived at Surrey Dock without difficulty today save for overcrowded tube trains. A lone raider put in an appearance at 1 pm and caused a rush for cover, but was engaged quickly by our fighters. Terrific rush on homeward journey owing to disorganisation of transport services.</p>
+<p>11	Wed	Narrowly missed death today when a bomb fell on shed alongside Surrey Dock office. Staff were in brick shelter, heard bomb coming and fell flat on ground. All luckily escaped injury but office wrecked and shed fired.</p>
+<p>12	Thu	Signed on at the “Harpy” today  at 11 am Travelled to Surrey Dock with Mr Luwberg (APO) who went to view the wreckage. Met the remainder of the Staff with their belongings just evacuating. Thereafter went home and had my first undisturbed sleep in afternoon.</p>
+<p>13	Fri	Whist all night raids occasioned, no comment now, a 4 hour raid from 10 am till 2 pm was exceptional. The Water-guard (Which now includes “Harpy”, Shadwell and South Bank staffs) found a room of their own and played solo, talked or slept. (basement shelter). Called dentist at Morden.</p>
+<p>14	Sat	A couple of short raids, fortunately did not curtail my half day. In the course of it, I tried to install my small radio in the kitchenette but found a good aerial was necessary and difficult to arrange for. Made up a couple of hours lost sleep in the nightly “cramp” in the air raid shelter. Aired bedding and made general preparations for our “night out” and retired at the earliest siren. The “alerts” (as they are now called) were spasmodic, but after 9 we kept in.</p>
+<p>15	Sun	A very unsatisfactory day from the point of view of achieving anything. A series of raids interrupted any job I attempted and lack of an undisturbed period of sleep made me, (indeed, us all) “nervy”. Today bought bottle of sherry for Kay to stim. her. Nearby guns cause all the bother.</p>
+<p>16	Mon	Damp misty weather did not stop usual raids. We had one that lasted from 2 to 5.40 pm of course, we adjourned to Custom House basement shelter and at 5 pm, permission was given to those who wished to depart. Then followed a terrific scramble home. Called Mum and library. </p>
+<p>17	Tue	Avoided the 200 yard queuing up for the tube and the terrible congestion by leaving the Custom House shelter at 4 pm. during the afternoon raid. This gave me time to have a leisurely dinner and to put still more earth on the shelter (AA barrage intense) before the night raid.</p>
+<p>18	Wed	Successive air raids throughout the day, so much so that we seemed to be constantly in and out of the Customs House shelter. The big AA gun on the common is a worry. At 11 pm (or thereafter) a high explosive bomb, meant for it, landed Hillcross Ave.</p>
+<p>19	Thu	The sudden appearance in misty weather, of an aeroplane flying low below Tower Bridge caused AA fire and a state of alertness which meant congested travelling conditions homeward bound. 3rd  of series, visit to dentist. Had fright when in shelter when an airplane shot down with a roar near the Nelson Hospital.</p>
+<p>20	Fri	Nightly sleeping in shelter being uncomfortable and disturbed (AA guns and cramp) Kay and I had a couple of hours in the afternoon. (Half day). Mum came for a visit with Roy (much to Betty’s delight, they have a fun game!) Our night in shelter was quiet, fear of colds though.</p>
+<p>21	Sat	Take over the river station in afternoon and was able to see  additions to the destruction of river side premises since my last trip (7/9). Am unable to comment. (info useful to enemy) but it was sad and awful sight. The Jerries are trying some retaliation for loss of aircraft on 19/7 (sic) and at 6 pm, one explosive and one time dropped near Cannon Hill Common. Exactly same during night, rather disturbing.</p>
+<p>22	Sun	The bombs dropped last night were at the Southern Railway main line, Raynes Park; and at Ashridge way, off Hillside Avenue, about 10 minutes distance (two killed). No evidence of the time bombs I mentioned. “Alerts” took up considerable part of day. Hardly any time for home jobs.</p>
+<p>23	Mon	Restless night in shelter; pm, perspiring to saturation, am, very cold. A day divided between the “Harpy”, the river and the Customs House basement shelter. Final visit of series to dentist, who had done a good job. Baled out shelter and returned thereto at 8 pm warning.</p>
+<p>24	Tue	Worried about Kay and Kiddies catching pneumonia owing to variation of temperature within and without the shelter. Considered some structural alteration to approach, opportunity to do the job is wanted though: raids force us to bed at 7.45, and travel takes more time. </p>
+<p>25	Wed	Beryl (in particular) is in such wonderful health that my worry re the shelter (see 24/9) is continual. She is a source of great happiness just now. This evening, slept better in the shelter than ever before.</p>
+<p>26	Thu	Home from duty via Raynes Park calling at Mums homeward bound. Seems unwell, either a lack of sleep, or worry. Call home as often as possible, as increased number of bombs being dropped in locality. Dad busy helping Willoughby’s to run electric light to shelter.</p>
+<p>27	Fri	A “molotov bread basket” of about 30 bombs exploded during the night and spattered houses and gardens with incendiaries. One that came through roof to top front room was promptly dealt with by self and neighbours, with small damage to furniture, but much mess. Day off to clear up.</p>
+<p>28	Sat	Whilst patrolling river, lone raider dropped a stick of bombs, from Millwall Dock, across river to Surrey, within 200 yards of launch. Mass raids in afternoon (Saturday). Spent in shelter with Beryl. Mended radiogram lid hinge and fitted new dial light. All listened in and danced to music. Light raids commenced usual time (8 pm). Bomb in night only 100 yards away, in roadway. Gas main leakage and other bombs in the locality.</p>
+<p>29	Sun	Off duty. Helped Kay and did some work to a protecting fence to shelter. Damage done to the property on Friday 27th subject of meeting of Elm Walk residents. Top end of Walk independent organisation. System of 2 hourly night watches. I concurred. Notified Mum with news of fire (27/9)</p>
+<p>30	Mon	Set alarm for 4 am. Voluntary fire picket from then till 6 am with a neighbour. Most danger from shrapnel but had loan of steel helmet. No incendiaries in our watch. Part of free time at home (5.50 — 8) undercover owing to air raid. Remainder earthing shelter.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a3750888.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-644">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-795"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-795" id="name-795">
+                    Wartime Diary of a Customs Officer: Ch8 -Dec 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-795" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/95/a3977995.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>DECEMBER 1940<br/>
+1	Sun	The intense cold and fog lead to only one short “alert” during the night, and we all slept the night very soundly. A very thick frost and some ice. 8/4 duties at Surrey Dock — quite busy, barely home in time for dinner and night raid. Warning however somewhat later. Returned home to sleep at 9.30 pm. </p>
+<p>2	Mon	One short interruption by a passing raider, but otherwise serene night. Still cold but less so. 8/4 at Surrey,  sufficient to keep us busy all day. Pursued same policy as yesterday with registered ARP — had all ready for an immediate departure from house on ”alert”. Had not to take shelter however.</p>
+<p>3	Tue	Grateful for undisturbed night’s rest. Needed energy for day’s labours. Full day at office till 4 pm — compiling shipping returns, conveying same to Custom House, visiting shipping and office duties. Evening raid commenced even as I sat at dinner table — 6 pm. One bomb near Cheam. Home at 10 to sleep.</p>
+<p>4	Wed	Very little disturbance during night, and slept well. Work a little less intense. Home a little earlier, in day light so was able to use bathroom (blackout not perfect). Very early “alert” — almost caught out. Spent evening in shelter. Wireless there now.</p>
+<p>5	Thu	Things seemed all wrong when I reached home this evening after a pretty hard day. Kay was queer, and domestic events had aggravated things. Gasman said meter was short registering and refused her usual rebate — said we owed them something. All smoothed out by shelter time however.</p>
+<p>6	Fri	A little less busy in Surrey Dock — not so hard on the feet. Never-the-less, had short rest after my dinner in which Kay and Beryl joined me. Received a shock when I received electric light bill for 29/-, September quarter, December quarter to come! The warning of night raid went at 6.30, but “all clear” 9.30.</p>
+<p>7	Sat	For the past fortnight, set off from home for work at 7 am, (to catch last workman’s 7.30). In the darkness which prevails until I reach Clapham Common by bus.  Diversions on the road shorter, or else, now, not taken at all: my travelling time to Surrey Dock has become 1½ hours. Took official half day. Kay out on arrival home. Listened to a Beethoven concert by London Philharmonic Orchestra. Reclaimed “Valor” heating stove from under fuel in coal cellar and found it still works well. No raid at night.</p>
+<p>8	Sun	Commencement of my night-watch week. Pleasant morning spent at home in upstairs front room at my desk studying official papers, and with playing with Beryl as a diversion. (Betty, of course, out with her friend Rosemary.) Intense night “blitz”, many bombs near shelter in Dock.</p>
+<p>9	Mon	Bombing eased up at 3 am. In Green, Silley Weirs shelter near dock gate, which has a fire — our own small and unheated (also unlighted). Traffic dislocated but home by railway — bus at Elephant. Good sleep at home, gas meter changed. Evening in front room, reading and cards.</p>
+<p>10	Tue	The expected air raid did not come. Moonlight almost all night now for the next week or so. Oiled and cleaned perambulators and Kay and I took Beryl to Raynes Park for shopping. (Betty, of course, at school (9.15 — 2.15 now)). A ship to board at 4 pm, but a quiet night, played my PO a game of chess.</p>
+<p>11	Wed	Night quiet this time (cf Sunday night), save for an alert 6 am — 6.30. Travelled home almost all way in darkness. Kay queer with her current nervous complaint, but better after a dose of salts(!). Good sleep, listened in. Shelter 6 pm — 10 pm.</p>
+<p>12	Thu	The local AA guns now fire salvoes simultaneously, a terrific noise which makes baby jump in her sleep and Betty (sometimes) to cry out. Any thought to rev’t in our decision to leave here now entirely gone. Another pleasant walk with Kay and Beryl in pram, to Raynes Park. On duty: raid at 6 pm.</p>
+<p>13	Fri	Succession of planes passed overhead at Surrey Dock until 2 am. Did some amending of insurance. Kay had had a wretched night in Cannon Hill Shelter, even the valour stove did not fend off cold. Thick morning frost and treacherous underfoot. Morning in bed, leisurely afternoon. No warning till 8, all clear 9. </p>
+<p>14	Sat	Good night’s rest, did not hear a gun all night. Left Kay and children sleeping soundly. 8/4 Surrey Dock, a full day. Got home at dusk, had hardly finished dinner when siren went. Moonlight, but very cloudy and teeming with rain, before taking baby out in it waited for first sound of AA gun. Which fortunately never came, “all clear” sounding about half hour later. Rest of evening all together in front room, listening to radio (“In Town Tonight”) and playing with Beryl who toddles around to each of us with her toy dog, doll or her book.</p>
+<p>15	Sun	No lay in this Sunday! 8/4 at the “Harpy” so was up at the usual time = 5.45 am. Work not so busy as at my normal duty station — Surrey. Was glad to leave the “Harpy” at 4 although I met many old friends. Siren sounded early — evening in shelter, but returned home.</p>
+<p>16	Mon	Undisturbed night but a very busy day. Conditions underfoot muddy, shoes, socks and trousers smothered. After dinner at home, awaited siren, whilst Beryl played around in the front room in her “Pixie” hat, light blue coat and leggings — a pretty picture. Shelter “alert” 10 — 10.20.</p>
+<p>17	Tue	Went about our business today in a choking fog. It affected my nose and throat, and gave me the feeling of a cold. It had it’s advantages, however, for after preparing as usual for the evening bombing, settled down comfortably to radio, knowing a raid to be improbable — and it was!</p>
+<p>18	Wed	Weather conditions better and we were not so sure of there being no evening raid. Although we were at the “ready”, nothing happened. Beryl trotted around from chair to chair, Kay and Betty knitted. Radio and big log fire. </p>
+<p>19	Thu	Description of damage by heavy explosive and incendiary bombs in Surry Dock, and the condition of shipping, I am precluded from writing about. That is why I have very little to say about my time at work. In the evening, missed the “alert” due to having the radio on. “All clear” at 9 pm however.</p>
+<p>20	Fri	Over did it this morning and did not arrive at work until 9.10 am. However, as this is not a habit of mine, nothing much was said. For certain reasons, our half day didn’t start till 1 pm. Called in on “Kennards” Wimbledon on homeward journey re. Removal. Finally fixed up with Ely’s by phone for Saturday December 28th.</p>
+<p>21	Sat	Walked into Wimbledon with Kay, Betty and Beryl in pram and there did best part of Christmas shopping. Met Mum there, who aided us in choosing Roy’s present. Mum had secured a turkey — 25/- (current rate being nearly 3/- a pound). Called at Town Hall to pay electricity bill, but was too late. Booked up at Ely’s for my removal Saturday: This was the lower of the two replies to my five letters to removers for an estimate. On duty 4 till midnight. Aircraft passing over, gunfire, no bombs.</p>
+<p>22	Sun	The hullabaloo stopped at 5 am “all clear”. Off duty at 8. Secured good travel facilities from Surrey Docks station home via Whitechapel, Monument, Bank, Clapham Common by bus to Morden. Slept well till 3 pm, which gave me until 6 pm before evening raid. Not severe, home at 9.30 pm.</p>
+<p>23	Mon	Spent an hour or more on Betty’s bicycle, her pedal having come off again. The bearings had seized causing pedal to unwind itself from crank — very dangerous. All family accompanied me to Tooting for shopping, Beryl toddling between Kay and Betty. Then went on to Clapham Common, and work, 4 pm.</p>
+<p>24	Tue	Weather conditions (intense cold, some snow) made flying difficult and the few bombers that did come over flew low and were subject to much AA fire. 5 bombs were dropped between Morden and Raynes Park causing consternation in shelter last night, Kay said she slept, prepared for evening raid which fortunately did not come. Filled kiddies stockings, alas, not much to put in.</p>
+<p>25	Wed	A happy time whilst children unpacked their stockings. Month’s rail and removal expenses restricted our pockets. There were more presents for them at Mums, however. I had my dinner at home, visiting Mum’s in forenoon. Quiet time on 4 — midnight watch.</p>
+<p>26	Thu	The quietness (see prec) refers to absence of air raid. Actually, evening of Christmas day was busy, ship visiting and Jergilg blue books until 11.30 pm! A jolly day at Mum’s in usual fashion. Present Lou, Albert and kiddies, George (Elsie and children evacuated). Absentee Sid in RAOC Leicester. </p>
+<p>27	Fri	Big parcel went from Mum’s to Sid today to which all present contributed: ourselves some chocolate. From Mum’s, Kay and I went home to pack up mat’s lino etc. I had to leave for 4 pm duty, at 2.30 pm, leaving Kay to “go to it”. We had an air raid, incendiaries and high explosives at New Cross 7 pm — midnight. </p>
+<p>28	Sat	Moving day! As soon as it was daylight, Ely’s van came and our things were soon packed therein. It was a busy time for Kay and I; fortunately, Mum kept the children. Stowing the furniture into Mum’s upstairs back room proved a difficult job, but finally all was in. Dad and Albert gave a very useful hand. Passed over Betty’s old three wheeler on loan, to Albert for Tony. Kay and I back to the house for clearing up and conveying to Mum, some more coal. No raid at all.</p>
+<p>29	Sun	On 8/4 Sunday duty at Surrey Dock. Was fortunate in getting conveyance to South Wimbledon Station and from thence, proceeded to work by usual route. Busy whole of watch. On arrival home, (now “home” is 1, Fairway) booked rail and pram tickets Raynes Park to Blackpool. Evening, did sundry jobs appertaining with Kay’s departure tomorrow.</p>
+<p>30	Mon	Travel Grand Drive — South Wimbledon, Tooting — Clapham, Tower Bridge — Surrey Docks, by bus, intermediately by tube, or walked. Last mentioned stage owing to air raid damage had to be walked, hose and fire engines everywhere. Saw Kay and children off at Euston, they missed train owing to travel difficulties. Reorganised house furniture.</p>
+<p>31	Tue	Slept well in top front room fitted up last night. No air raid, to and from work in reasonable time. Allowed to leave work early enough to be able to make 2 visits to 171 for coal. Then handed in key: Another chapter in life over! All away at Lou’s. Busy evening letter writing etc.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/95/a3977995.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-795">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Abbey: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>32</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Abbey </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

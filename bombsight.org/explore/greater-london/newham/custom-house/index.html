@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Custom House - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922492800000, 1], [-922233600000, 3]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[0.022337464596504, 51.514365051970302], [0.022637464093647999, 51.51462993692931], [0.022821102700055999, 51.514912003787366], [0.022880468660591999, 51.515022734503383], [0.02292674225533, 51.515263006319039], [0.02282599982061, 51.516079845588457], [0.023037844934543, 51.517302720723144], [0.024133154116051998, 51.517340721925649], [0.025372525853300999, 51.517315669911902], [0.026462491728081999, 51.517273802421322], [0.029168181335835, 51.517161824878045], [0.030713134098919001, 51.517080846472751], [0.031257695202725998, 51.517029968704485], [0.031718617317871997, 51.517022961039949], [0.032282588304353002, 51.517023871762618], [0.03324959554984, 51.51711390277277], [0.033687422409694003, 51.517174878402557], [0.034657040163749001, 51.517403818590729], [0.035450673980955, 51.517625823095969], [0.035933160853576, 51.517778892605513], [0.036557672059710999, 51.518005796004218], [0.038196930551471997, 51.518704748325739], [0.038986974544026998, 51.519006740021325], [0.040287568327291003, 51.519443738652242], [0.041283197886310997, 51.519688747332815], [0.041430753972573002, 51.519482716364656], [0.041283059480277003, 51.519443701237968], [0.040842550263476003, 51.519222756023638], [0.040808872890314998, 51.519194813970856], [0.040806918607992002, 51.519110820033589], [0.040945196400960997, 51.518979853389666], [0.041064402583383001, 51.518925787505196], [0.041164774094959999, 51.518893827493272], [0.041500500976603003, 51.518846812753971], [0.041639348814896997, 51.51880885084136], [0.041781444870241997, 51.518742865868148], [0.041958912267849001, 51.518601795400244], [0.042029621458053001, 51.518510919124338], [0.042141089742064, 51.518223881753691], [0.042225556878500999, 51.51807796574235], [0.042551123122553998, 51.517643030706701], [0.042616917094372, 51.517281047956175], [0.042681019217063, 51.517224008016328], [0.042665672646828003, 51.516619098792859], [0.048017753648245003, 51.516382300572111], [0.047984135227027998, 51.515954321475128], [0.048139500087127002, 51.515622255147122], [0.048179762117650002, 51.515435373430392], [0.048108130450373002, 51.514742354457901], [0.048066894651462001, 51.514666358080909], [0.047905503858180001, 51.514522484043134], [0.047871107106081001, 51.514458449803158], [0.047863563545313001, 51.51438601809307], [0.047825907978728002, 51.513832412519243], [0.047970634522397998, 51.513508423763156], [0.047949400434813001, 51.513191633375037], [0.047872134050481997, 51.513075656349756], [0.047573684783394, 51.512727617866638], [0.047546399145753003, 51.512681591024453], [0.047529271392344002, 51.512560622537819], [0.047019076714792003, 51.512572622911286], [0.046998739981374001, 51.51244061405194], [0.047089114728617001, 51.512346720781068], [0.047093485402357999, 51.512303649727365], [0.047028752609924, 51.5123061885403], [0.04692286133003, 51.512234690610192], [0.046853615320100003, 51.51221720581492], [0.046659700411579998, 51.512050710580681], [0.046664430285478002, 51.512015644721323], [0.046732133360630999, 51.511978632675017], [0.046742674822854997, 51.511932636121266], [0.046658702895889997, 51.511867781543991], [0.046597317217350998, 51.511864644489236], [0.046536369544761001, 51.511891694624317], [0.046290242795950003, 51.511705740564793], [0.046563380076487998, 51.511542752971152], [0.046789186633208003, 51.511382708751547], [0.046891259647569003, 51.51128874956909], [0.047055597573514997, 51.511096755748433], [0.047222102536041997, 51.510852732316657], [0.047370123811152, 51.51045783593306], [0.047402806021746, 51.510101916153516], [0.047358222410402002, 51.50900712407968], [0.047248852370198997, 51.507431228649097], [0.042551317908769003, 51.507579183954491], [0.040459599361295, 51.507107081912551], [0.040434516900034002, 51.506888179683912], [0.040399997807584, 51.506861661076186], [0.040318164621685998, 51.506844262554644], [0.039917828634249003, 51.506854173698109], [0.039886074491171999, 51.506627237839446], [0.039370546563479998, 51.506639298105888], [0.039306238387477002, 51.506611188450556], [0.039180414756062001, 51.506415254288875], [0.039186409095824999, 51.506327751639574], [0.039516318355222999, 51.505789336287989], [0.039471776422629001, 51.505457378077153], [0.034066837722666998, 51.505612239336287], [0.032490026808344001, 51.505535171853978], [0.030940982092389002, 51.505556106165805], [0.030943733899620001, 51.505719197140102], [0.029535466617849001, 51.505726154835266], [0.029497725274232001, 51.505748162607127], [0.027017159432982, 51.50570211946949], [0.026427802772861001, 51.505613110450817], [0.025439324338831001, 51.505581427690359], [0.025435802483269002, 51.505603828437053], [0.025708817500966, 51.508753728007527], [0.025689384275753999, 51.508965675847755], [0.025481875398235002, 51.508957740075054], [0.025464624517378, 51.509157697493222], [0.025473642105942999, 51.509543664854412], [0.026345473649083, 51.509542656413124], [0.026346894131704001, 51.509574668367435], [0.026795492482755999, 51.509575627690005], [0.026605016461214, 51.509951561242666], [0.026229062455712999, 51.509943581540419], [0.025520111100178999, 51.511200472102352], [0.021845058387055999, 51.511178459450605], [0.021794748051671999, 51.511242414408322], [0.022014517658181999, 51.512239205726566], [0.020674916642915001, 51.512194289326594], [0.020250714717382001, 51.512195271170377], [0.022337464596504, 51.514365051970302]]]]}, "type": "Feature", "id": 1480, "properties": {"pk": 1480, "name": "Custom House"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Custom House, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Custom House, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Custom House</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Newham</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Custom House
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Custom House, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Custom House: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>118</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>1</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Custom House</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-471"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-471" id="name-471">
+                    A Canning Town Evacuee: Part 1
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-471" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by ReggieYates (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/48/a2179848.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>A Canning Town Evacuee — Part 1</p>
+<p>My name is Reg Yates. I lived in London at Canning Town, London E.16 and Plaistow E.13 during WW2, going to Beckton Road Junior and Rosetta Road Schools except for my periods as an evacuee to Bath during September to Christmas 1939,then Cropredy May 1940 - July 1942.</p>
+<p>I then worked at A. Bedwells, Barking Road delivering groceries for the rest of the war.</p>
+<p>I'm still alive and kicking! Anyone remember me?</p>
+<p>A Community Coming Together </p>
+<p>War clouds came and we had to dig a big hole in each garden at least three and a half feet deep, at least six feet wide and roughly eight feet long depending on the size of the family using it, an awesome task.  All the neighbours pooled resources and after about two months hard work most houses had a hole and had the Anderson Shelter erected to the supplied instructions.  We had to make sure the rear exit worked properly.  Two-tier bunk beds 2 x 6 feet one side and one other bunk bed and two chairs were there along with a bucket for the toilet and a bucket of water to drink.  We never knew how long we would have to stay in there.  During The Blitz we had to stay all night.</p>
+<p>The shelters proved to be a godsend as they survived everything except a direct hit. They survived near misses and houses falling on top of them.  People came out shaken but alive.  They were worth their weight in gold.</p>
+<p>There was another shelter built to fix over the kitchen table, steel top and legs for people who could get underneath in an emergency.  Safe from falling masonry, it was called a Morrison Shelter after Lord Morrison a Labour Lord at the time.</p>
+<p>I started smoking about this time.  I could buy five woodbines and a box of matches for two pence, boys will be boys. I also remember going on an errand for my Dad, I had to take a letter to a house in Wanlip Road, Plaistow and she had tiles on the walk up from the gate to front door.  She went ballistic because I dared to skate up to her front door.  She made me take them off whilst she wrote a note to my Dad saying what a cheeky so and so I was for skating up to her door and that if I came again I would have to walk to teach me a lesson.</p>
+<p>There were plenty of rumours about kids having to get evacuated very soon and on 1st September 1939 we were transported to Paddington Station and put on a train to the country.</p>
+<p>We all had to say goodbye to our parents at school after they tied a label around our necks with name, date of birth, religion and which school we were from.  So just after my eleventh birthday I said goodbye to Beckton Road School for the first time and landed up in the old city of Bath in Somerset.</p>
+<p>Evacuated For The First Time</p>
+<p>It was only two weeks after my eleventh birthday when we arrived at Bath Junction signal box, and someone said “just the thing for you kids from the smoke, a bloody great bath.”  I didn’t realise what he meant until years later!</p>
+<p>I was sent to a place called Walcott in Bath, and I was sent to a Mr &amp; Mrs Pierce who to my eyes, were quite old looking.  However, they were very nice people and looked after me very well.  </p>
+<p>They had a middle-aged navvy with whom I shared a bedroom, and our own beds I’m glad to say.  I remember him getting dressed for work, hobnail boots, corduroy trousers and he tied about nine inches of car tyres around his kneecaps.  He had a walrus moustache and looked a fearsome bloke to look at, but was a gentle chap really.</p>
+<p>My two sisters were evacuated to a house just around the corner up a steep hill.  Doris was eight years old and Joyce was thirteen and a half.  They stayed with nice people who had two girls of their own of about eight to ten years of age.  We all went to the local school along with about forty other kids from London.</p>
+<p>We all had to sing a hymn ‘For those in peril on the sea.’  Just before Christmas we lost an aircraft carrier, HMS Glorious, with great loss of life and most of the sailors came from the West Country.  The local rag had pages and pages of photos of those lost on the carrier.</p>
+<p>Sometime in November 1939 I was playing a game called catch and kiss with some of the locals.  This time they went along the road at the top of the hill.  On one corner was a grocers shop, which had a wall with big white letters, “we sell Hovis bread”.  What I didn’t know at that moment was that the police had very recently made the shopkeeper black it out as it could be seen from an aeroplane.</p>
+<p>Running at full pelt, I ran straight into it thinking it was the turning.  I was in hospital for three weeks.  When I started school again, I could not see the teachers’ writing on the board. </p>
+<p>At the end of December our Mum came to Bath to see us, and after saying goodbye to my sisters and all the other kids, she took me back to London so I could have treatment for my eyes.  I had damaged my optic nerve and have worn glasses ever since.</p>
+<p>Joyce came home in February 1940 when she was fourteen, but Doris stayed there until just before the end of the war in 1945.</p>
+<p>Home Again</p>
+<p>Christmas and New Year came and went, 1940 began and the war was getting worse. I think rationing was introduced about now and some foods were already becoming scarce.  Cigarette cards disappeared from packets to save paper and you couldn’t buy pickles loose in a basket.</p>
+<p>A couple of weeks went by and the time came to go back to school. Nothing much changed as most children who got evacuated the previous September were still away, but a few more seemed to come back every weekend.</p>
+<p>The Beckton Road School was taken over by The National Fire Service, a first aid post and umpteen other things so they found the kids another school called Rosetta Road (off Freemasons Road) that was built of wood and all on one level after the First World War when all the servicemen came home.</p>
+<p>Council workmen had dug some slit trenches just in case of an air raid but they looked useless to me, because if it rained it would be like running into a mud bath.</p>
+<p>There was some talk about kids having to leave London again and come May it proved to be true and about seventy of us from this school were sent to Banbury in Oxfordshire.</p>
+<p>Later in 1942 Mum and Dad moved to Wigston Road that was the next turning.  Most people had moved because of the bombing.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/48/a2179848.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-471">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-453"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-453" id="name-453">
+                    A Canning Town Evacuee: Part 3
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-453" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by ReggieYates (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/20/a2179820.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>A Canning Town Evacuee — Part 3</p>
+<p>Starting Work</p>
+<p>Having returned from being an evacuee, on my 14th birthday I started work for a firm called A. Bedwell &amp; Sons who supplied grocery and provisions, delivering to grocery shops around London, Essex and some parts of Kent.</p>
+<p>The firm no longer exists as the end of the war saw delivering to shops become outdated with big warehouses springing up who sold to shopkeepers willing to pay for goods as they wanted them in bulk.</p>
+<p>I started as a van boy and when I was seventeen, I was officially allowed to drive a one ton van all by myself, and took another van boy on our delivery through Blackwall Tunnel, up the big hill to Blackheath and via Kidbrooke to Crystal Palace, then back via Lydenham and through Blackwall Tunnel again.  Quite a nice day’s work, safe and sound.  I really enjoyed myself and have never looked back.  </p>
+<p>We also had to pick up a load from various wharfs, another warehouse and some firms, at the same time looking out for any chance of getting things that were on ration.  The war never ended until I was seventeen years old and rationing didn’t cease completely until about 1952, although as time passed things got easier and easier.</p>
+<p>One of the vans I drove was an old model T type Ford with large back wheels and the body on top of the chassis, which made it heavy.  It was hard to control in wet weather, the engine was so ‘clapped out’ it couldn’t climb a hill to save its life and it used half a gallon of oil every day which used to come out of the radiator cap with hot water, making an awful mess.</p>
+<p>Going to one shop in Potters Bar we would fill the van right up to the maximum weight and at a big, long, steep hill we would try to get at least half way where there was a gate that allowed us to turn around and reverse the rest of the way up until just before the top where we turned around in a field and continued to the top facing the right way but smoking and steaming.</p>
+<p>We kept complaining about the van and after about three months it would not start, so the garage mechanic said he would take it off the road and strip it down.  The next day he called me in the garage to see the state of the engine.  The van was eighteen years old so I expected the worst but was still amazed.  The inside of the piston bore was red rust and oval instead of round and the valves were burnt so much that the round bit at the top of the valve was half the width they should be.  He reckoned the engine had been running on fresh air for years.</p>
+<p>He told the boss it would cost more to repair than to buy a new one, which was reluctantly agreed to and so he bought a smaller van which is similar to today’s transit.</p>
+<p>The new van climbed the hill in Potters Bar first time, but on the way back I skidded it in the rain and finished side ways in a ditch which I managed to get towed out for a couple of quid.  Luckily there was no damage apart from some paint scratches, which the mechanic sorted out for me for a drink.  Nobody was any the wiser - I hope!</p>
+<p>Another day I was driving a long wheelbase Bedford lorry in Leytonstone and the steering snapped, I hit the kerb and finished in someone’s front garden, lucky again!  All this in my first year as a driver, mishap after mishap.</p>
+<p>There was another time while I was driving to Romford in monsoon conditions at about ten in the morning, I got as far as The Dukes Head pub in Barking when I saw a trolley bus at a stop on the opposite side of the road and an army three ton lorry coming along behind it to overtake.  The army lorry stopped beside the bus leaving me nowhere to go except between the army lorry and a lamp post which I did, but the top of the body and sides of my truck jammed between the lamp post and army lorry with the rest including me continuing down the road for twenty yards.  To make matters worse all the goods were now exposed to the elements.  It was like a scene from a Laurel and Hardy movie!</p>
+<p>Fortunately for me a police car behind the army lorry stopped and the officer told the army driver to stay put, then guided me back under the van’s body.  We borrowed some rope from a nearby garage and tied down the body to the floor.  After ticking off the army driver for being so stupid he escorted me back to my firm near the Abbey Arms in Plaistow. Another one I got away with!</p>
+<p>While I was a van boy and still only sixteen, (you couldn’t legally drive until seventeen) my driver decided to teach me how to drive the van.  He put a blindfold on me and made me feel the gears, levers, clutch and gas.  Then he revved the engine so I could hear the sound of the engine and feel the clutch ‘bite’, and drove so I would know by the sound of the engine when to change gear.  Soon he taught me to drive the van for real on the quiet back roads and eventually let me on the open road.</p>
+<p>Every Tuesday while he was courting, he would pick up his girlfriend from work and take her home where he went in for a bit of nookie.  I had to wait in the van before we carried on with our deliveries. Her mother always used to make me apple pie and custard, which I ate in the van while waiting.  Once he had taught me to drive, he let me take the van on my own (age sixteen) to continue deliveries while he had his nookie.</p>
+<p>During Christmas 1945, my mate who was my driver got married to his girlfriend.  She lived in Gidea Park, Romford and worked at Romford Steam Laundry (where Romford Police Station is now).  The wedding was a big feast and drink up, which lasted right up to the New Year.  His dad bought a forty gallon barrel of beer from the Slaters Arms and we pushed it home to his house, where we took his back fence down so we could get it in the garden and lift it on to a stand he had made so we could get the beer easier.  </p>
+<p>His dad said “nobody goes home until all the grub and beer has all gone”, so we stuffed ourselves silly with all the drivers eating 30lb of cheese, 4 x 7lb of spam, 10lb of butter, a big bag of spuds, many loaves of bread, 10lb of bacon, three dozen eggs, 4lb of tea, a case of evaporated milk and a big bar of Ships chocolate used for making drinks.</p>
+<p> I got home on New Year’s Day at teatime stinking like a polecat with a week’s growth of hair on my face. I really enjoyed myself.</p>
+<p>Starting back at work I found two new Morris Commercial three-ton lorries and I got one after we all tossed up coins to see who would get them.  Lucky me, it was a lovely lorry to drive, pretty fast as well.</p>
+<p>Coming back from Chatham the police would chase us every week for speeding, but could not catch us because we were having a cuppa in a wayside café when they caught up with us.  Mind you the police in those days had 200cc motorbikes.  It was not until later that they had much faster bikes like 500cc Nortons and Triumphs. </p>
+<p>It was not long after this incident that I had to go to a South London wharf in Tooley Street to pick up five tons of sultanas.  Coming up to Tower Bridge, the bridge was up, so I crept up on the outside of the queue of traffic.  In those days there were still a lot of horse and carts around so it was a crawl over the bridge.</p>
+<p>Just as I got over the bridge on the east side I saw an old motor coach come out of Royal Mint Street onto Tower Bridge.  There was an obelisk there dividing the road for southbound traffic but you could go either side. I stopped dead so the coach could get by and a horse and cart came up on my near side.  The coach kept coming and I could see that it was going to hit us if it didn’t pull over a bit, so I told my van boy to quickly get under the dashboard and curl up. </p>
+<p>Unfortunately the coach did hit us, right in the radiator and the bonnet flew off into the River Thames.  Our engine came back into the cab, the gearbox came up through the floor and five tons of sultanas went all over the cab.  Both doors caved in trapping me in the cab right against the steering wheel and the offside front lamp of the coach came through the nearside windscreen, frightening my van boy because he could not move.</p>
+<p>Somebody called the police, fire brigade and ambulance.  Fortunately they managed to get my van boy out in minutes, but I was stuck for about forty minutes until they cut the steering wheel in half and forced the door out.</p>
+<p>Imagine my surprise when I was pulled out, I never even had a scratch.  My saviour was a leather belt I wore to keep my trousers up and an old army belt I used to wear around my boiler suit.  The steering wheel went flat where it hit my belt and saved me from any injury.</p>
+<p>When I got to hospital they could not believe that I didn’t even have a bruise.  I was so lucky.</p>
+<p>The coach driver had more room than me to get by and needless to say, he was charged for driving without due care and attention. </p>
+<p>These are just a few of my memories of WW2. I hope you enjoy them. I am certainly enjoying reading all the stories from other people.</p>
+<p>I now live in Devon.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/20/a2179820.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-453">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-504"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-504" id="name-504">
+                    Childhood Recollections: In London and Bletchley
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-504" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by derek_j (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/98/a2714898.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>
+I was born in Prince Regent Lane, London E16 in 1933.  My father, William Johns, managed a small grocery shop with my mother Olive assisting him and we lived over the premises.  It was about half a mile from the Victoria and Albert docks and this was to have profound consequences when war was declared in 1939.
+</p>
+<p>
+Things began to hot up in the autumn of 1940 when the Luftwaffe began their raids on London.  The docks were a prime target and every night the family took refuge in the Anderson shelter in the garden behind the shop.  Though only six-and-a-half at the time, I can clearly remember the nightly fall of bombs close by.  One night in particular was different when a new explosive sound punctuated the crash of the bombs and the banging of the anti-aircraft guns sited in the recreation ground just up the road.  An almighty barrage of a different nature made us wonder what was happening.  The next day we learned that HMS <em>Cossack</em> had been moored in the docks and had contributed its gunfire to the assault on the enemy bombers.  This was a tremendous morale booster to everyone.
+</p>
+<p>
+As the Blitz reached its heights in September, it got too hot in West Ham and my father decided to move us to my aunt Rose's house in Aveling Park Road, Walthamstow.  Even this got rather fraught after a while and the two families decided to pack suitcases and get out of London.  They had no real idea of destination, but the men decided to get tickets from Euston and go to Bletchley.  Why they decided this I do not know.
+</p>
+<p>
+Suffice to say, we ended up at Bletchley railway station and my father, my Uncle Ernie Young and his teenage son Ken walked off down the road to find somewhere for us to stay.  We were refugees in the truest sense.  Finally, after a very long time, the men returned and told us they had found an old couple in Fenny Stratford who would give us lodging for a few days.
+</p>
+<p>
+A long walk ensued and we finally reached the home of Bill Busler and his wife.  The 'few days' extended to a couple of years for my family (my uncle and family returned to Walthamstow when the Blitz quietened down).  My father commuted to the business in West Ham coming home at weekends, only to find one Monday morning that the shop had received a direct hit the night before.
+</p>
+<p>
+My sisters were called up for war work. Marjorie, the eldest, ended up at the famous Bletchley Park working with the code-breakers whilst Eileen, my younger sister, joined the ATS and was stationed at the RAOC depot at Bicester.
+</p>
+<p>
+Our war culminated in a most amazing coincidence.  Marjorie's husband, George Alexander, was a Bombardier in the Royal Artillery serving for a time in Iceland.  As D-Day approached his unit was billeted in the old West Ham speedway stadium just across the road from dad's shop.  
+</p>
+<p>
+One of  George's officers, a Lieutenant Pepper, happened to say that he was short of cash and needed to cash a cheque.  Although the stadium was sealed off, officers were allowed out at this time and George said to him 'I can help you there'.
+</p>
+<p>
+He suggested he visit the shop at the top of the road and say to the shopkeeper (my father) that George had sent him.  The cheque was duly cashed and dad told the glad tidings to Marjorie.  Despite tight security George managed to wangle a pass out of the stadium for a brief but emotional reunion with Marjorie.
+</p>
+<p>
+Not long after, the unit embarked at the docks for their journey to Normandy a few days after D-Day, landing at Arromanches Gold Beach.
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/98/a2714898.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-504">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-501"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-501" id="name-501">
+                    Custom House in the Blitz
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-501" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Steerpike (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/47/a2041147.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This is on behalf of my father as he does not have Internet access.</p>
+<p>Some Experience of the London Blitz, 1940</p>
+<p>My name is John Davey. I was born on December 27th 1924 in South Moltom Road, Custom House, West Ham, and a couple of miles from the Royal Docks.  In September 1940, on the Friday evening of the weekend the docks were first blitzed, I was sitting with my friend in his house.  At about 7 p.m. there was a series of explosions and the shattering of glass.  We ran into the road and saw at the end a flame that shot into the sky, seeming to light up the whole area.  My friend and I and lots of others ran towards the fire.  </p>
+<p>On the way we passed our old neighbour calmly sweeping the broken glass from the pavement as though this was an everyday thing.  We reached the end of the road and saw that the first house or two were demolished and several others damaged.  It was then I noticed something lying on the pavement, covered up.  I lifted the cover and saw my first ever dead person, an occupant of one of the demolished houses.  </p>
+<p>My father, who had worked as a stevedore in the docks until he suffered a head injury, played an active part in the rescue operations.  It appeared that a couple of bombs had been dropped, the first hitting a gas main in the road behind the house facing the top of our road, the second hitting the houses.  The plane was visible circling above the fire; the bombs had missed a nearby factory by about 50 feet.</p>
+<p>Another friend, Jackie McCall, normally came home from work at about the time the bombs dropped.  He was not seen after that day.  His body was never found.  A few months later workmen were repairing the roofs and a body was discovered on top of one of the gables.  The blast had carried it there from the pavement below and it was assumed to be Jackie.</p>
+<p>On the night of November 12th 1940 I was standing in our porch behind my dad and an old neighbour called Mr. Cicanowitz (Dutch and known as “Mister” because we could not pronounce his name) and his dog.  It was a still night.  Suddenly we heard the drone of a plane that dropped several flares, like a gigantic firework display.  I asked my dad whether we should go to an Anderson shelter at another house down the road (our shelter was only brick built).  He said, “Yes, we’ll go in a minute”.</p>
+<p>The next thing I knew everything went grey and I was falling sideways.  Eventually I settled on my side, trapped by the rubble of our demolished house.  I was screaming abuse.  My dad’s voice from somewhere near said “don’t worry son, they will get you out”. ‘Mister’ just called my dad’s name a few times. </p>
+<p>After a while I heard voices above.  They heard my shouts and the rescue operation began from then.  I could see the stars in the sky through what appeared to be a small gap.  I could hear the dog trying to find its way out and shouted up for them to see where it appeared.  They saw him, giving them some idea as to where I was.  I eventually shouted up to them to lower a torch, which they did, and was able to guide them to me.</p>
+<p>The marvellous rescue workers toiled throughout the night.  I was finally rescued after eight hours or so.  Unfortunately, my dad, aged 41, and ‘Mister’ did not survive.  They found a pocket watch on my dad, stopped at 8.45 p.m.  My mother and younger brother were evacuated when all this happened.  I was sixteen at the time but it still remains in my thoughts.  </p>
+<p>The bomb was evidently a 2000 pounder that landed just 50-60 feet from the house.  I never heard it coming or explode – it is strange but true when they say that you do not hear the one with your name on it and I can vouch for that.  </p>
+<p>									<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/47/a2041147.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-501">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-823"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-823" id="name-823">
+                    Shore Service Survivor’s Leave <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-823" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by sunnydigger (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/49/a3874449.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>We lived in Old Canning Town in the East End of London.In 1940 after a devastating weekend during which several families lost their homes because of German bombing they were told by the local council to make their way to a school in South Hallsville Road where they would be temporaily housed whilst buses would be orgnised to take them out of London and into the relative safety of the suburbs. Some of these unfortunate people spent the three nights from Saturday 7th to Monday 9th waiting for the buses, but the buses did not materialise. No one really knew what had gone wrong but it appeared that the bus convoy had gone to Camden Town in mistake for Canning Town. After which they were then hampered in their journey to Canning Town by blocked roads and diversions<br/>
+	<br/>
+Long before the buses reached Canning Town the Luftwaffe had returned and at 3.50 a.m. on the morning of Tuesday 10th the school received a direct hit, probably from a land-mine dropped by parchute. Some four hundred people perished in the rubble amongst them were many of our friends. No other expolsive device which fell on Britaiin caused so many fatalities. Providentially, my family had not gone to the school as our house was undamaged. However, in time we did have to move as we were bombed out in 1941, we suffered no physical injuries as we were in the corrugated Anderson Shelter when the bombs fell. This shelter was cold, damp and very unpopula, but looking back they must have saved many lives. We were evacuated from the East End to Hammersmith West London. and moved to a block of flats called Peabody Buildings Fulham Palace Road, we occupied a ground floor flat with two floors above us.<br/>
+	<br/>
+During the time my family was in the flat I had joined the Royal Marines 1943. Everything was going reasonably well for us considering it was wartime. In the summer of 1944 i was stationed at Westcliff just fifty miles down the line from London, so each evening i went home on unofficial leave, stayed the night and returned by the first train in the morning. On the night of August 22-44 my Mom and Dad were sheltering in the Underground Railway station which they did every night to get away from the bombing while I stayed at the flat and was in bed when Peabody Building was hit by a bomb and collapsed into rubble underneath which I was trapped for three hours. Once again we had lost all our possessions. All I was left with were my underpants and vest.<br/>
+Someone gave me some clothing and a pair of shoes and I went to the Royal Marines Headquarters at Queen Ann’s Mansions. The duty after telling him what happend he gave me a travel warrant back to Westcliff and a letter to my Company Commander autorising the replacement issue of the lost items of my kit and granting of Seven days emergency leave, I was never asked how I came to be at home in London in the first place.<br/>
+	<br/>
+The family found a new at Ellingham Road Shepards Bush W.12 London, and we started all over again. I am pleased to say we remained there without further disturbance. After leaving the Marines in 1947, and working in and around London my wife and myself moved to Canada. Both my Mom and Dad passed away some years later.<br/>
+	</p>
+<p> We lived in Old Canning Town in the East End of London.In 1940 after a devastating weekend during which several families lost their homes because of German bombing they were told by the local council to make their way to a school in South Hallsville Road where they would be temporaily housed whilst buses would be orgnised to take them out of London and into the relative safety of the suburbs. Some of these unfortunate people spent the three nights from Saturday 7th to Monday 9th waiting for the buses, but the buses did not materialise. No one really knew what had gone wrong but it appeared that the bus convoy had gone to Camden Town in mistake for Canning Town. After which they were then hampered in their journey to Canning Town by blocked roads and diversions<br/>
+	<br/>
+Long before the buses reached Canning Town the Luftwaffe had returned and at 3.50 a.m. on the morning of Tuesday 10th the school received a direct hit, probably from a land-mine dropped by parchute. Some four hundred people perished in the rubble amongst them were many of our friends. No other expolsive device which fell on Britaiin caused so many fatalities. Providentially, my family had not gone to the school as our house was undamaged. However, in time we did have to move as we were bombed out in 1941, we suffered no physical injuries as we were in the corrugated Anderson Shelter when the bombs fell. This shelter was cold, damp and very unpopula, but looking back they must have saved many lives. We were evacuated from the East End to Hammersmith West London. and moved to a block of flats called Peabody Buildings Fulham Palace Road, we occupied a ground floor flat with two floors above us.<br/>
+	<br/>
+During the time my family was in the flat I had joined the Royal Marines 1943. Everything was going reasonably well for us considering it was wartime. In the summer of 1944 i was stationed at Westcliff just fifty miles down the line from London, so each evening i went home on unofficial leave, stayed the night and returned by the first train in the morning. On the night of August 22-44 my Mom and Dad were sheltering in the Underground Railway station which they did every night to get away from the bombing while I stayed at the flat and was in bed when Peabody Building was hit by a bomb and collapsed into rubble underneath which I was trapped for three hours. Once again we had lost all our possessions. All I was left with were my underpants and vest.<br/>
+Someone gave me some clothing and a pair of shoes and I went to the Royal Marines Headquarters at Queen Ann’s Mansions. The duty after telling him what happend he gave me a travel warrant back to Westcliff and a letter to my Company Commander autorising the replacement issue of the lost items of my kit and granting of Seven days emergency leave, I was never asked how I came to be at home in London in the first place.<br/>
+	<br/>
+The family found a new at Ellingham Road Shepards Bush W.12 London, and we started all over again. I am pleased to say we remained there without further disturbance. After leaving the Marines in 1947, and working in and around London my wife and myself moved to Canada. Both my Mom and Dad passed away some years later.<br/>
+	</p>
+<p> We lived in Old Canning Town in the East End of London.In 1940 after a devastating weekend during which several families lost their homes because of German bombing they were told by the local council to make their way to a school in South Hallsville Road where they would be temporaily housed whilst buses would be orgnised to take them out of London and into the relative safety of the suburbs. Some of these unfortunate people spent the three nights from Saturday 7th to Monday 9th waiting for the buses, but the buses did not materialise. No one really knew what had gone wrong but it appeared that the bus convoy had gone to Camden Town in mistake for Canning Town. After which they were then hampered in their journey to Canning Town by blocked roads and diversions<br/>
+	<br/>
+Long before the buses reached Canning Town the Luftwaffe had returned and at 3.50 a.m. on the morning of Tuesday 10th the school received a direct hit, probably from a land-mine dropped by parchute. Some four hundred people perished in the rubble amongst them were many of our friends. No other expolsive device which fell on Britaiin caused so many fatalities. Providentially, my family had not gone to the school as our house was undamaged. However, in time we did have to move as we were bombed out in 1941, we suffered no physical injuries as we were in the corrugated Anderson Shelter when the bombs fell. This shelter was cold, damp and very unpopula, but looking back they must have saved many lives. We were evacuated from the East End to Hammersmith West London. and moved to a block of flats called Peabody Buildings Fulham Palace Road, we occupied a ground floor flat with two floors above us.<br/>
+	<br/>
+During the time my family was in the flat I had joined the Royal Marines 1943. Everything was going reasonably well for us considering it was wartime. In the summer of 1944 i was stationed at Westcliff just fifty miles down the line from London, so each evening i went home on unofficial leave, stayed the night and returned by the first train in the morning. On the night of August 22-44 my Mom and Dad were sheltering in the Underground Railway station which they did every night to get away from the bombing while I stayed at the flat and was in bed when Peabody Building was hit by a bomb and collapsed into rubble underneath which I was trapped for three hours. Once again we had lost all our possessions. All I was left with were my underpants and vest.<br/>
+Someone gave me some clothing and a pair of shoes and I went to the Royal Marines Headquarters at Queen Ann’s Mansions. The duty after telling him what happend he gave me a travel warrant back to Westcliff and a letter to my Company Commander autorising the replacement issue of the lost items of my kit and granting of Seven days emergency leave, I was never asked how I came to be at home in London in the first place.<br/>
+	<br/>
+The family found a new at Ellingham Road Shepards Bush W.12 London, and we started all over again. I am pleased to say we remained there without further disturbance. After leaving the Marines in 1947, and working in and around London my wife and myself moved to Canada. Both my Mom and Dad passed away some years later.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/49/a3874449.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-823">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-644"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-644" id="name-644">
+                    Wartime Diary of a Customs Officer: Ch 5 - Aug - Sep 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-644" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a3750888.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>AUGUST 1940</p>
+<p>2	Fri	Busied about the house today but seemed to achieve very little. A lengthy argument with plumber re necessity of creating trouble about the matter (see 1/8) he promised to fix on 17/5 ! Job fixed finally. Awaiting local councils decision re amending air raid shelter — constant 2” water.</p>
+<p>5	Bank HolMon	Of course, there was no bank holiday and work continued as usual, only they didn’t penalise us this time as on Whit Monday (13/5 — g v) of those profit making concerns, the shops, half closed as usual (including the co-op) national effort or no. Hunted town all over for bread e.g.</p>
+<p>9	Fri	Half day today. Clarice went to HQ of ARP at Merton to effect a replacement of Betty’s gas mask. (Window damaged) but was too late. I went in to play billiards with Mr Hersey. (I play a poor game though!) and he offered me a radiogram for £5.</p>
+<p>10	Sat	At work until 4 pm. Whatever I could say about work and shipping conditions I do not insert herein in case of loss of the diary might be to enemies advantage. Thus, notes are restricted to other than work hours. Kay and Betty left me in charge of Beryl in the evening whilst they went to Morden “Odeon” to see the film I saw Tuesday (evening). They greatly enjoyed the programme. I was in bed when they reached home.</p>
+<p>15	Thu	It was a fine day for the zoo outing. Kay and Betty went off at 10 am to Mum’s where they found Lee and Tony, Mum and Roy. I was left in charge of Beryl, who was handed to a near neighbour, (suitably decked up) on my departure for work. Short air raid warning at 8 over Croydon.</p>
+<p>16	Fri	An air raid warning at 12.30 whilst Kay was out shopping with Beryl in pram caused me some concern, but they sheltered in the Co-op employees place and were well treated. Betty ran home (from school homeward bound) quickly and joined me in the Anderson. To dentist in Morden and had teeth examined.</p>
+<p>17	Sat	Completed yesterdays entry somewhat prematurely. There was a second air raid at 5 pm and screaming bombs were dropped on South Wimbledon and New Morden Stations (with but little delay in service of trains) and on public house opposite Shannon Corner “Odeon” (meant for one of the factories on Bushey and bypass road) Kay and Mrs Hersey trembling in latter’s air raid shelter. Today, up to 9.30 pm, no raid so far. (front and back of house painting this week) </p>
+<p>18	Sun	Off duty. First air raid 1 pm. Kay, children and I in shelter with cross boards in place, but too crowded. Afterwards therefore, bailed out water from floor, removed clay, made side channels to receive water. Second raid 6 pm. Conditions in shelter more comfortable.</p>
+<p>19	Mon	Being off duty yesterday, I was not worn out after work today having had opportunity for a good sleep overnight. Called library, bought a bookcase for my books, visited Mum to see all well after nearness of Friday’s bombs, finally, Kay and I romped with kiddies.</p>
+<p>21	Wed	Kay and Mrs Hersey have decided to sleep in back room downstairs, and I arranged with Mr Hersey a mutual assistance pact. At same time enrolled in a “Neighbours Stirrup-pump Corps, remaining men in last 8 houses each side road belonging. Pump to be purchased by contributors.</p>
+<p>22	Thu	Air raids are concerning us not a little at present causing us all to look to our shelters, and, in the case of Mr Hersey and I, to move our bedroom furniture downstairs for use in room nearest shelter. Engaged ourselves on this but did not complete.</p>
+<p>23	Fri	Raid at 3.30 am. Whisked children out of bed, wrapped them up, and all in shelter, which thank goodness is dry after Sundays labours (evening). Both children slept, Betty on one at full length, and Beryl in Kay’s arms. Helped Mr Hersey with his furniture and collected radiogram from him.</p>
+<p>24	Sat	Air raids continue, one at 1.30 am. I was on duty and the whole “Harpy” staff filed quietly to basement of Custom House. The basement stretches the whole length of Custom House and is strongly reinforced with a network of steel girders. Kay and children were still in bed (as Betty had not to go to school). They took refuge in our own “Anderson”. Likewise, we sheltered at 3.30 pm when another raid took place. In both cases, heard no reports.</p>
+<p>25	Sun	On duty 11/8. An air raid at 11.30 pm lasting one hour. “Harpy” staff again in basement. On emerging, fires could be seen in dock district and in City itself. Slept most of day, getting up for dinner at 2. Couple of raids, one at 11 pm and about midnight.</p>
+<p>26	Mon	Regularising of getting up and mealtime determines success or failure in use of the day. Going to try to keep to a schedule this week. Air raid as I boarded tube at Morden 3.30, over by 4 pm, no delay in tube. Long raid commenced 9.30 continuing.</p>
+<p>27	Tue	Both 4/11 and 11/8 watches as well as other evening and night operatives, in Customs House basement shelter until 4 am. Dozed fitfully in a deckchair, others similar or on ARP beds. Resumption of transport and reached home 5 am. Up 11 am to Raynes Park shopping. Visited Mum.</p>
+<p>28	Wed	A raid started same time as before (9.30 am), lasted till midnight, recommencing 12.20 till 1 am. Walked home from Morden Station during the latter. Saw and heard nothing. Did a domestic job or two, during day. At 9 pm as I was homeward bound, siren again.</p>
+<p>29	Thu	This was a nuisance raid and aircraft flew around till 4 am, occasionally dropping bombs. Did not risk my 25 minute walk home under the circumstances in a Morden shelter, newly erected and unfinished. Not so comfortable. Had a morning supper with Kay at 4 am!</p>
+<p>30	Fri	The important events in our lives are now air raids. We expect them occasionally in the day, but almost for certain at dusk. Taking it in turns to leave duty on 4/11 earlier and tonight was my turn. There was a raid soon after I reached home.</p>
+<p>31	Sat	This raid finished at 4 am. Kay, Betty, Beryl and I tossed and turned, swapped places trying to get some sleep, but as the shelter is only 4’ 6” long, if Kay and I lay down, we had to stretch our legs up the “walls”. Further more, the air gets stale. “All clear” gave us 4 hours in our beds before the next round, and then another at 1 pm in which our “Harpy” ship keeper, at home, received a severe shaking. Allowed away from work early. Just joined Kay and kiddies before night raid.</p>
+<p>		SEPTEMBER 1940</p>
+<p>1	Sun	A day off duty. After experience of last night in shelter, this night was a great improvement after I had a reorganization. All clear about 4 am, thence sleep till 10. Other raids during day. Vera came and went out visiting in evening. I dug patch for grass sowing.</p>
+<p>2	Mon	Shortly, air raids will become so common-place that I shall cease to mention them, unless of course, the bombs dropped are unpleasantly near etc. Raids at 8.10 am, 4.15 pm (Whilst HB) and, of course, all night. Attended dentist at 6 for teeth-filling.</p>
+<p>3	Tue	Night raid finished 3 am. Thus had 3 hours undisturbed sleep only. Dead tired on reaching home, played with kiddies to radio before finally going up at 5 pm. It was literally a case of ‘head on pillow — then sleep’ — until 11.30 pm when the night raid began.</p>
+<p>4	Wed	The night raid was a short one and Kay and I questioned whether we should stay awhile in the shelter. She returned to bed with Beryl at 1 am; Betty and I at 3 am. During the day there were other raids in which we took cover in Customs House shelter. Pop brought valve re radiogram — OK.</p>
+<p>5	Thu	Apart from a short late raid last night, our night was undisturbed. Kay, Betty, Beryl and I do our best to settle ourselves in the shelter where we are forced to spend most nights but we are much cramped and seeping water makes it unhealthy.</p>
+<p>6	Fri	An air raid lost us an hour and a half of morning and led to my late departure from “Harpy” for my half day. Furthermore, at Morden I was caught again and lost a further hour in that uncomfortable shelter near station (see 29/8). Slept nicely in late afternoon, however, and only a short raid at night.</p>
+<p>7	Sat	It is now allowed for two 8 hour watches to run concurrently, providing each watch is on different days. Thus, being scheduled for night work at 11 pm. tonight, I may do the 4/11  watch also. Exchanged with a colleague to effect this. During the 4/11 watch, the firing of Surrey Docks and the Thames Wharf side took place presenting a terrible spectacle to us as we patrolled the river. Later, the Nazis returned and bombed fire and rescue squads. 400 dead, 1400 injured.</p>
+<p>8	Sun	Late relief owing to transport difficulties. I was soaked through with rain on my way home. Hardly had I laid down to recoup after night watch when alarm went. Later, earthed up shelter a bit more, night raid at 8 pm, in shelter and under stairs.</p>
+<p>9	Mon	Saw the tremendous amount of damage done to city as I walked from Bank (Station) to Customs House and later as I travelled from “Harpy” to Surrey docks to where I have been transferred 8/4. Almost whole dock in desolation, burnt out. (See 7/9).</p>
+<p>10	Tue	Arrived at Surrey Dock without difficulty today save for overcrowded tube trains. A lone raider put in an appearance at 1 pm and caused a rush for cover, but was engaged quickly by our fighters. Terrific rush on homeward journey owing to disorganisation of transport services.</p>
+<p>11	Wed	Narrowly missed death today when a bomb fell on shed alongside Surrey Dock office. Staff were in brick shelter, heard bomb coming and fell flat on ground. All luckily escaped injury but office wrecked and shed fired.</p>
+<p>12	Thu	Signed on at the “Harpy” today  at 11 am Travelled to Surrey Dock with Mr Luwberg (APO) who went to view the wreckage. Met the remainder of the Staff with their belongings just evacuating. Thereafter went home and had my first undisturbed sleep in afternoon.</p>
+<p>13	Fri	Whist all night raids occasioned, no comment now, a 4 hour raid from 10 am till 2 pm was exceptional. The Water-guard (Which now includes “Harpy”, Shadwell and South Bank staffs) found a room of their own and played solo, talked or slept. (basement shelter). Called dentist at Morden.</p>
+<p>14	Sat	A couple of short raids, fortunately did not curtail my half day. In the course of it, I tried to install my small radio in the kitchenette but found a good aerial was necessary and difficult to arrange for. Made up a couple of hours lost sleep in the nightly “cramp” in the air raid shelter. Aired bedding and made general preparations for our “night out” and retired at the earliest siren. The “alerts” (as they are now called) were spasmodic, but after 9 we kept in.</p>
+<p>15	Sun	A very unsatisfactory day from the point of view of achieving anything. A series of raids interrupted any job I attempted and lack of an undisturbed period of sleep made me, (indeed, us all) “nervy”. Today bought bottle of sherry for Kay to stim. her. Nearby guns cause all the bother.</p>
+<p>16	Mon	Damp misty weather did not stop usual raids. We had one that lasted from 2 to 5.40 pm of course, we adjourned to Custom House basement shelter and at 5 pm, permission was given to those who wished to depart. Then followed a terrific scramble home. Called Mum and library. </p>
+<p>17	Tue	Avoided the 200 yard queuing up for the tube and the terrible congestion by leaving the Custom House shelter at 4 pm. during the afternoon raid. This gave me time to have a leisurely dinner and to put still more earth on the shelter (AA barrage intense) before the night raid.</p>
+<p>18	Wed	Successive air raids throughout the day, so much so that we seemed to be constantly in and out of the Customs House shelter. The big AA gun on the common is a worry. At 11 pm (or thereafter) a high explosive bomb, meant for it, landed Hillcross Ave.</p>
+<p>19	Thu	The sudden appearance in misty weather, of an aeroplane flying low below Tower Bridge caused AA fire and a state of alertness which meant congested travelling conditions homeward bound. 3rd  of series, visit to dentist. Had fright when in shelter when an airplane shot down with a roar near the Nelson Hospital.</p>
+<p>20	Fri	Nightly sleeping in shelter being uncomfortable and disturbed (AA guns and cramp) Kay and I had a couple of hours in the afternoon. (Half day). Mum came for a visit with Roy (much to Betty’s delight, they have a fun game!) Our night in shelter was quiet, fear of colds though.</p>
+<p>21	Sat	Take over the river station in afternoon and was able to see  additions to the destruction of river side premises since my last trip (7/9). Am unable to comment. (info useful to enemy) but it was sad and awful sight. The Jerries are trying some retaliation for loss of aircraft on 19/7 (sic) and at 6 pm, one explosive and one time dropped near Cannon Hill Common. Exactly same during night, rather disturbing.</p>
+<p>22	Sun	The bombs dropped last night were at the Southern Railway main line, Raynes Park; and at Ashridge way, off Hillside Avenue, about 10 minutes distance (two killed). No evidence of the time bombs I mentioned. “Alerts” took up considerable part of day. Hardly any time for home jobs.</p>
+<p>23	Mon	Restless night in shelter; pm, perspiring to saturation, am, very cold. A day divided between the “Harpy”, the river and the Customs House basement shelter. Final visit of series to dentist, who had done a good job. Baled out shelter and returned thereto at 8 pm warning.</p>
+<p>24	Tue	Worried about Kay and Kiddies catching pneumonia owing to variation of temperature within and without the shelter. Considered some structural alteration to approach, opportunity to do the job is wanted though: raids force us to bed at 7.45, and travel takes more time. </p>
+<p>25	Wed	Beryl (in particular) is in such wonderful health that my worry re the shelter (see 24/9) is continual. She is a source of great happiness just now. This evening, slept better in the shelter than ever before.</p>
+<p>26	Thu	Home from duty via Raynes Park calling at Mums homeward bound. Seems unwell, either a lack of sleep, or worry. Call home as often as possible, as increased number of bombs being dropped in locality. Dad busy helping Willoughby’s to run electric light to shelter.</p>
+<p>27	Fri	A “molotov bread basket” of about 30 bombs exploded during the night and spattered houses and gardens with incendiaries. One that came through roof to top front room was promptly dealt with by self and neighbours, with small damage to furniture, but much mess. Day off to clear up.</p>
+<p>28	Sat	Whilst patrolling river, lone raider dropped a stick of bombs, from Millwall Dock, across river to Surrey, within 200 yards of launch. Mass raids in afternoon (Saturday). Spent in shelter with Beryl. Mended radiogram lid hinge and fitted new dial light. All listened in and danced to music. Light raids commenced usual time (8 pm). Bomb in night only 100 yards away, in roadway. Gas main leakage and other bombs in the locality.</p>
+<p>29	Sun	Off duty. Helped Kay and did some work to a protecting fence to shelter. Damage done to the property on Friday 27th subject of meeting of Elm Walk residents. Top end of Walk independent organisation. System of 2 hourly night watches. I concurred. Notified Mum with news of fire (27/9)</p>
+<p>30	Mon	Set alarm for 4 am. Voluntary fire picket from then till 6 am with a neighbour. Most danger from shrapnel but had loan of steel helmet. No incendiaries in our watch. Part of free time at home (5.50 — 8) undercover owing to air raid. Remainder earthing shelter.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a3750888.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-644">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Custom House: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>118</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>1</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Custom House </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_142.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                A group of Pioneer Corps enjoy tea and buns, bought from the WVS canteen on a cleared bomb-site, somewhere in London, 1941. This site had just been cleared by these men. A row of men can be seen drinking tea whilst sitting on the pile of planks and rubble which ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197956">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#342-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_142.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="342-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_142.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            A group of Pioneer Corps enjoy tea and buns, bought from the WVS canteen on a cleared bomb-site, somewhere in London, 1941. This site had just been cleared by these men. A row of men can be seen drinking tea whilst sitting on the pile of planks and rubble which ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197956">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

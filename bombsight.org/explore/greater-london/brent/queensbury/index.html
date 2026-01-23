@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Queensbury - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.290106369931458, 51.593740720666474], [-0.28972547369167001, 51.593863733885918], [-0.28912772261221797, 51.594018713841436], [-0.28833489992878603, 51.594177862742626], [-0.28766894072208998, 51.594358810972913], [-0.28673102970891901, 51.594740784899209], [-0.28652792397232602, 51.594610804307131], [-0.28613685933007499, 51.594883711813409], [-0.28579818547749702, 51.594747818527729], [-0.28546785513870598, 51.59528870858037], [-0.28494421435179701, 51.595379695044166], [-0.28406951824093502, 51.595603659063201], [-0.28346240888901703, 51.59568259922046], [-0.28269863900620001, 51.595811785400592], [-0.281842646564543, 51.595933723552776], [-0.28110168570183502, 51.596008721606069], [-0.279362647742607, 51.596227715305353], [-0.276515193487404, 51.596513736851215], [-0.27697599444920901, 51.596891715519199], [-0.27562721899378401, 51.597431675241168], [-0.27413848404000302, 51.597973208159701], [-0.273821691950065, 51.598105547201826], [-0.27300166908163198, 51.59837154053843], [-0.27279771315648699, 51.598407600092003], [-0.27247757729421701, 51.598413570231529], [-0.27201362428103498, 51.598380599355316], [-0.27143999244268602, 51.59827759564935], [-0.271266650055354, 51.598279545535569], [-0.27114081843641702, 51.598313658893332], [-0.270859030285102, 51.598450575518193], [-0.26947197302582498, 51.599258536904237], [-0.26914499680331999, 51.599432582303919], [-0.26878899370348103, 51.599598463921083], [-0.26867798818736199, 51.599669469021471], [-0.26837160700989199, 51.599775759305317], [-0.26715555212209102, 51.600369329566163], [-0.26705262463435597, 51.600287442093503], [-0.26573235308266102, 51.599007626142253], [-0.264762573227592, 51.59818174090546], [-0.26387746061785899, 51.597467817489608], [-0.26337857281759203, 51.597120843841644], [-0.26236404916594602, 51.596342959127973], [-0.25976975050771201, 51.594173149735596], [-0.258085865134075, 51.592619483203272], [-0.25862294248184198, 51.592366403726004], [-0.25958685242743601, 51.5919705637967], [-0.25997498346705, 51.591919559894826], [-0.259787266834552, 51.591743536050267], [-0.259752045678868, 51.591720527704972], [-0.25971402540057398, 51.591735562459519], [-0.25965379990866999, 51.591682542529554], [-0.25717317142548601, 51.589389799658548], [-0.25763384783092302, 51.589163822230013], [-0.25772915450998501, 51.589254877753866], [-0.257938829986542, 51.589174813468269], [-0.25802794369336501, 51.589156882020177], [-0.25841502112270498, 51.589132847428097], [-0.25932701883221498, 51.588971865123256], [-0.26020490691526699, 51.58884185257579], [-0.26021560010342198, 51.588880786320004], [-0.26171710296216399, 51.588710400954078], [-0.26215955178524403, 51.588854788790641], [-0.26244611668879497, 51.588887410844578], [-0.26271744931944901, 51.588964778988924], [-0.26395925789256602, 51.589547691700432], [-0.26427239738238001, 51.589439781919587], [-0.26572704986821299, 51.589018837258735], [-0.265793214588465, 51.589105809132988], [-0.26592499269079201, 51.589068695523416], [-0.26623784380401, 51.589489623652128], [-0.26741183503949201, 51.589176776775226], [-0.26736600749803602, 51.589112730296826], [-0.26757474223854599, 51.588973767777283], [-0.26953374445320499, 51.588266850369365], [-0.26966262085581999, 51.588246826026896], [-0.27032463526373302, 51.588014780175222], [-0.27011367348426801, 51.587630907964851], [-0.27019657138824499, 51.58739579536789], [-0.27040924073014599, 51.587164851152956], [-0.27046371367770899, 51.587072919379864], [-0.27063160681465498, 51.586928008939275], [-0.27112623098399902, 51.586542019257116], [-0.27146813671997599, 51.586399956263605], [-0.27167621936522601, 51.586372947091014], [-0.27179228812131401, 51.586393063192283], [-0.27217221414885401, 51.586389946127653], [-0.27256645723705902, 51.586425961078341], [-0.27311101746118399, 51.586268883315206], [-0.27357409923423498, 51.586178882388992], [-0.273701878687309, 51.586140016210315], [-0.273761905714554, 51.586115052057501], [-0.27391823706197599, 51.585930059132401], [-0.27459976992256402, 51.585990936539631], [-0.27508781582797798, 51.586015955550536], [-0.275434774622696, 51.586001947506098], [-0.27605482090383199, 51.585935891314612], [-0.276662795804761, 51.585795041625971], [-0.27733474698947402, 51.585560984561425], [-0.27855735003516002, 51.58506707445482], [-0.27904638641318003, 51.584945959543731], [-0.27926918372845699, 51.584911012789128], [-0.28012546205088001, 51.584823941804039], [-0.28044712565035301, 51.584810957142501], [-0.28108273227076902, 51.584821529408948], [-0.28111491177648001, 51.58487749771102], [-0.28116529371558002, 51.584905077084876], [-0.28181025797602299, 51.585169952636953], [-0.28186995040913199, 51.58517799958075], [-0.28198871318465502, 51.585174535551481], [-0.28204433198558998, 51.585158913300766], [-0.28224611201890298, 51.58507137907737], [-0.28230305082851198, 51.585008989853705], [-0.28254902736326698, 51.585064854548264], [-0.28243494389073398, 51.5850998515741], [-0.28237903204855802, 51.585135009230783], [-0.282319857957609, 51.585221002874711], [-0.282271054708985, 51.585737873830162], [-0.28237303434710698, 51.586023886240653], [-0.282869236241448, 51.586729734949579], [-0.28305290700899999, 51.587433670989775], [-0.28308004757466898, 51.58780261137197], [-0.28312100235319998, 51.588008623841525], [-0.283238218621575, 51.588345585414366], [-0.28336418346097197, 51.588881485957771], [-0.28385109875634001, 51.58986361072683], [-0.28399697821094899, 51.590237325470369], [-0.28430315567953002, 51.590576339305095], [-0.28465415890081402, 51.591007194765623], [-0.28491392040186497, 51.591261228834995], [-0.28516108994483302, 51.59146618358006], [-0.28545909889272197, 51.591675112472643], [-0.285907001807024, 51.591929074777291], [-0.28643455861338601, 51.592187835438942], [-0.286798008709578, 51.592337044401546], [-0.287314898529755, 51.59249605109752], [-0.28844642915060797, 51.592723025060799], [-0.289093661621392, 51.592907957455061], [-0.28948647553081103, 51.59305587331815], [-0.28989666262417901, 51.59324590994634], [-0.29042676892110397, 51.593570462588474], [-0.290106369931458, 51.593740720666474]]]]}, "type": "Feature", "id": 1100, "properties": {"pk": 1100, "name": "Queensbury"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Queensbury, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Queensbury, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Queensbury</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Brent</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Queensbury
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Queensbury, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Queensbury: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>57</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Queensbury</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-621"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-621" id="name-621">
+                    Bob&#39;s Diary 1943 - Jan - Feb <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-621" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by super-powton (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a3781523.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>As promised here is the first extract from Bob's Diary, covering January and February 1943.</p>
+<p>DECEMBER 1942<br/>
+20 Sunday<br/>
+At home with Dave.  Came back in evening and visited “Royal George” in Tottenham Ct Road.  Good pub!</p>
+<p>21 Monday<br/>
+A dance at Regent St Polytechnic.  Met Winnie — unfortunately!  She clings like a leech — will have to be firm.</p>
+<p>22 Tuesday<br/>
+Saw Mickey again, patched up quarrel.  Not a bad kid, but a stupid temper.</p>
+<p>23 Wednesday<br/>
+Started off with good meal at Elephant and Castle, then decided on the “Swan”, at Jack’s recommendation.<br/>
+Went to “Swan” at Stockwell with Dave, Mac and Jock. Got tight, but respectfully so!</p>
+<p>24 Thursday<br/>
+Xmas Eve. “Swan” at Stockwell.  A.F.S. named Betty Ashford.  Very good evening.<br/>
+				Date!</p>
+<p>25 Friday<br/>
+Xmas Day at Bushey<br/>
+Very quiet, but — well, restful!?</p>
+<p>26 Saturday<br/>
+Boxing Day.  Dance at Oxley Parish Hall.<br/>
+Girl named Elsie Roberts.  Engaged — No Date!</p>
+<p>27 Sunday<br/>
+Came back to Borough.  Xmas mail from Snooty, Yvonne, Deborah, Ida, Dorothy, Mrs Blythe, Mickey, Betty.  Answered all mail and wrote to Elsie Roberts.</p>
+<p>28 Monday<br/>
+Back on the course — Valve Theory again — Mech Eng.  Dance in evening at Regent St Polytechnic.  Date tomorrow with Betty.<br/>
+ </p>
+<p>DECEMBER 1942<br/>
+29 Tuesday<br/>
+Saw Betty.  Went to Balham saw Walt Disney’s “Bambi”.  Letter from Mickey.<br/>
+Looks like being an interesting course — in the evenings!</p>
+<p>30 Wednesday<br/>
+Another boring day in Laboratory.  Went to YMCA for a shave in HOT water, then on to Salvation Army place in Guildford St — good place.</p>
+<p>31 Thursday<br/>
+New Years Eve.  Little or no work done in Laboratory. Theory was an excuse to sleep ready for a late night.<br/>
+Went to Regent St Polytechnic with Betty, Dave, Joe, Wally.  Went out to “Cock Tavern” and celebrated on Scotch Ale.  Later on went to Piccadilly Circus and at midnight was on the Yank Station.  Crawled into the billet at 2 o/c.  Was not caught .  Wonder where we’ll be this time next year.</p>
+<p>JANUARY 1943<br/>
+1 Friday<br/>
+Went to S.A. Russell Sq. and met Sandy there.  Had the now famous steak and chip supper.  Still learning nothing new about Radio!</p>
+<p>2 Saturday<br/>
+Weekend pass.  Went to Leicester Sq. with Betty, saw “Geo Washington slept here”.  Very good.  Got home by taxi about 2 o/c</p>
+<p>3 Sunday<br/>
+Was home, and slept until 2 o/c!  Dorothy and John came to see me.  In the evening went for a walk with Betty.  Quite a nice evening!  P.T. tomorrow — wince!.</p>
+<p>4 Monday<br/>
+Saw Betty and went to Odeon.  Saw “Pied Piper”.  Very good film.  To our disgust we had the old PT Instructor back.  The swine!  Radio course is a farce!</p>
+<p>JANUARY 1943<br/>
+5 Tuesday—<br/>
+“Scrubber” got nasty and now we have extra pickets to do!  Was on guard — caught smoking — so charged.  Read Kitty Foyle.  Letters from Betty and Mickey.</p>
+<p>6 Wednesday—<br/>
+Wrote to Mickey, telling her it was no use continuing seriously .  Another letter from Betty.  Saw Betty in evening and went to “flicks” seeing “King Arthur was a Gentleman”.  Awful film.  Phoned up Mother.  Broke again, pay parade just in time!</p>
+<p>7 Thursday—<br/>
+Bought “Foundations of Wireless”.  Received membership card from Queensbury Club.  Went to flicks and saw “A Yank at Eton”.  Pretty poor film.</p>
+<p>8 Friday—<br/>
+Practical dem. of Blocking Osc at Theory period, had use of logs     and 2 during maths.  Learnt something for a change!  Letter from Ken at Grimsby.  Final letter from Mickey!  Saw Betty in evening.</p>
+<p>9 Saturday<br/>
+Went to see “Rookies” at Leicester Sq Theatre with Dave.  Met a chap named Mike O’Callaghan.  Amusing chap.  Got his Tel. No.  On guard tomorrow!</p>
+<p>10 Sunday—<br/>
+Heard that Tom Melling was at Wandsworth.  Got a great scheme for bringing Tom, Ida, Betty, Vera, Dave and Mike together at Stormont Road on Tuesday.</p>
+<p>11 Monday—<br/>
+Went to “Majestic” at Clapham with Bettie.  Saw “Big Street”, pretty poor film.  Got back my autograph book.  Phoned Mike and Mother.  Letters from Sturge and Deborah.<br/>
+ <br/>
+JANUARY 1943<br/>
+12 Tuesday—<br/>
+Went to Stormont Road, Clapham, with Dave, Joe and Gary.  Met Vera and Gladys again.  Tom and Ida did not turn up.  Left message asking them to be there on Thursday.</p>
+<p>13 Wednesday<br/>
+Went to Balham with Betty saw Noel Coward’s “In Which We Serve”, a really grand film.  Wrote to Deborah.  Jock and Mac put something in my autograph book.  Was told I was more than £2 in credit, which is good news, but suspicious, as I was about £3 in debt when I came here.  I won’t quibble however!  Started on Cathode Follower in Theory!?</p>
+<p>14 Thursday—<br/>
+Went to “Stormont” and saw Tom and Ida, first time I’d seen Tom for a year, and Ida for seven months.  We covered our activities during 1942 in odd snatches between dances.  No letters.</p>
+<p>15 Friday—<br/>
+Started our “Mid Term Break”, it consists of three days.  In the afternoon during theory, we started on a crossword puzzle and Radio simply never entered into the question!</p>
+<p>16 Saturday—<br/>
+Spent the afternoon wandering around Charing Cross Road trying to stop myself buying books.  I succeeded! Saw Betty in the evening.<br/>
+							(4 times!)</p>
+<p>17 Sunday—<br/>
+Didn’t feel so well, so just lazed around and went to bed early.  Was kept awake most of night by terrific gun barrage.  Jerry was over as a reprisal for our raiding Berlin last night.</p>
+<p>18 Monday—<br/>
+Saw a grand film, “My Sister Eileen” starring Rosalind Russell.  Another air raid alert but nothing happened.  People were obviously expecting an air raid the Underground was crowded.  Yanks don’t like air raids!<br/>
+ </p>
+<p>JANUARY 1943<br/>
+19 Tuesday—<br/>
+Expt. In Lab. on Squezzing Oscillator.  Went to Stormont in evening with Dave.  Met Tom who gave me my autograph book back.  He managed to get Eddie Bamborough’s autograph.</p>
+<p>20 Wednesday—<br/>
+Another air raid midday.  Jerry bombed a school killing 34 children, 26 kids are still trapped.  4 Radio Mechs killed at Lewisham.  Tubes are crowded once again just like the London blitzes of 1940.<br/>
+In the evening saw Betty, who looked pretty tired having been up two nights on duty in air raids. I hope Joan is OK.<br/>
+Saw two pretty good films, “Date With An Angel” and “Sin Town”.  Newspapers were of Russian victories again.</p>
+<p>21 Thursday—<br/>
+Again to the flicks, this time with Sandi.  Saw two awful films, top film being “Somewhere I’ll find you”.  Theory is becoming increasingly boring — its crosswords for me now not Radio!.</p>
+<p>22 Friday—<br/>
+“Flicks” again!  Saw Betty and went and saw “The Major and the Minor”.  This film was very good.  Maxie and Maurice turned up amongst new chaps.  Started Boxing Gym this morning.</p>
+<p>23 Saturday—<br/>
+Spent day with Dave and Sandi.  AFT: Went over Houses of Parliament.  EVE: Comedy Theatre.  Saw play called “Murder Without Crime”.  Very good.  Finished up dancing at Queensbury Club.  Very interesting and enjoyable day.</p>
+<p>24 Sunday—<br/>
+Went home in morning.  Couldn’t get to Queensbury Club by 4.15 because of fog, so missed Dave and Sandi.  Went into club with Bolton and Win, his girl friend.  Saw broadcast of Geraldo, followed by a film.  Finished up at the Gordon Club (WVS) Victoria.<br/>
+ </p>
+<p>JANUARY 1943<br/>
+25 Monday—<br/>
+Met two girls, Paula and Eileen, during afternoon break at College.  In the evening met Betty and went to Odeon at Clapham and saw Diana Barrymore in “Nightmare”. A good film.  More American, 8th Army and Russian victories.</p>
+<p>26 Tuesday—<br/>
+Walked, via Waterloo Bridge, to British Columbia Club, with Maxie and Sandi.  Walked from there to Queensbury Club, too crowded there, so we went into the “Tartan Dive” of the “SUSSEX” a Youngers pub just off Leicester Sq.  Back by tube from C.G.</p>
+<p>27 Wednesday—<br/>
+Was caught in bed after Reveille, fatigues in the evening resulted!  Had a letter from Ken in Egypt, his brother is wounded, must visit his wife whilst I’m in London.  Main item of news is that Churchill met Roosevelt in Monaco.  End of the war in sight?  Decided to apply for R.A. commission when I return to New Holland.<br/>
+In evening after fatigues, Dave and I visited the “George Inn” near London Bridge, an historic pub frequented by Charles Dickens.</p>
+<p>28 Thursday—<br/>
+Saw Betty and went to the Curzon Mayfair to hear a performance of the Middx Regt. Band.  A violin solo of “Intermezzo” was good, rest was poor.  From there to Queensbury Club.  Told Betty I couldn’t see her again.</p>
+<p>29 Friday—<br/>
+Went out with Sandi, Dave, Maurice and Maxie, first to the “Clarence”, then on to the N.F.S. dance in Southwark Bridge Road.  The only interesting part of the dance was obtaining a date with a girl named Bobby for next Tuesday.</p>
+<p>JANUARY 1943<br/>
+30 Saturday—<br/>
+With Maurice to central YMCA, from the L.Sq Theatre and saw “ARABIAN NIGHTS”.  Very good film.  From there to a hamburger meal at B.C. Club, from there to Queensbury Club where I met Diana and made a date for tomorrow at the Queensbury Club..</p>
+<p>31 Sunday—<br/>
+Went home in morning, had airgraph from Jim Kilpatrick.  Missed Diana at Queensbury Club, so went in alone and saw Jack Payne and his band.  From there to Covent Garden, where I met Stan Turner and finally found Diana and friend Joyce.  Quite a good evening.  Date Tuesday.  Letter from Dorothy.</p>
+<p>FEBRUARY 1943<br/>
+1 Monday—<br/>
+Dave was taken into hospital, probably with flu.  In the evening went to Trocadero with Sandi and saw “Wake Island” a pretty realistic film, rather spoilt by too much Yankee ballyhoo.  Feel pretty rotten, might report sick tomorrow.</p>
+<p>2 Tuesday—<br/>
+Met Diana at Sloane Sq. and went to the Gaumont, Chelsea.  Diana goes on leave tomorrow, made arrangement to ring her up when she comes back Monday week.  After leaving Diana went to Stephens Club, Westminster.  Got a hell of a stiff neck!</p>
+<p>3 Wednesday— <br/>
+Went to Gordon’s Club and met a red-headed South African WAAF named Denyse — with a “y”!  Made a date for Friday.  The dance wasn’t bad but floor space was limited.  Had a letter from Joan saying she’d fixed up with Foyles about my books.  Good work!  Wrote to Dorothy. Joe and Wally Brown contributed to my autograph book.  News of the week:  Stalingrad taken by Russians: Churchill in Turkey.  U-boats still a menace for ships crossing Atlantic.</p>
+<p>FEBRUARY 1943<br/>
+4 Thursday—<br/>
+Was on guard at the billet.  Read “Mr Norris Changes Trains” by Christopher Isherwood, a mediocre story of pre-war Berlin.  Everybody talking of their post war plans as though the war is finished, me included!</p>
+<p>5 Friday—<br/>
+Denyse had to go to Scotland on a driving job, so I went to the YWCA for the dance.  Saw Charles, Maxie, Maurice and Joe there.  Maxie and I met two ATS girls named Joan and Olwyn.  Joan works at the War Office, comes from Sheffield.  Made a date for Tuesday, Hyde Pk Cnr 7o/c with Joan.</p>
+<p>6 Saturday—<br/>
+Weekend pass. Dined at Gordons Club with Maxie and Maurice. To Victoria Cinema to see Judy Garland in “Me and my Gal”. In evening went dancing at Seymour Hall, Baker St.  Then straight home.  Dave came out of hospital.</p>
+<p>7 Sunday—<br/>
+Met Dave, Maxie and Maurice at Queensbury Club.  Saw Rawicz and Landauer play “Warsaw Concerto”, also Pat Kirkwood, Geo. Formby, Jack Warner, Hal Monty, Gwen Catley, Geraldo, Maisie Weldon, Carol Gibbons.  Smashing show.  Finished up at Russell Sq. Canteen.</p>
+<p>8 Monday<br/>
+Phoned Denyse.  Went with Dave and Maurice to E&amp;C. ABC to see Errol Flynn in “Desperate Journey”, an impossible film, but quite entertaining.  Finished up having supper in the YMCA on Waterloo Stn.  Letter from Tom Melling.</p>
+<p>9 Tuesday<br/>
+Phoned Denyse and home.  Air raid sirens early morning, another school bombed.  In the evening met Joan at Hyde Pk Corner, walked to B.C. Club, then to Queensbuury Club, where we met Ted Fielding and Audrey, his sister in the WRENS, and Sid Bolton and Alvina his girl.</p>
+<p>FEBRUARY 1943<br/>
+10 Wednesday<br/>
+To Gordon’s Club with Sandi, Dave, Bolton and Fielding, had a really good meal, then went upstairs to the dance. Denyse wasn’t there, her Corporal told me she was on another three day drive.  Air raid sirens around tea time.  Question asked in the House by Emmanuel Shinwell about food supplies, Churchill’s answer was that we are now drawing on our emergency supplies.  Apparently this U-boat menace is indeed a menace! </p>
+<p>11 Thursday<br/>
+Dined at Gordon’s Club with Maxie.  Maxie and I met Joan and Olwyn at Victoria and went to the dance at Streatham Locano.  Quite a good dance hall, but much overrated.  Joan’s a nice kid, seeing her again tomorrow.  Wrote to Tom.</p>
+<p>12 Friday<br/>
+Letter - 15/- from Foyles.  Answered mail.  In evening met Joan and went to British Columbia Club, from there we walked to Queensbury Club.  Saw Bolton and Winifred there.  Dave, Maxie and Maurice were also there.  Seeing Joan again Tuesday.</p>
+<p>13 Saturday<br/>
+Dined with Maxie and Maurice at Gordon’s Club.  Met Sandi &amp; Dave in the Strand and went with Sandi to Wyndham’s so see the play “Quiet Weekend”.  Marjorie Fielding was excellent.  Finished up in the canteen in the Crypt of St Martins.</p>
+<p>14 Sunday<br/>
+Dined at Gordon’s Club with Sandi.  Met Dave, Maxie and Maurice at Queensbury Club.  Show was compered by Helen Drew, Paramount Film Star.  She’s great!  Geraldo and his band were there as usual and several big stars.  Show followed by “Who Done It” with Abbott and Costello.  Very funny.  Supper at St Martins.</p>
+<p>FEBRUARY 1943<br/>
+15 Monday<br/>
+Phoned Joan.  Went with Dave and Sandi to Union Jack Club in a frantic effort to swot up 10 weeks work in ten minutes, because of our final Exam tomorrow.  Studied 10 minutes, then fell asleep reading short stories!</p>
+<p>16 Tuesday<br/>
+Went with Sandi to see “Thunder Rock” starring Michael Redgrave.  A finely acted film, which leaves something to think about.  People in the Elephant &amp; Castle obviously didn’t understand it, and so chatted throughout the film.  Went to Waterloo YMCA for supper.</p>
+<p>17 Wednesday<br/>
+Went to Gordon’s Club with Maxie.  Met Joan and Olwyn at Victoria and went to the dance at Rochester Hall, Bayswater.  Prizes for fancy dress — has this war really been on 5 years!?<br/>
+Heard results of the final examination taken yesterday.  Ouch!  I certainly paid for my 10 weeks of painting the town red.  But it was worth it.  Starting on 14 days leave tomorrow, during which I’m going to live every minute as I expect to go abroad.</p>
+<p>18 Thursday<br/>
+Arrived home in temper after carting my kit through London and accidentally hitting 90% of the population with my steel helmet!  Spent a restful day reading “The Barber of Putney” by Beachcomber and “The Bride wore black” by John Drummond.</p>
+<p>19 Friday<br/>
+Spent afternoon in Charing X Road, firstly buying “Mrs Miniver”.  Met Joan at Hyde Pk. Corner, went to B.C. Club where we met Maxie, Maurice and Oliver.  From there to Queensbury Club.  Came home by way of Liverpool where I went to YMCA for supper.</p>
+<p>20 Saturday<br/>
+Dined at Gordon’s Club with Maxie, Maurice and Oliver.  Went with them to Metropole and saw “Happy Go Lucky”.  In evening went with sister Joan, Ron and his family to a dance at Winchmore Hill.  Bought book by H.G. Wells.  Wrote to Ken and Dorothy.<br/>
+FEBRUARY 1943<br/>
+21 Sunday<br/>
+Met Joan at Victoria.  Dined at Gordon’s Club.  Went to Broadcast show at Queensbury.  This was followed by a better show by the Pioneer Band.  Explained the “Mr Hyde side of my personality” to Joan who seemed rather shaken.  Nicely though!</p>
+<p>22 Monday<br/>
+Visited Elsie, Ken’s wife, and took her to his mothers.  Saw Albert who is now a Cpl in RAF, Peggy and Derek, now young man and woman, how time flies!  Wrote off to Ken and told him of evening.  Bought “How green was my Valley”.</p>
+<p>23 Tuesday<br/>
+Joan’s birthday.  Went with her, Mother and Ron to Wood Green Empire and saw “The Gestapo” a show.  Ernie Lotinga is not funny!  Sorted out Joyce’s letters for salvage, they make interesting reading — now!</p>
+<p>24 Wednesday<br/>
+Dined at Gordons Cub, met Denyse who has injured her arm.  Met Maxie, Joan and Olwyn at Victoria and went to Streatheam Locarno.  Edhibition dance by Alex Moore and Pat Kirkpatrick.  Supper at St Peter’s, Victoria.  Goodbye Joan!<br/>
+God knows what New Holland or at the best Grimsby will seem like after this course and leave.  I shall apply for an RA Commission, volunteer to go abroad, all at once when I get back, if only to keep things moving!</p>
+<p>25 Thursday<br/>
+Met Denyse at St James Park.  Went to Gordons Club, from there to Tott. Ct. Rd to see “Squadron Leader X! a fine film with Eric Portman.  Afterward went to Gordon’s Club for evening.  Deny is rather an interesting conversationalist.</p>
+<p>FEBRUARY 1943<br/>
+26 Friday<br/>
+Met Albert at B.C. Club, went dancing at Paramount, Tea at American Eagle Club.  In evening went with Albert and his family to dance at Hornsey Town Hall,  Met Babs, a friend of Peggy’s.  Made a date for tomorrow.  Slept night at Mrs Guryones.</p>
+<p>27 Saturday<br/>
+Met Babs at Wood Green.  Went and saw “Nine Men” a really great film.  Babs is only 16, but 16 with a difference!  Good luck the girls of 16 didn’t know damn-all when I was 16, a matter of 6 years ago!!</p>
+<p>28 Sunday<br/>
+Gran and Grandad came in morning.  Joan was ill.  Made a few bargains selling old books and pre-war stories.  Read “Winter of Discontent” by Gilbert Fontane.  In evening went down to see Mother at B.O.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a3781523.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-621">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-734"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-734" id="name-734">
+                    Childhood Memories of World War Two <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-734" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by hemlibrary (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/31/a3136231.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the Peoples War web site by Hertfordshire Libraries working in partnership with the Dacorum Heritage Trust on behalf of the author, John Greener. The author fully understands the site's terms and conditions.</p>
+<p>I was born (1st June 1937) and grew up in Edgware, Middlesex  (Queensbury, to be precise). Our address was 7 Millais Gardens, Mollison Way, Edgware. Edgware was right on the edge of London then - a sizeable sprawl of the mid-thirties house building explosion. Miles of, mostly terraced (Bauerhaus influenced) , wide windowed houses occupied by respectable upper working class families with aspirations. I think that most were quite happy in their brand new easy-to-run houses in the leafy suburbs - and then came the War.</p>
+<p>My childhood memories consist mostly of always going to sleep with searchlights     continously passing across the wall and the distant sound of bombs dropping and gun fire. During the day barrage balloons all across the sky and how nice and cosy and almost homely they looked. Air raid sirens and the feeling of dread they produced in your stomach. Of course, the legendary air raid wardens yelling “Put that light out” which  infuriated my mother and she used to have angry rows with him. Funny  green tape criss-crossed on the windows of underground trains (it was still there in the mid-50s). Air raid practise at school  - this consisted of crouching under wash-hand basins until it all went away.My mother found out we were sheltering under these basins at the teacher’s direction and every time the air raid warning went off, she used to run round to the school and take me home.</p>
+<p>I grew up in an extended family of extrovert and batty people - I was the only child in a family of eight of us - my sister was twelve when I was born so was almost grown-up. We had two adjoining mid-terrace houses - my Mum and Dad, my sister and I in one house and my mother’s two sisters and their husbands in the house next door. The women had bitter arguments and there was always one sister who was not speaking to another sister but  they all had very strong loyalty to  each other, bonded together by the horrors of growing up in the Camden Town slums at the beginning of the twentieth century. They all idolised me and whenever one of them found a treat in the shops - either over or under the counter - it would come my way. </p>
+<p>When the air raid siren sounded we went en masse to the shelter in the street which was very damp and always flooded but Mum and her  sisters decided that it wasn’t very healthy in there and the neighbours were doing unmentionable things to each other which they didn’t want me to see. Therefore we had three Morrison shelters - one for each family. I suppose by then it must have been about 1942. </p>
+<p>My sister was eighteen in 1943  and was “called up”. She had the choice of going into the ATS, training to become a nurse or becoming a bus conductress or working in a factory. She chose  to join the ATS. She hated the idea of being a nurse or going into a factory and Dad said he wouldn’t allow her to be a bus conductress because they were all tarts (he drove a no. 13 bus!)  So then there were just Mum and Dad and I and the cat to sleep in the Morrison shelter.</p>
+<p>One night (I think perhaps in the Autumn of 1944) the air-raid siren sounded and we moved into the Morrison to sleep. We were fast asleep in the middle of the night when there was a terrible red flash and flames racing up the wall and I screamed “Mum, we’re on fire”. Immediately after the flash came the noise of the doodle-bug crashing into a house round the corner. It has always seemed as if the reflected flash of the fire came first  and then the sound of the bomb. I think Dad must have called out “Is everybody allright” . My mother was screaming hysterically. I was crying because the cat wouldn’t come in that night and I was convinced he must have been killed  in all the devastation that seemed to be going on outside. We were right under the window and all the glass from these wonderful wall-to-wall curved Bauerhaus windows blew in. A big lump was chipped out of the piano. </p>
+<p>My Dad said “If I have to put up that bloody front door any more I will go mad”. Uncle Ern next door rushed out to see if everyone was allright and cut his bare feet to ribbons on all the glass on the floor. Then there was the sound of fire engines and water hoses and the fire seemed to be all round us. A man kept running up and down the street screaming “My wife is dead. My wife is dead”. I don’t remember any more about that night but I found our cat Sandy hiding in the garden the next morning quite unharmed. That day or maybe several days afterwards I can remember standing in the pouring rain holding the hand of one of my uncles and looking up at our two roofs with all the tiles missing. Some Irishmen were scrambling about trying to fix tarpaulins on the roof and I can remember asking “Will it be allright” and the uncle said “Oh yes I’m sure it will be quite soon now”.</p>
+<p>My Dad drove  a no.13 bus from Hendon, through Oxford Street and Piccadilly Circus and across (I think) Waterloo Bridge. He used to come home covered in soot from all the fires he had driven through and once stopped just before a huge bomb crater somewhere. </p>
+<p>One night I couldn’t sleep. It must have been deep in the winter because I can remember feeling desperately cold. My dad was in the bathroom having a bath and when I heard the door open I called out “Dad, I can’t sleep. I’m  so cold”. Dad’s hair was sticking up in spikes (like a punk) from being washed. He said that  when he was in the trenches he used to wrap the blanket right round the back of his neck and tuck it in tight. I still do that now with a duvet and it does work.</p>
+<p>My dad and Uncle Ern and Uncle Fred used to go fire watching in the flats across the road. They used to sit there all night playing cards and smoking and drinking brown ales. One night they must have all fallen asleep and one of them must have left a cigarette still burning - it set the flat alight and they had to run round to the ‘phone box and call  for a fire engine!</p>
+<p>My sister who was a good looking girl, came home on leave from time to time with various boyfriends who were in the Services. She also had  several American boyfriends but they always seemed to be killed in Europe. She was also engaged to a boy called Frank Ritchie who was serving in the Navy - she used to work with him in a butcher’s shop in Burnt Oak before the war - I think he was the owner’s son. He was killed the day after the war finished. He was in a jeep with a gang of American soldiers - I guess  they were celebrating the end of the war. The jeep crashed and he was killed. My sister was devastated and I don’t think she  ever really got over it.</p>
+<p>Uncle Ern’s sister Gwen was going up to Glasgow to join her sister. My mother was having a sort of nervous breakdown - it’s her nerves they used to say. They all decided I should go up to Glasgow to be away from the bombs and to give Mum a break. We had a nightmarish train journey up there. The train was tightly packed and I think we had to sit on our suitcases for the whole twelve hours it took to get there. The lights kept going out and the train kept stopping while the bombs were dropping. One of the soldiers on the train kept bringing us cups of tea. </p>
+<p>I can remember when we got to Gwen’s sister’s house (the sisters had six children between them) she pointed to the Morrison shelter which was full of kids and said “You’ll have to sleep on the top. You can see there’s no more room in there!”  I decided I wasn’t going to like it there.   Then they made me take cod liver oil before I went to bed and also to drink Ovaltine made with water - Mum always made it with milk at home. So I thought I don’t like it here. I’m going to make such a pest of myself that they’ll send me home. So I kept crying and saying I was homesick and wanted to go home. I used to listen to them talking when I was supposed to be in bed and very soon they were saying “We’ll have to send her home. She’s a horrible child”.</p>
+<p>I was there for a month so I did quite well really. I had  a great time playing with the children though. I think I did the journey home on my own and the whole family was there (apart from Dad, who was driving his bus, I expect). I had in a month acquired a very strong Glaswegian accent and my mother burst into tears and said she couldn’t understand a word I said.</p>
+<p>We used to have wonderful Christmasses. Somehow, between them all they used to produce some wonderful food and lots of drink, despite wartime privations. We always used to have a chicken - a real once a year luxury then. The men always used to do a “turn” for Christmas night - once they each had a sand covered tray which they danced on, doing what they imagined were Egyptian type gestures, copying a comic music hall team whose name I have forgotten. They also loved dressing in drag and larking about. It was their proud boast that we   were always the last people to still be celebrating in the whole street and we used to take great delight in doing the conger down the street and all singing very loudly just to wake the neighbours.</p>
+<p>When I was a bit older my sister and I rehearsed  some duets ( the only song I can remember now is “Sentimental Journey” - I did the descant, I think) to  sing at the family Christmas party. During all of this Aunty Vi would sit in the corner, occasionally sipping a small sherry, looking very disapproving, and knitting furiously!</p>
+<p>We were always quite hungry - there just wasn’t enough food in the shops most of the time. I think it was during the war that my mother brought home some whale meat. She didn’t know what to do with it so I think she just fried it. It was quite disgusting. Like eating very dense, very fishy liver.<br/>
+Early in the war Mum and Dad decided to keep chickens. I regarded them as my best friends and used to sit in the hen house talking to them for hours. My favourite one was always pecking me. The smell of potato peelings stewing for hours was quite horrible but we did get fresh eggs - worth their weight in gold then, although they always seemed to be going broody and we had to leave a china egg in the broody one’s nest, which was supposed to encourage it to lay. When one of them got too old to bother any more, Mum used to keep nagging my Dad to ring its neck which he hated because they kept running round the garden even though they were dead.  </p>
+<p>One day, amazingly, a duck flew into the garden. I fell in love with it immediately and christened it Donald, of course. On my birthday we had a special meal with this rather strange meat . I remember thinking that it was Donald but that I’d eat it anyway and then look for him in the hen house and if he wasn’t there, I’d  make a big fuss and cry a lot to show how upset I was.</p>
+<p>I can remember going to the Victory celebrations and being carried high above everybody else on Uncle Fred’s (he was quite tall) shoulders.</p>
+<p>That’s about it. My Dad and my uncles died many years ago. My mother died  aged 95 living in an almshouse in the Hertfordshire village where I now live. My two aunts are still alive and living in care homes in Clacton-on-Sea - they are now 99 and 97.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/31/a3136231.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-734">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Queensbury: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>57</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Queensbury </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

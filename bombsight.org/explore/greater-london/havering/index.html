@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Havering - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[0.149836635670034, 51.623199590793476], [0.15589663556327199, 51.623311428336947], [0.16251425959023499, 51.622567057822593], [0.16277733702362401, 51.622782400743837], [0.165468861595887, 51.622435585286006], [0.168082164804462, 51.621793805297735], [0.168885563536712, 51.621410242113726], [0.175288244068387, 51.62357778417352], [0.18027080957428199, 51.624440683360419], [0.180507047085049, 51.625694885597163], [0.180837438041108, 51.625579429609736], [0.181221752328388, 51.625816080907377], [0.18265222632450501, 51.625723165174726], [0.18375352480653401, 51.625357570861247], [0.18582629485926599, 51.624349576619601], [0.18622897713393599, 51.62451743912132], [0.185981526379697, 51.625512250584222], [0.188355748718641, 51.625402806942681], [0.18879307651350899, 51.62486420736569], [0.18938503492275399, 51.62448024686082], [0.18955151961567401, 51.624993247614889], [0.18979927292769, 51.625093872459374], [0.19476018563185399, 51.625704481626336], [0.19697202808046499, 51.625557832646138], [0.200296058182899, 51.624925509590639], [0.203599095615938, 51.625162981383902], [0.205723257726592, 51.625707479355903], [0.206759942268366, 51.626246966325475], [0.208447655141141, 51.62667259479668], [0.210843425315551, 51.626727257405264], [0.212235974619535, 51.626968975290985], [0.21209434899358701, 51.627176375227322], [0.21326551124414, 51.627618981605941], [0.213975767134334, 51.627646619907331], [0.217532641059966, 51.629083122843056], [0.222062574169719, 51.630116088678932], [0.22407278715330201, 51.631726992112362], [0.22725988421712801, 51.629761412994604], [0.22913115100759501, 51.62889572876341], [0.23212988794807299, 51.627211983320954], [0.233970485957404, 51.625909788198285], [0.237313467210791, 51.624163990098396], [0.237303348334125, 51.624050361604482], [0.23786287310899501, 51.623877986324359], [0.238020070791194, 51.623971497537369], [0.23967401620614001, 51.623065370703017], [0.25027926225590102, 51.618695777617148], [0.25264240116589898, 51.617497358702508], [0.25527307875449101, 51.615615339820963], [0.25767889546197797, 51.614172762037484], [0.25829020116906098, 51.61297461658426], [0.26225984964162002, 51.609653764952419], [0.26282375873509001, 51.60928471141861], [0.26409206066036101, 51.608867081500634], [0.264549123268978, 51.608310672089473], [0.26425049738953499, 51.608096663771235], [0.26431265577720803, 51.607822023937644], [0.26310283623383901, 51.6073097080181], [0.26164920152878401, 51.607448130545102], [0.25966917214990998, 51.606785432400024], [0.25806705162708199, 51.606497019099038], [0.258232214026277, 51.605732659385794], [0.25798608114205301, 51.604901880532474], [0.25714277306050098, 51.604915158492922], [0.25723964192019999, 51.604611739984627], [0.25696611525531998, 51.604229039243286], [0.25647542781975402, 51.603944509429063], [0.256612514973032, 51.603596483476188], [0.25625883360202301, 51.603308341768397], [0.25588746476405499, 51.603300167569088], [0.25590442423807203, 51.60305970076756], [0.25550260876027497, 51.603056604825859], [0.255151707854129, 51.602659925377303], [0.25468360251439198, 51.602721614343231], [0.25460718320000703, 51.602381487381223], [0.25420141342521302, 51.602371289004338], [0.25418066234674502, 51.60204344521518], [0.25390418433200701, 51.601910208205368], [0.25414623768687999, 51.601749439832318], [0.25399656118750502, 51.601588332032037], [0.25528146703193599, 51.601235400066727], [0.257972880395546, 51.601252908378129], [0.258238393120934, 51.600910558933293], [0.262615938656097, 51.600024019872201], [0.26453623563844902, 51.599799940983729], [0.26986476349507499, 51.599563773705896], [0.27031049579440503, 51.598349515789963], [0.27032584490227501, 51.59730025590396], [0.27012357212586602, 51.596592161858034], [0.26932186452493201, 51.595264748995], [0.269724670450119, 51.594167106657331], [0.26978740958922698, 51.592964328084541], [0.27011817388001602, 51.591508348330521], [0.27026862117316203, 51.591087120733114], [0.27133347238960198, 51.589732014192393], [0.27127475606908602, 51.589020073852716], [0.27221442017692998, 51.587604245147766], [0.27382714461975399, 51.586851726732817], [0.27537220425206799, 51.585069324445961], [0.27987082584499401, 51.58087358039932], [0.28176777644408402, 51.578833056451863], [0.282016186429703, 51.578821474412962], [0.285079094505653, 51.574118238986273], [0.286738937731502, 51.573453549975689], [0.28715225709002001, 51.572540063524656], [0.287124752506006, 51.572135910255057], [0.28668188714970499, 51.57166916631347], [0.28670553333907001, 51.571457229749328], [0.288612965958914, 51.568094945669195], [0.290275966812158, 51.564289013009592], [0.30456176335660701, 51.56528357561622], [0.30453838960406898, 51.565387618216249], [0.30621014846455402, 51.565510993105939], [0.31302164962027501, 51.565807711493676], [0.31348968417815598, 51.563906528613678], [0.31369924038215302, 51.563735600927835], [0.31412982095547098, 51.562713687803729], [0.314128230796484, 51.562149673918391], [0.31447570404771402, 51.561249816052246], [0.314761680725342, 51.559245991958036], [0.31502910984839999, 51.559025304987848], [0.31528194031467199, 51.557825199803858], [0.31562031285298298, 51.55765213995543], [0.316486221641122, 51.557675091624922], [0.31842122894432501, 51.556769991971308], [0.31867640170170097, 51.55536959927619], [0.31888317790160298, 51.555180583972678], [0.32203890021579701, 51.554187776547103], [0.322070228987061, 51.5532806609923], [0.322292254828355, 51.552771801073519], [0.32514368986442199, 51.553047635641896], [0.32641856194491198, 51.551792813547458], [0.32780173718920702, 51.55098337970405], [0.32796512839779701, 51.548551110428669], [0.32862024388924499, 51.547874571676886], [0.32888109960950002, 51.547192367226543], [0.329453354659206, 51.546553448368336], [0.32888705927047202, 51.545826539945935], [0.33143099922017999, 51.545931832243419], [0.33388767525060697, 51.54248281133394], [0.33331989674922302, 51.541251920254496], [0.33381874829631702, 51.541163477278232], [0.33401026797230998, 51.540492999790949], [0.33141615148011599, 51.540035078176949], [0.33157623545609699, 51.540786066168423], [0.32151992356021702, 51.540491776216435], [0.31687563596636997, 51.539985812488858], [0.31051255864886101, 51.539640792542492], [0.310495361222209, 51.539336909378207], [0.31002567634094802, 51.539281799968812], [0.300708678578198, 51.538745521632208], [0.30084458908677603, 51.538124788853011], [0.29719138271941198, 51.537651791373122], [0.297741179774898, 51.535308116411265], [0.290425901762841, 51.534649423777267], [0.29051039699331999, 51.534475121986397], [0.288061093315503, 51.534542983998172], [0.28174702557108999, 51.53393165031045], [0.27632505247796502, 51.532917367807975], [0.276208716978327, 51.533168629066843], [0.27494513941911802, 51.532932348251819], [0.27263842029638002, 51.533193191640265], [0.27069169771375701, 51.533082793037501], [0.26533222054637001, 51.532139720520298], [0.265491584400881, 51.527818226685064], [0.26537238108456102, 51.524945516723996], [0.265656208060634, 51.524600542096202], [0.26673620141599902, 51.524502664459419], [0.26668917435752698, 51.523301859096364], [0.26662285989843698, 51.522945775188965], [0.264994672955495, 51.522890698970237], [0.26424203449552802, 51.521631855450885], [0.263979750756765, 51.520830908095014], [0.26385304558837602, 51.518639992538617], [0.26366745051069002, 51.517858919612536], [0.26165294090233798, 51.517948240099145], [0.26028774784597303, 51.518360431759156], [0.25953833982445901, 51.518127143057221], [0.25946281898297302, 51.51780502067178], [0.25891260820418399, 51.517753193438338], [0.257492420106469, 51.517855155901465], [0.25571162187296897, 51.517661089635638], [0.253819522950193, 51.517876073373479], [0.253368702765981, 51.520678800858683], [0.252642904734381, 51.522365619598766], [0.25231783638500799, 51.524779367086623], [0.25152191566073401, 51.525960254828142], [0.25141132864434201, 51.527499085244074], [0.25083702233739802, 51.528808073298144], [0.24895016700901301, 51.528663888612947], [0.248867095446557, 51.52739909641587], [0.24827575322295001, 51.527541111180923], [0.24624753086304399, 51.526446139631574], [0.24627159022058301, 51.526239120859962], [0.24698837376107499, 51.525424573604994], [0.247074218635188, 51.525081891457148], [0.24664501172497899, 51.524215527096537], [0.24621443497767201, 51.524008671767909], [0.245821657178355, 51.523505527797859], [0.2428408810686, 51.524381516067614], [0.24233258639914901, 51.523572437060778], [0.24103605308206499, 51.522609944294601], [0.24067951891785899, 51.521945495274998], [0.24070946368938501, 51.521197649396022], [0.24348269133901401, 51.520739933708278], [0.24442797849306799, 51.520358604300597], [0.244650120776504, 51.520139496550456], [0.24421334582488799, 51.519749769977153], [0.24493858516765099, 51.51901685709089], [0.244890270387532, 51.518748823759211], [0.243920846812446, 51.518326857163018], [0.240179573155827, 51.519341413115569], [0.23716173809462601, 51.519324352968489], [0.23952323099740999, 51.515678102805616], [0.24112677186531201, 51.513733215669916], [0.24081172534221501, 51.513426296468687], [0.23997805172755499, 51.513234258565667], [0.24025775337034999, 51.512105332551847], [0.240264144052863, 51.510877078034319], [0.24057431952441, 51.510498508502046], [0.241423405291671, 51.510491120671354], [0.241821431180646, 51.509443398651833], [0.242004196902108, 51.507955888965284], [0.241787063437234, 51.508119808154419], [0.24177955983184299, 51.507915888701717], [0.239983770838884, 51.507696852176181], [0.23982718459704799, 51.507239954333635], [0.234614194859916, 51.506932487427655], [0.23342635372378001, 51.50665988875717], [0.22894024754622899, 51.50679374375806], [0.22661105804777201, 51.506571850601553], [0.22637921174608699, 51.50591779112542], [0.22600488896194301, 51.50586953412202], [0.22650195903981499, 51.504980875702472], [0.22659906083529499, 51.504478927347741], [0.22741719335938201, 51.503415117290466], [0.22779449549748901, 51.502472239863508], [0.228714084985597, 51.500997307914822], [0.229949653773111, 51.499355458557723], [0.22789155254121601, 51.498849514135998], [0.22571064946688699, 51.497707634731022], [0.224344384244689, 51.497315521486875], [0.223590100152469, 51.497895695867072], [0.221637629914888, 51.497800202149101], [0.21965165450195301, 51.497440717435474], [0.219520304971974, 51.497276548893659], [0.21836383538264101, 51.497086538026977], [0.217008853709107, 51.496572576531143], [0.21593763497641, 51.496450199903208], [0.21557105374702401, 51.496615356894516], [0.215005859013639, 51.496473286945587], [0.214140596173793, 51.496029577574078], [0.21352713179369501, 51.49500258962275], [0.21305840807597201, 51.495011024051159], [0.212833850359783, 51.494371443408347], [0.21282190336880699, 51.493288801159075], [0.21213610244599301, 51.492402844210247], [0.21190841952426001, 51.491025698017545], [0.211423657815768, 51.490891523726397], [0.21131647814115101, 51.490463135294817], [0.209811173408115, 51.489813664095088], [0.20884817866921099, 51.489858788094331], [0.20669811441104299, 51.489485596364567], [0.205374441326208, 51.489519496622684], [0.20140968561716799, 51.489153350988552], [0.19516006617378701, 51.488002507717567], [0.192023451590283, 51.488079182786393], [0.188605376868512, 51.487693390296208], [0.187661953626405, 51.487845893981323], [0.18742033720297399, 51.488515895703934], [0.184755819726696, 51.490634006113382], [0.18377104558142299, 51.492334065907407], [0.18320165852340201, 51.495492266044025], [0.18249692720960001, 51.496422684361406], [0.183255977231052, 51.496930151382031], [0.18287500035426399, 51.498304201741632], [0.18236726315872101, 51.498835253739934], [0.18241042163853199, 51.499436987756233], [0.18091640837327999, 51.500436041342262], [0.18022166221706201, 51.501276329097472], [0.18042444985287001, 51.501902076054847], [0.17879751899316301, 51.504648240523935], [0.17872460689374201, 51.505234148233527], [0.17904085381659501, 51.505821816061911], [0.177864694400728, 51.506239364996027], [0.17679083172385801, 51.506385208938326], [0.17363509854831499, 51.508206397091165], [0.172642879087264, 51.508251767880687], [0.17140770992519599, 51.508643363428973], [0.166228531154237, 51.510654691717093], [0.16528293324290499, 51.51107684464484], [0.16496376303997601, 51.511640308249113], [0.16282457017680099, 51.511814685544934], [0.16077170389451201, 51.511681661331224], [0.159713761870688, 51.511863026947744], [0.159132341069015, 51.512368355884881], [0.15871650791455499, 51.512169689803407], [0.158954339335074, 51.513576003827978], [0.159669314068735, 51.515683793669076], [0.16224786338003799, 51.521300214069953], [0.16224906876150699, 51.522200204504706], [0.16295093049385401, 51.523873030995915], [0.16402901897209901, 51.525573904910935], [0.164010043627043, 51.526104852605286], [0.16446267512945401, 51.52671884507874], [0.16459930109704901, 51.527243679294337], [0.16515391648882199, 51.527727773923395], [0.16552651168740201, 51.528420668243591], [0.16646877970767901, 51.529078588987161], [0.166719328007121, 51.529610589665197], [0.16743019715094301, 51.529930483639234], [0.167985461647393, 51.530730436347611], [0.16855822217549099, 51.530987954102471], [0.16870027287858999, 51.531227428944085], [0.17081453245791001, 51.532669358942869], [0.171846067151706, 51.534082260586949], [0.17195469935701799, 51.534925182712463], [0.172577822900743, 51.535898098392273], [0.17444094781797401, 51.538076842443552], [0.17634058309077, 51.539184843932041], [0.17726871202948699, 51.539500785726446], [0.17812688379231301, 51.539559747068424], [0.179246072314381, 51.540327670055213], [0.17969057072847, 51.541348696582865], [0.17965462964149301, 51.542633543974411], [0.179853959016012, 51.54323940304775], [0.180465099424864, 51.544106404729732], [0.182334425457083, 51.545646264848166], [0.18507714863112201, 51.547030156131036], [0.18579524551562501, 51.547210125675974], [0.18652018663395301, 51.548172083472927], [0.18749345200341799, 51.550193953087344], [0.18923724522093999, 51.551399792778533], [0.18962920550068901, 51.551507836008888], [0.18972373805266199, 51.551936752390645], [0.19019181720563699, 51.552671906878608], [0.18862573697889601, 51.553610563004312], [0.1885180153122, 51.553845548329271], [0.187894972153825, 51.55407047691709], [0.18805057474567699, 51.554344531435362], [0.18754219644727399, 51.554516449218625], [0.18771733115863401, 51.554840448106397], [0.18758476137681401, 51.555121424968867], [0.186901939216393, 51.555773364249958], [0.18646426695867899, 51.555878336546648], [0.185880878058544, 51.556329310970277], [0.18475345754241501, 51.556416214315227], [0.18474709511902199, 51.556622188022054], [0.185030223548727, 51.556810272879019], [0.18441751603915199, 51.55762810576914], [0.18441405551080101, 51.557951070226899], [0.184561041636009, 51.558685060894319], [0.184813802074803, 51.558954077903664], [0.18477711089854901, 51.559843951429187], [0.18455183970116101, 51.560204916922018], [0.18359131620167399, 51.560558915671997], [0.18263051287417501, 51.561302842745697], [0.18401035946038699, 51.563902570729766], [0.18509183217963299, 51.564790442885837], [0.185149037685021, 51.565513451924531], [0.18329830221723301, 51.564644394181478], [0.17862635159163101, 51.564917302240566], [0.17602627534600501, 51.564745369461001], [0.173398567188081, 51.565090295680612], [0.17123991509115499, 51.564605301840224], [0.16860887613278999, 51.563592375169698], [0.16656142245411901, 51.563300274020591], [0.16186404589267001, 51.561591436221214], [0.160742029651227, 51.562043349707665], [0.15977891613079401, 51.56307026376799], [0.15632822257124901, 51.565023967580956], [0.15522881110050199, 51.565460935383136], [0.15144738218082199, 51.567981780946134], [0.15114736895665301, 51.568007661803378], [0.15084676982643999, 51.567772602476353], [0.15037065658711901, 51.567812668469188], [0.149874130528519, 51.568069642657228], [0.14934200055042299, 51.568107636914775], [0.14875884006693901, 51.568612648700693], [0.14738255833755601, 51.568555504671501], [0.14712164323443799, 51.568760516600932], [0.14676990191649, 51.568760636817906], [0.14683251891642499, 51.568998505432496], [0.14665423245857301, 51.569406448974462], [0.149763770465384, 51.569687590225008], [0.14967023169819499, 51.570094409030808], [0.14930124202263301, 51.570264451313967], [0.14913897478673199, 51.571432291973615], [0.14927250526067201, 51.57145232427149], [0.148970049729999, 51.573224141365195], [0.147916865073694, 51.573116687965822], [0.148216594878502, 51.575188014508633], [0.14812211634803299, 51.575613957021169], [0.148045493304826, 51.575767958963148], [0.14699449626609501, 51.575669868325434], [0.14704169435936701, 51.576364839575689], [0.14745929962299201, 51.580783411877128], [0.14839294252197499, 51.580743416769145], [0.14966934042534599, 51.58234621741088], [0.150637393238926, 51.583053254288977], [0.15093811639252699, 51.583747222720042], [0.15120893812525399, 51.589116671779479], [0.15109240061412599, 51.590106634526272], [0.15058193752861099, 51.59127748629485], [0.150680888018419, 51.593429200816963], [0.15103966994835899, 51.595541029377799], [0.14975994409818899, 51.597067842159781], [0.14807196079737101, 51.59639084996369], [0.14809641249730501, 51.596774849887829], [0.147579477941266, 51.596797941122986], [0.148147390568589, 51.599040691868545], [0.14947991532206001, 51.602871309306472], [0.14899323103619799, 51.603383270327186], [0.148553371734442, 51.60427516309656], [0.14835691214178201, 51.605964082513594], [0.14868208228069099, 51.607153913746231], [0.148644411403624, 51.608649820020013], [0.14785054995908201, 51.610419651194256], [0.147456465714147, 51.612302455319949], [0.14645954716293499, 51.613674268664447], [0.14539023692824601, 51.614642147126276], [0.144409505352041, 51.616780991826502], [0.138168232095458, 51.623535527637671], [0.149836635670034, 51.623199590793476]]]]}, "type": "Feature", "id": 4, "properties": {"pk": 4, "name": "Havering"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Havering, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Havering, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../index.html'><img src="../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../index.html">Map</a></li>
+                    <li><a href="../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+ <h1 class="bombtitle">Bombs dropped in the borough of: Havering</h1>
+
+     
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../index.html"> Location Index </a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <span class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority">
+                                    Havering
+                                </span>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Havering, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Havering: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>9</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Havering</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-453"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-453" id="name-453">
+                    A Canning Town Evacuee: Part 3
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-453" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by ReggieYates (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/20/a2179820.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>A Canning Town Evacuee — Part 3</p>
+<p>Starting Work</p>
+<p>Having returned from being an evacuee, on my 14th birthday I started work for a firm called A. Bedwell &amp; Sons who supplied grocery and provisions, delivering to grocery shops around London, Essex and some parts of Kent.</p>
+<p>The firm no longer exists as the end of the war saw delivering to shops become outdated with big warehouses springing up who sold to shopkeepers willing to pay for goods as they wanted them in bulk.</p>
+<p>I started as a van boy and when I was seventeen, I was officially allowed to drive a one ton van all by myself, and took another van boy on our delivery through Blackwall Tunnel, up the big hill to Blackheath and via Kidbrooke to Crystal Palace, then back via Lydenham and through Blackwall Tunnel again.  Quite a nice day’s work, safe and sound.  I really enjoyed myself and have never looked back.  </p>
+<p>We also had to pick up a load from various wharfs, another warehouse and some firms, at the same time looking out for any chance of getting things that were on ration.  The war never ended until I was seventeen years old and rationing didn’t cease completely until about 1952, although as time passed things got easier and easier.</p>
+<p>One of the vans I drove was an old model T type Ford with large back wheels and the body on top of the chassis, which made it heavy.  It was hard to control in wet weather, the engine was so ‘clapped out’ it couldn’t climb a hill to save its life and it used half a gallon of oil every day which used to come out of the radiator cap with hot water, making an awful mess.</p>
+<p>Going to one shop in Potters Bar we would fill the van right up to the maximum weight and at a big, long, steep hill we would try to get at least half way where there was a gate that allowed us to turn around and reverse the rest of the way up until just before the top where we turned around in a field and continued to the top facing the right way but smoking and steaming.</p>
+<p>We kept complaining about the van and after about three months it would not start, so the garage mechanic said he would take it off the road and strip it down.  The next day he called me in the garage to see the state of the engine.  The van was eighteen years old so I expected the worst but was still amazed.  The inside of the piston bore was red rust and oval instead of round and the valves were burnt so much that the round bit at the top of the valve was half the width they should be.  He reckoned the engine had been running on fresh air for years.</p>
+<p>He told the boss it would cost more to repair than to buy a new one, which was reluctantly agreed to and so he bought a smaller van which is similar to today’s transit.</p>
+<p>The new van climbed the hill in Potters Bar first time, but on the way back I skidded it in the rain and finished side ways in a ditch which I managed to get towed out for a couple of quid.  Luckily there was no damage apart from some paint scratches, which the mechanic sorted out for me for a drink.  Nobody was any the wiser - I hope!</p>
+<p>Another day I was driving a long wheelbase Bedford lorry in Leytonstone and the steering snapped, I hit the kerb and finished in someone’s front garden, lucky again!  All this in my first year as a driver, mishap after mishap.</p>
+<p>There was another time while I was driving to Romford in monsoon conditions at about ten in the morning, I got as far as The Dukes Head pub in Barking when I saw a trolley bus at a stop on the opposite side of the road and an army three ton lorry coming along behind it to overtake.  The army lorry stopped beside the bus leaving me nowhere to go except between the army lorry and a lamp post which I did, but the top of the body and sides of my truck jammed between the lamp post and army lorry with the rest including me continuing down the road for twenty yards.  To make matters worse all the goods were now exposed to the elements.  It was like a scene from a Laurel and Hardy movie!</p>
+<p>Fortunately for me a police car behind the army lorry stopped and the officer told the army driver to stay put, then guided me back under the van’s body.  We borrowed some rope from a nearby garage and tied down the body to the floor.  After ticking off the army driver for being so stupid he escorted me back to my firm near the Abbey Arms in Plaistow. Another one I got away with!</p>
+<p>While I was a van boy and still only sixteen, (you couldn’t legally drive until seventeen) my driver decided to teach me how to drive the van.  He put a blindfold on me and made me feel the gears, levers, clutch and gas.  Then he revved the engine so I could hear the sound of the engine and feel the clutch ‘bite’, and drove so I would know by the sound of the engine when to change gear.  Soon he taught me to drive the van for real on the quiet back roads and eventually let me on the open road.</p>
+<p>Every Tuesday while he was courting, he would pick up his girlfriend from work and take her home where he went in for a bit of nookie.  I had to wait in the van before we carried on with our deliveries. Her mother always used to make me apple pie and custard, which I ate in the van while waiting.  Once he had taught me to drive, he let me take the van on my own (age sixteen) to continue deliveries while he had his nookie.</p>
+<p>During Christmas 1945, my mate who was my driver got married to his girlfriend.  She lived in Gidea Park, Romford and worked at Romford Steam Laundry (where Romford Police Station is now).  The wedding was a big feast and drink up, which lasted right up to the New Year.  His dad bought a forty gallon barrel of beer from the Slaters Arms and we pushed it home to his house, where we took his back fence down so we could get it in the garden and lift it on to a stand he had made so we could get the beer easier.  </p>
+<p>His dad said “nobody goes home until all the grub and beer has all gone”, so we stuffed ourselves silly with all the drivers eating 30lb of cheese, 4 x 7lb of spam, 10lb of butter, a big bag of spuds, many loaves of bread, 10lb of bacon, three dozen eggs, 4lb of tea, a case of evaporated milk and a big bar of Ships chocolate used for making drinks.</p>
+<p> I got home on New Year’s Day at teatime stinking like a polecat with a week’s growth of hair on my face. I really enjoyed myself.</p>
+<p>Starting back at work I found two new Morris Commercial three-ton lorries and I got one after we all tossed up coins to see who would get them.  Lucky me, it was a lovely lorry to drive, pretty fast as well.</p>
+<p>Coming back from Chatham the police would chase us every week for speeding, but could not catch us because we were having a cuppa in a wayside café when they caught up with us.  Mind you the police in those days had 200cc motorbikes.  It was not until later that they had much faster bikes like 500cc Nortons and Triumphs. </p>
+<p>It was not long after this incident that I had to go to a South London wharf in Tooley Street to pick up five tons of sultanas.  Coming up to Tower Bridge, the bridge was up, so I crept up on the outside of the queue of traffic.  In those days there were still a lot of horse and carts around so it was a crawl over the bridge.</p>
+<p>Just as I got over the bridge on the east side I saw an old motor coach come out of Royal Mint Street onto Tower Bridge.  There was an obelisk there dividing the road for southbound traffic but you could go either side. I stopped dead so the coach could get by and a horse and cart came up on my near side.  The coach kept coming and I could see that it was going to hit us if it didn’t pull over a bit, so I told my van boy to quickly get under the dashboard and curl up. </p>
+<p>Unfortunately the coach did hit us, right in the radiator and the bonnet flew off into the River Thames.  Our engine came back into the cab, the gearbox came up through the floor and five tons of sultanas went all over the cab.  Both doors caved in trapping me in the cab right against the steering wheel and the offside front lamp of the coach came through the nearside windscreen, frightening my van boy because he could not move.</p>
+<p>Somebody called the police, fire brigade and ambulance.  Fortunately they managed to get my van boy out in minutes, but I was stuck for about forty minutes until they cut the steering wheel in half and forced the door out.</p>
+<p>Imagine my surprise when I was pulled out, I never even had a scratch.  My saviour was a leather belt I wore to keep my trousers up and an old army belt I used to wear around my boiler suit.  The steering wheel went flat where it hit my belt and saved me from any injury.</p>
+<p>When I got to hospital they could not believe that I didn’t even have a bruise.  I was so lucky.</p>
+<p>The coach driver had more room than me to get by and needless to say, he was charged for driving without due care and attention. </p>
+<p>These are just a few of my memories of WW2. I hope you enjoy them. I am certainly enjoying reading all the stories from other people.</p>
+<p>I now live in Devon.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/20/a2179820.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-453">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-660"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-660" id="name-660">
+                    Childhood in London <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-660" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Leeds Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a3567323.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>They were happy times but at the age of nine and a half, 1938, things changed. The powers that be decided I was small for my age and underweight so I was sent to an open-air school at Fyfield in Essex, where I spent the next 18months, being just a number amongst about a hundred and fifty other girls. We all slept in long dormitories with one side open to the weather except when we had a thunderstorm.</p>
+<p>The classrooms were the same, each one set in a large open space. Meals were served in a large wooden hall on long wooden tables and we sat on long wooden forms. Brown bread and warm milk, porridge you could cut with a knife and if it was not eaten you went without. All meals were served in enamel mugs and dishes and to get one that was not chipped was a bonus.</p>
+<p>Sunday walks to church are vivid in my mind. In lines of two, girls at the front and boys at the back we went through country lanes and little villages. Things of interest were pointed out to us and this is where I began to appreciate the beauty of the countryside.</p>
+<p>Visitors such as parents were allowed to come to the school on one afternoon every three months and this was a great day. Every child had to learn to sing ‘Jerusalem,’ ‘Nymphs and Shepherds’ and ‘Oh for the Wings of a Dove.’ These songs were sung at assembly when all the visitors had arrived and sometimes when I am resting I can hear the singing still.</p>
+<p>One morning I was amazed to see a large balloon in the sky [barrage balloon — large silver balloon with ropes dangling from it to catch planes flying in low] we all thought it was an elephant! We were all frightened and wondered what it was going to do. No one knew what it was or where it had come from. It was some weeks before we were told and the mystery was solved. I can’t remember the exact day we were told to line up in the playground for a special announcement. </p>
+<p>We were then told to empty our lockers, collect all our belongings and report back to the nurse who would give us our own clothes which we were to change into at once as we were being taken home.  I was too excited to wonder why this was suddenly happening but late that afternoon we boarded buses and as we were driven out of the school gates buses were coming into school from the opposite direction bringing sick and crippled children out of London. These were the children from the hospitals and orphanages, any sick children that needed looking after. We’d never seen children like that because they were so sickly. We didn’t know why they were being brought in.</p>
+<p>It was only when we got home we were told the country may be involved in a war and these children had to be brought to a place of safety in case London was bombed. At that point they were thinking about evacuating children.</p>
+<p>Things were very different at home but I soon settled; only eight of us, out of fourteen children, were at home now with mum and dad, five boys and three girls. The others were all married. We were all happy for a while. September 1939 war was declared between England and Germany. Things would never be the same. Three brothers left home the same day, two went in the air force to France and ended up in Dunkirk and one went to Gibraltar and one into the army ended up in Burma. They were all in the Territorial Army before this so had to report immediately. I remember them putting their three kit bags on the table and packing their kit. I’ll always remember the three of them walking away together. </p>
+<p>All civilians were given an identity number and identity card, a gas mask in a small square cardboard box with a cord attached to it to enable us to carry it everywhere we went. Tiny babies were given a ‘Mickey Mouse’ gas mask, it was coloured and they were put right inside it. Some of the small children had ‘Mickey Mouse’ gas masks so they weren’t scared to put them on.</p>
+<p>Schools closed and cinemas and most places of entertainment shut their doors. Food, clothes and coal were rationed. I remember taking an old pram and standing in a queue for hours to get one sack of coal.</p>
+<p>By this time another brother had been called up to go into the air force. He was sent to Egypt. The brothers who were sent to Egypt and Burma went on sister ships and met in Durban, South Africa, before one headed to Asia and the other to the Middle East.<br/>
+When I met my husband three years after the war I brought him home and he recognised my brother. They had served together in Burma.</p>
+<p>My brother ‘Bert was at Dunkirk and was saved by a colleague in the Air Force. He pulled him out of the water, into a boat, when he was being machine-gunned. The air man came to our house for us to say ‘thank you,’ met one of my sisters, married her and became one of the family!      </p>
+<p>Most of the children in London had been evacuated to the country for safety. I stayed at home; my parents wanted me with them. Before the boys went away they had put an Anderson shelter in the garden for our safety. It was a double sized shelter and took up most of the garden. There were bunks down both sides.  We spent a few months sleeping in there every night, we never bothered going to bed upstairs, you knew you’d be woken up in the night. </p>
+<p>Our house was in the East End of London and when the air raids started this part of the South of England was given the name of ‘Bomb Alley.’ It was very frightening. By this time we were getting used to the routine of going to bed in the shelter night after night.</p>
+<p>Early one morning the police called us from the shelter and said, “Grab what you can from the house as time is short and go to the end of the road.” Everyone took a bundle of things wrapped in a sheet or tablecloth. Then the police told us to find somewhere to stay because there was an unexploded bomb near the house. </p>
+<p>The air was full of smoke; fires were burning everywhere we looked. There were no buses so we had to walk to the safest station where we managed to get a train, after the ‘all clear’ sounded, to Romford because my sister had a house there.</p>
+<p>Living in Romford was nice. We could sleep in a bed again and the bombing was not so bad. My youngest brother was called up for the navy but he was to be a Bevan boy, which meant he was sent up north to Mansfield, to work down the mines.  </p>
+<p>I suddenly found myself on my own with elderly parents and I had a much bigger part to play digging the allotment, planting veg, to help rations go round, making bread and standing in queues for hours. I also became a member of the training corps and was taught to fire a rifle. </p>
+<p>At fourteen I started work. The war was still on and as soon as I was fifteen I took a job in a factory making wing ribs for Spitfires. Suddenly I had grown up and felt I was at last doing something worthwhile to help the rest of my family.</p>
+<p>There were funny times in the factory. When the sirens sounded we had to switch off all machines and make for the trenches in the field across the main road. We would all crouch down and watch the Battle of Britain being fought above our heads. We didn’t have time to be afraid someone would see the funny side of the situation and we’d all begin to laugh, every time!</p>
+<p>War is a terrible thing, it is surprising how people would come together in times of need. Food was very short, rationing was hard but no one starved. If a child had a birthday all the neighbours would give what they could and a birthday cake would appear, and we would all get together for a party.</p>
+<p>Christmas presents were lovingly made by Granddads who would make trains, boats, cars, out of old bits of wood. Anything that could be used was used, but no one ever made a toy gun. Grandmas knitted dolls clothes from unwoven woolly jumpers. My sisters and I made soft elephants and rabbits from old clothes and stuffed them with scraps of rag left over from the cloth rugs we made. Every house had a homemade rug. Strips of old clothes were cut and threaded through a piece of sacking ad knotted at the back and then a huge piece of sacking was sewn on the back. Patterns could be made with all the different colours of cloth and some were very grand after they were trimmed. Making rugs was a popular pastime, which kept us occupied in the shelters, young and old could all help.  </p>
+<p>Going out was not a thing we did unless it was necessary, even then we would be sure we could get to a shelter if the sirens sounded. I don’t think anyone was comfortable walking in the blackout. One Friday evening my brother was riding his bike home from work, in the black out. Unfortunately a family were moving house and had left a flat barrow piled with furniture in the road, in the complete darkness. My brother ran into the barrow with such force he bit his tongue in half. When he staggered in the house, blood all over him, everyone forgot me in the bath and dashed off to the hospital where a very clever doctor stitched his tongue together again. He still has a lisp to this day.</p>
+<p>Travelling was difficult even with an identity card. I went to see my sister on the Isle of Wight. I had to go to the police, who gave me a permit to travel. That was because I would be going through Portsmouth or Southampton and they were royal navy dockyards.</p>
+<p>My eldest brother was the civil engineer in charge of the American army camp at Tewkesbury in Gloucestershire. He came to London on one occasion and I thought it would be nice for me to back with him to his family for a break. He had a daughter my age. Once again I had to get permission from the local police and give them all the details of my intended movements.</p>
+<p>What a holiday that was! They were still having barn dances in the local church hall. It seemed to me the war had not changed much. Italian prisoners of war worked in the fields in the camp. My brother’s house was on the road, inside the camp. Shirley was my niece and we were good pals. She was a brilliant musician and could play the piano and accordion. </p>
+<p>Sometimes we would sit in the front garden of the house and she would play the accordion. In the field opposite Italian prisoners would be working. As soon as they heard the music they would sing their hearts out. They had a prisoner working in the house; he did the housework and was well behaved. Sometimes he would bring a list of music for Shirley to play. He said it reminded them all of home.</p>
+<p>In 1941 the war was still raging. Most of Europe was occupied by German troops. France had fallen and there was only the channel between them and us.<br/>
+It was not until I went to Yugoslavia, years later, that I realised how close to England France was.  </p>
+<p>So much had happened. I now had a brother serving in Burma, one in Egypt, another in the king’s flight with the RAF and one had returned safe from Dunkirk. Food, clothing, sweets and coal were rationed. Underwear was a big problem which some of us solved because we were able to get damaged parachutes. These chutes were made of fine white nylon and providing someone in the family had a sewing machine and a little bit of dressmaking skill the finished garments were beautiful. Also if we could acquire an army blanket or even better an air force blanket we could make a warm topcoat. I myself altered RAF trousers into ladies slacks. They were very rough on our skin but very warm. At one time after we had used all our clothing coupons up and we needed new shoes we tried clogs. That resulted in too many sprained ankles so we soon went back to the well worn out shoes.</p>
+<p>The blackout was very necessary. We had to be very careful if we used a torch or lit a cigarette. The smallest light could be seen from the air and Air Raid wardens were always on patrol to make sure everyone observed the rules. If a light was seen you could be accused of signalling the enemy. </p>
+<p>If we ventured out in the blackout we would always go in groups of three or more. Although we did not smoke, one of us would hold a lighted cigarette in our hand. This we hoped would make them think we had a man with us and made us feel much safer.</p>
+<p>My sister lived in Romford and we were able to stay in her house until my parents could rent a house. This house was in the same road as my sister’s. There was a brick built shelter at the bottom of the garden and my father soon made bunk beds for us and we had a small camping stove on which we could make tea.</p>
+<p>Some people had indoor shelters these were called Morrison shelters. They looked like reinforced cages. They were about six foot square and we had to crawl into them and lie down. There wasn’t enough room to sit up but with a blanket and a pillow you could be quite comfortable. Most families had them in the dining room and used them as tables.</p>
+<p>Although we were away from London the air raids were quite bad and quite a lot of bombs were dropped on this part of Essex. Doodlebugs and V2 rockets were still coming over. People seemed to take everything in their stride and just carry on with their lives. We shared things we had and made the best of things. We always managed to see the funny side of something so there was plenty of laughter.</p>
+<p>In 1941 Germany attacked Russia and it was bad news every time we listened to the radio. Then the Japanese bombed Pearl Harbour and the United States of America came into the war on our side. What a surprise they were. There were sweets, chocolate, chewing gum, cigarettes and nylons. They had everything and soon became very popular with the teenage girls.<br/>
+Dances were held at their barracks ever week. It was fun to see the girls changing from work clothes into dresses suitable to go dancing in. Coffee or tea was used to dye their legs and they would draw a line at the back of the legs to look like a seam. If it rained it was a disaster, the dye would run and their legs became striped. </p>
+<p>The Glen Miller Band came over from the States and their music was extremely popular. Music While You Work was broadcast every morning to the factory. We all found it very hard to stand still. We would be Jitterbugging with hammers in our hands. Everyone cheered up and sang. The more patriotic the music the louder we would sing. </p>
+<p>When things were going bad for the Allies some songs were banned. It was upsetting for some families who had relatives serving abroad. ‘The Little Boy That Santa Claus Forgot’ and ‘Russian Rose’ were two we did not hear again until the war ended.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a3567323.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-660">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Havering: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>9</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Havering </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

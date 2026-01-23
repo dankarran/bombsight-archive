@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Hale - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.272967995431735, 51.641566537481708], [-0.27283465425323, 51.641771387715067], [-0.27281435357144601, 51.641853850540514], [-0.27284803299025101, 51.64206116665229], [-0.27178400985989298, 51.642071643262064], [-0.271271970030176, 51.64200917095301], [-0.27052002569155797, 51.642043336871929], [-0.270215982053578, 51.642034079279341], [-0.26982416549726801, 51.642099401487478], [-0.26942242991016802, 51.642223866487335], [-0.26938648055854603, 51.642183861972207], [-0.26881511423640903, 51.642232059402971], [-0.26850131352190498, 51.642276888619328], [-0.26826207034953897, 51.642332650751783], [-0.26827093047932998, 51.642385607698984], [-0.26813378696881701, 51.642404523997861], [-0.26756609395822201, 51.64273560238567], [-0.267308238984929, 51.642817505731884], [-0.26681001269119903, 51.64277151596545], [-0.26646434627115301, 51.642763466687946], [-0.266117277530171, 51.642780542728154], [-0.26573033082479203, 51.642777636719032], [-0.265496304171144, 51.642755487743798], [-0.26517727903216398, 51.64270048067349], [-0.26509712348664799, 51.642670631891015], [-0.26443229840483001, 51.642197571037862], [-0.26438232117169103, 51.642181657535964], [-0.26425965599054901, 51.642058584154334], [-0.26414933054971801, 51.641990637207712], [-0.263932513438772, 51.641908611243245], [-0.263819422005037, 51.641842584389074], [-0.263616412719754, 51.641694731407171], [-0.26337930961322198, 51.641481733641243], [-0.26316169476752499, 51.641325790988439], [-0.26277148328489702, 51.641136797548661], [-0.26201581937729701, 51.640689772441789], [-0.26178780945678998, 51.640593810800951], [-0.26126450125363498, 51.64048391838049], [-0.26049966233613397, 51.640194950253424], [-0.25960194835095102, 51.639956005269006], [-0.25917784432491803, 51.63982691107929], [-0.25908096315489199, 51.639832923968108], [-0.25910484542706302, 51.640140982141268], [-0.25653400389744802, 51.639556986366408], [-0.25651999114990698, 51.639428068679557], [-0.25587742411559, 51.639414032178024], [-0.25561421870642598, 51.638811159216509], [-0.25495320660743498, 51.638925120452662], [-0.25348028350012197, 51.637990227096914], [-0.252952339487033, 51.637814335739201], [-0.25245053894251102, 51.637616345101122], [-0.25175485329571201, 51.637422353199526], [-0.25040573013629702, 51.637392423531232], [-0.250395012584952, 51.637424436663665], [-0.24934119530655, 51.637395377289963], [-0.24917411174576101, 51.637371532535632], [-0.248874164994634, 51.637737424693029], [-0.24889383159722001, 51.63788341657618], [-0.248983992287826, 51.63806334160811], [-0.24901882066705899, 51.638472310530197], [-0.24894314471484599, 51.63846724094121], [-0.248873904919655, 51.638412258513526], [-0.247750059323157, 51.637973423927065], [-0.24646119438115299, 51.637422510889643], [-0.245492568053824, 51.637046524397874], [-0.24495817453065799, 51.636781560073473], [-0.244345416011154, 51.636534666310666], [-0.24420623067026001, 51.636595531131604], [-0.24332537590442399, 51.636777519844706], [-0.24261853421617799, 51.636791527817735], [-0.24250751916153601, 51.636894543079194], [-0.24250090131925101, 51.636925631629694], [-0.24263467000459801, 51.637682563621915], [-0.239734843060323, 51.638349507018944], [-0.23951521195022499, 51.638423487970854], [-0.23915525395908599, 51.638167576520289], [-0.238735055923048, 51.637939563061089], [-0.23789936173877199, 51.637572533325603], [-0.23745927864489599, 51.637438626799977], [-0.237332178123141, 51.637385577338279], [-0.23726714113602701, 51.637327557158756], [-0.23719341143202799, 51.637155595071981], [-0.23710123210956599, 51.636318784064024], [-0.23701725839401799, 51.635863833834996], [-0.23674418676985101, 51.635196837128134], [-0.23657518696612401, 51.634302942026061], [-0.23637829049969, 51.633756093064861], [-0.23607042626434899, 51.633148147878551], [-0.235945196384519, 51.632756231965153], [-0.236012290770095, 51.631562256457322], [-0.23603516214173301, 51.630402459556883], [-0.23720200950662701, 51.630027418121216], [-0.238228016140004, 51.629627489536027], [-0.238914885313675, 51.629298477941376], [-0.23944172057413801, 51.629090561028256], [-0.23966382982245399, 51.628986553237496], [-0.240134769296177, 51.628706561691537], [-0.24071637603049501, 51.628261588604559], [-0.241177490644745, 51.62784966011786], [-0.24137047437190201, 51.627564661401429], [-0.24158545496111999, 51.627060803444706], [-0.24188823282275901, 51.626644668202161], [-0.242099184139837, 51.626396741921035], [-0.242277401757824, 51.626224770412755], [-0.242941259556504, 51.6256828047811], [-0.24317903478276701, 51.625534899905865], [-0.24350302485731201, 51.62539896580958], [-0.24389595308233999, 51.625266870477098], [-0.24436203978118901, 51.625133897352782], [-0.24502989278898701, 51.624986130271743], [-0.245259929648831, 51.624972957399962], [-0.24562794175625299, 51.624994893638515], [-0.24611453935859301, 51.624996970640332], [-0.246519840137812, 51.624976892335226], [-0.24687386616666401, 51.624939886856261], [-0.24844761024169801, 51.624590901856159], [-0.24892866668570399, 51.624512001084213], [-0.24998953994308501, 51.624469873181816], [-0.25065109164501398, 51.624465966472272], [-0.25089701272430898, 51.624480873579458], [-0.25115426843074101, 51.624541887932089], [-0.25129509779029402, 51.62454286228845], [-0.251432055947863, 51.62446790456049], [-0.25182336662481503, 51.624106874467117], [-0.25189225078567801, 51.624005902697554], [-0.25197604379009397, 51.623790678499837], [-0.25208712594948901, 51.623634073772614], [-0.252230994397524, 51.62349698085368], [-0.25260205405351499, 51.623216014495178], [-0.25290117780876797, 51.623033036595338], [-0.25417885215618302, 51.622326063002298], [-0.25427183919295798, 51.622302998397871], [-0.25456287452267001, 51.622330087979506], [-0.25463230666745201, 51.622309057770181], [-0.25471070254010503, 51.622219036015728], [-0.25477144818311598, 51.621977150643986], [-0.25491871341638001, 51.621751164495052], [-0.255180725921128, 51.621452270862221], [-0.25541058330317501, 51.620991177984571], [-0.25563657252240102, 51.620666324611321], [-0.25575063015141403, 51.62058821317941], [-0.25626708986403002, 51.620363023186059], [-0.24996085502239701, 51.613809147530681], [-0.24913306743362801, 51.613011255430727], [-0.24462644335761999, 51.608267838117207], [-0.24638297826062799, 51.607329951708564], [-0.24682424011454501, 51.607121994839332], [-0.24680386459707401, 51.607077012962293], [-0.24743198912766101, 51.606926918028776], [-0.24752687940919499, 51.606947017888487], [-0.247594782269494, 51.607058887571192], [-0.2477238735698, 51.607198935718472], [-0.24796372688558499, 51.607556860835672], [-0.24825213397651899, 51.60808384269577], [-0.24859160647981099, 51.607940814790119], [-0.24947489920554999, 51.607621846089991], [-0.25150845403250099, 51.60960767977322], [-0.25136965839765302, 51.609719709427246], [-0.25165369877376598, 51.610079555549369], [-0.25192747904340002, 51.610060585062747], [-0.252917661487015, 51.610073502890124], [-0.256478866048098, 51.610397341869209], [-0.25728411294737902, 51.610454400132042], [-0.25774464885325499, 51.610461374319598], [-0.25880387349954798, 51.610368481306764], [-0.26000178428380499, 51.610189393754169], [-0.26199743499334299, 51.609814447766183], [-0.26518910161076997, 51.609343347052707], [-0.26571897999711802, 51.609295394277957], [-0.26605484633245402, 51.609186406281609], [-0.26799878057121501, 51.608887454298674], [-0.27034149313764, 51.608378381307816], [-0.27052343106374599, 51.60872136358681], [-0.26997849531536999, 51.608916361904491], [-0.26994126824030501, 51.608981429771617], [-0.27003632558599999, 51.609045353293482], [-0.27007416060888501, 51.60922533878059], [-0.27014121754769899, 51.609242339751212], [-0.27022544799419601, 51.609199327109586], [-0.27028828535163602, 51.609220344980962], [-0.27033050332321501, 51.609273370020489], [-0.27047627529214502, 51.609273409180922], [-0.27053612987581299, 51.609408332485636], [-0.27028035140732998, 51.609595225573429], [-0.27036331196340602, 51.609906261719566], [-0.27007429197705202, 51.610623204244511], [-0.27019333411613899, 51.611172081765133], [-0.270653509000434, 51.612329019392362], [-0.270832430852322, 51.612514029415827], [-0.27092465712411701, 51.612641003899498], [-0.27087555728484702, 51.612768981415137], [-0.271066182640261, 51.612835996717301], [-0.27037278293857497, 51.613646881344231], [-0.27051361741195901, 51.613693919110588], [-0.27051363788934202, 51.613740852768068], [-0.270449692550779, 51.613855821423556], [-0.27044340520994298, 51.613973757385352], [-0.27029649783030801, 51.614014861453938], [-0.27014849692799398, 51.614203765813357], [-0.27029858398762502, 51.614256842517392], [-0.27025367875086498, 51.614369706722918], [-0.27022852787242202, 51.614401794453251], [-0.26989549093132098, 51.614399833303025], [-0.26982973083013101, 51.614443826967836], [-0.26988357380129202, 51.614499693762895], [-0.26977252573014099, 51.614606675088346], [-0.269776595222394, 51.614665740154166], [-0.26969871192231998, 51.61473175563782], [-0.26969761194505598, 51.614760680277968], [-0.26977216600335102, 51.614841723286979], [-0.26976281602818802, 51.614897791322569], [-0.269699856017318, 51.614974698868423], [-0.26950077657406102, 51.614951672479435], [-0.269452823827388, 51.614918654605184], [-0.26939568241018802, 51.614913733087555], [-0.26936065198018899, 51.614968722701505], [-0.26915976752626403, 51.615111736032304], [-0.26912066087519299, 51.615178608297029], [-0.26895596541650002, 51.615105922572425], [-0.26888082639933097, 51.615123083319347], [-0.26886198937087802, 51.615167621048947], [-0.26894969366730598, 51.615365625586129], [-0.26905919913479798, 51.615346724761302], [-0.26910552707197199, 51.61536258268454], [-0.269112851063877, 51.615395563354419], [-0.26892080987786199, 51.615531552025125], [-0.268864974009077, 51.615539724913816], [-0.26853496006025901, 51.615517574472769], [-0.26843654632330199, 51.615529888924982], [-0.26849696110098298, 51.615602722402848], [-0.26862584724640898, 51.615655626637043], [-0.26861998386686398, 51.615738578217098], [-0.26854793223879497, 51.615852588355786], [-0.26835478044190397, 51.615946543468667], [-0.26833091273741799, 51.615980611035368], [-0.268335005419015, 51.616051066828668], [-0.26841600876130201, 51.616140640375853], [-0.26848927987074001, 51.61626705165817], [-0.26857178983623398, 51.616257587286221], [-0.268618757220218, 51.616269099426319], [-0.26863101712304699, 51.616302576488685], [-0.26857197379398201, 51.61646652028243], [-0.26836787257600098, 51.616373584216049], [-0.26833002693095698, 51.616383559959743], [-0.26830729541194998, 51.616411474897625], [-0.26832287351135298, 51.616452588358918], [-0.26829905907184898, 51.61647359050383], [-0.26817569195770902, 51.616441568294178], [-0.26813701991619698, 51.616520656495709], [-0.26817945785783698, 51.616603758908802], [-0.26810504551965603, 51.61663750435082], [-0.26794370419694002, 51.616678263662486], [-0.267937942399607, 51.616746465431419], [-0.26776397767818699, 51.616715510242983], [-0.26764404121795698, 51.616676512368223], [-0.26758359941672599, 51.616675473108565], [-0.26752217439641002, 51.616711518478034], [-0.26743203855951198, 51.616838474585499], [-0.26736840774099702, 51.616885435674057], [-0.26720795738849201, 51.616914411638646], [-0.26702227826055402, 51.617013530091555], [-0.26692340243588403, 51.617132622045702], [-0.26669602386949298, 51.617342412688068], [-0.26659419983787402, 51.617479444129046], [-0.26674231555530098, 51.617454375250155], [-0.26669224273735298, 51.617536388557099], [-0.26697996418571301, 51.617484439668893], [-0.26699604474264799, 51.617607475388738], [-0.26710889425093198, 51.617678413255433], [-0.26723792994192003, 51.617656432247188], [-0.26725407608323698, 51.617718345968477], [-0.26920801055596899, 51.617545412199448], [-0.26928201783306799, 51.61752233219557], [-0.26933167615355702, 51.617557631223249], [-0.26930576248279597, 51.617752404206477], [-0.26937077591585101, 51.617811391645695], [-0.269374176820943, 51.617876358396728], [-0.26940572534407897, 51.617913351728518], [-0.26939688237743797, 51.618086323133014], [-0.26951886839824202, 51.618214289751918], [-0.26964498615451299, 51.618613208153825], [-0.26970498709476898, 51.618614239839125], [-0.26976183152092897, 51.618745325213602], [-0.26977298715956499, 51.618796207450998], [-0.26974381400841102, 51.618851136156998], [-0.26983049584802399, 51.619135809171325], [-0.269854892187122, 51.619432068693904], [-0.26996802768120698, 51.619662196334666], [-0.27008970459728099, 51.619810111536161], [-0.27014579083931001, 51.620009048670553], [-0.27011086129601702, 51.620227012828771], [-0.27012074587436302, 51.620335067339006], [-0.27006163612830802, 51.620417510560905], [-0.27003193264943198, 51.620510092340439], [-0.27002603683338, 51.620665123866061], [-0.26988404216262701, 51.620896961270482], [-0.26978807419720102, 51.620987019479863], [-0.269726018799541, 51.621158921127964], [-0.26973493203229798, 51.621245046242684], [-0.26970900960602201, 51.621380528602238], [-0.26965057321802499, 51.62151637887677], [-0.26968381340105002, 51.621769914525778], [-0.26966360355699898, 51.621826374923188], [-0.26972393138672301, 51.622175152429058], [-0.270648823601502, 51.622094922646014], [-0.27082536872589702, 51.622343828479288], [-0.271349091542472, 51.622592082264177], [-0.27145109498063003, 51.62303223586094], [-0.27128706664319902, 51.624105372712862], [-0.27151670071990203, 51.624323576851189], [-0.271250871355048, 51.624689475295035], [-0.27111607680560901, 51.625159438166257], [-0.27110094711578098, 51.625842339783489], [-0.27112716688302502, 51.626423282142206], [-0.27032699832408802, 51.626296423767663], [-0.27019132811733798, 51.626290354977442], [-0.26962115637908302, 51.626312440596905], [-0.26967299248864401, 51.626694388890115], [-0.26887246990565, 51.628403188890736], [-0.267835537039257, 51.62826819083039], [-0.26779668308016302, 51.627901184527481], [-0.26799648932291897, 51.627456346366351], [-0.267886506784759, 51.627463296487662], [-0.26783939632461401, 51.627040386161255], [-0.26895113488149502, 51.626775358451553], [-0.269055137926415, 51.626581451660996], [-0.26905464641763399, 51.626375516287212], [-0.26902026536923301, 51.626373932050932], [-0.26851776120540499, 51.626441880644521], [-0.26694005702551898, 51.626840946411527], [-0.26705799611976599, 51.627250261880846], [-0.26727057712283903, 51.62816445003363], [-0.26736587415945201, 51.628388837784676], [-0.26746550700779198, 51.628535168608458], [-0.26715240688275499, 51.628647158212409], [-0.26697202410302701, 51.628771796590961], [-0.26644054023959102, 51.628465094791714], [-0.26642246774461897, 51.628856131890856], [-0.26485185615302398, 51.628803704228652], [-0.264462979947924, 51.628771124245951], [-0.26406897318453298, 51.628353203508247], [-0.26244926927790901, 51.628959256887548], [-0.26287237649366102, 51.630767057864603], [-0.263118131829019, 51.631555824591629], [-0.26326901478693499, 51.631955815287846], [-0.26359933264867502, 51.632564728344846], [-0.26395298616452401, 51.633141665278188], [-0.26462518862315199, 51.633938556216279], [-0.26548713830019399, 51.634722380917168], [-0.26680567168862002, 51.635671271442348], [-0.26758666522980301, 51.636128336019773], [-0.268778707123627, 51.636689245700936], [-0.26923849760513002, 51.636877127180398], [-0.26977047158729101, 51.637067065012317], [-0.27104732514128599, 51.637442048419352], [-0.27187529992723097, 51.638838890261603], [-0.27291048100278897, 51.640750627600852], [-0.27305726728676699, 51.64106163185928], [-0.27303605079274001, 51.64109459750393], [-0.27309496380290099, 51.641232175032592], [-0.272967995431735, 51.641566537481708]]]]}, "type": "Feature", "id": 1055, "properties": {"pk": 1055, "name": "Hale"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Hale, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Hale, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Hale</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Barnet</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Hale
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Hale, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hale: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>19</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Hale</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <p>Sorry, no stories available.</p>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hale: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>19</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Hale </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_18.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Homeless and/or orphaned children settle down to sleep on camp beds in the air raid shelter at John Keble Church. A basket in the centre of the photograph probably contains a small baby, also made homeless by the Blitz. - Homeless and orphaned children settle down to sleep in the ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205195801">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_19.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Children who have been orphaned and/or made homeless by the Blitz enjoy a meal and a cup of tea at the John Keble Church, Mill Hill, London. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197823">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_67.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Children who have been orphaned and/or made homeless by the Blitz are cared for in the John Keble Church sick bay. Volunteer nurses bandage the head of a boy on the left, and check the hand of a girl on the right. The female doctor, who visits when necessary, checks ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205195800">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_104.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Children who have been orphaned and/or made homeless by the Blitz are cared for in the John Keble Church sick bay. Volunteer nurses tend to their day to day needs and a doctor visits when necessary. The children would be kept here until a new, safe home could be found ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197822">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_150.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                The curate of John Keble Church in Mill Hill in London tends to one of the many shelterers staying in the make-shift shelter in the nave of the church. Many homeless and orphaned children are sheltering here. The nurse adds details to the sick bay records. - The curate of ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197819">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_171.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Workers in the John Keble Church kitchen supply tea to other shelter volunteers to be distributed to shelterers. The lady pouring the tea wears a &#39;JKC SUPERVISOR&#39; armband, whilst the teenage girl collecting a cup of tea wears a &#39;JKC STAFF&#39; armband. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197821">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_172.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                A female member of the shelter team attends to a sleeping shelterer in the nave of John Keble Church. The nurse sits at a nearby desk and amends the sick bay records for the shelter. The shelter mainly cares for homeless women and children and orphaned children. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197820">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#218-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_18.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="218-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_18.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Homeless and/or orphaned children settle down to sleep on camp beds in the air raid shelter at John Keble Church. A basket in the centre of the photograph probably contains a small baby, also made homeless by the Blitz. - Homeless and orphaned children settle down to sleep in the ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205195801">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#219-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_19.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="219-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_19.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Children who have been orphaned and/or made homeless by the Blitz enjoy a meal and a cup of tea at the John Keble Church, Mill Hill, London. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197823">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#267-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_67.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="267-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_67.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Children who have been orphaned and/or made homeless by the Blitz are cared for in the John Keble Church sick bay. Volunteer nurses bandage the head of a boy on the left, and check the hand of a girl on the right. The female doctor, who visits when necessary, checks ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205195800">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#304-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_104.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="304-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_104.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Children who have been orphaned and/or made homeless by the Blitz are cared for in the John Keble Church sick bay. Volunteer nurses tend to their day to day needs and a doctor visits when necessary. The children would be kept here until a new, safe home could be found ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197822">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#350-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_150.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="350-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_150.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            The curate of John Keble Church in Mill Hill in London tends to one of the many shelterers staying in the make-shift shelter in the nave of the church. Many homeless and orphaned children are sheltering here. The nurse adds details to the sick bay records. - The curate of ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197819">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#371-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_171.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="371-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_171.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Workers in the John Keble Church kitchen supply tea to other shelter volunteers to be distributed to shelterers. The lady pouring the tea wears a &#39;JKC SUPERVISOR&#39; armband, whilst the teenage girl collecting a cup of tea wears a &#39;JKC STAFF&#39; armband. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197821">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#372-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_172.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="372-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_172.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            A female member of the shelter team attends to a sleeping shelterer in the nave of John Keble Church. The nurse sits at a nearby desk and amends the sick bay records for the shelter. The shelter mainly cares for homeless women and children and orphaned children. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197820">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

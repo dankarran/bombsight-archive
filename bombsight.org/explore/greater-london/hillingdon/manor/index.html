@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Manor - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.43014633034704403, 51.56797467848304], [-0.42490715476093799, 51.570262382004131], [-0.42351446416648703, 51.570764390902099], [-0.42215459324636001, 51.571216374343223], [-0.42022266487339199, 51.571649400139329], [-0.41811379480390598, 51.572008362432634], [-0.41854393759122999, 51.57278930222791], [-0.41849274806874098, 51.572796199767701], [-0.41908276387478099, 51.573493169860647], [-0.41898708823188802, 51.573573095019512], [-0.41934509181963298, 51.573887018470295], [-0.41979178705424902, 51.574322132809854], [-0.41971671233020003, 51.574367060335298], [-0.41956494950801598, 51.574621015743425], [-0.41921503071884098, 51.574541976655325], [-0.41896287615585398, 51.574920884288119], [-0.41910503521270598, 51.574957080425229], [-0.41891622142162599, 51.575303830697813], [-0.41829207218668801, 51.575134963170129], [-0.41809607000739601, 51.575285891405507], [-0.41791716402691498, 51.575372980967167], [-0.41743620474412202, 51.575508961693174], [-0.41715403657723199, 51.575569925114415], [-0.41702645133129002, 51.57533497652657], [-0.41640543649197698, 51.575218976346406], [-0.41627915950593097, 51.575335990329371], [-0.41392255390819999, 51.576016934143702], [-0.41386040631383297, 51.57591100404867], [-0.41392240271543201, 51.575865894289493], [-0.41381754923240599, 51.575742941642034], [-0.41336285472982198, 51.576017941475726], [-0.41266390776358602, 51.576222897168122], [-0.41271964101325798, 51.576344901085768], [-0.41257368039325298, 51.576391968435715], [-0.41257494673585399, 51.576484994954484], [-0.41215409576163298, 51.576564862064807], [-0.41169278764428802, 51.576485987761671], [-0.41191599367077703, 51.577094853802656], [-0.41226294268545699, 51.577854746160781], [-0.410401109112912, 51.57821971209362], [-0.40958315528557998, 51.578395644083308], [-0.40929811684839501, 51.577917866941831], [-0.40886628836081201, 51.577019966446613], [-0.40858828374631201, 51.576703016601712], [-0.40839713198069399, 51.576584929264399], [-0.408234128842344, 51.576538879597422], [-0.40809649297018802, 51.576295912010472], [-0.40790620793288301, 51.576321009926161], [-0.40721428329500098, 51.574724088860968], [-0.40719929094407997, 51.57462412649312], [-0.40673119167764799, 51.573592393939464], [-0.40554937894058501, 51.570829666984679], [-0.40522360802859603, 51.570126660607286], [-0.404862323952554, 51.569433851727794], [-0.404691604834921, 51.569170899915257], [-0.40422362720382699, 51.568524971039913], [-0.40410150254614502, 51.568509958808598], [-0.40187060267386399, 51.566202341762597], [-0.401443504061337, 51.565717268515684], [-0.40084275462449598, 51.565285333044336], [-0.40153382687239297, 51.564748476414437], [-0.40158754162029697, 51.564618399678309], [-0.40165058322715602, 51.564543384683525], [-0.40218044443505302, 51.564206507779289], [-0.40233763309572301, 51.564159477364996], [-0.40267229049174103, 51.564143517689075], [-0.40290510498521198, 51.564112966844384], [-0.40322551783886801, 51.563911482988814], [-0.40359196311779999, 51.56379858819114], [-0.40364520598817999, 51.563758567228966], [-0.40374014699087302, 51.563622586335576], [-0.40425036500189598, 51.563356536880946], [-0.40528600856417102, 51.562685662197453], [-0.40597587316315997, 51.562464614878721], [-0.406279862360029, 51.562396663779445], [-0.40690400078724898, 51.562198594647668], [-0.40724572402553999, 51.562082682588027], [-0.40810061963609401, 51.561731645491946], [-0.40820174718496499, 51.561727685883085], [-0.408730561463792, 51.561792601011149], [-0.40906862592461501, 51.561781733757599], [-0.40950357801041698, 51.561629703921625], [-0.41022628848759002, 51.561422695500639], [-0.41060957791355301, 51.561355669402253], [-0.41085227131107499, 51.561377648391613], [-0.41126637096137902, 51.56138367899753], [-0.41134850159980901, 51.56136863092496], [-0.41139951262724, 51.561340657107593], [-0.41152020589716198, 51.561176216116579], [-0.414512188684247, 51.56215453683172], [-0.415749035832784, 51.562579696812563], [-0.42054929211741598, 51.564137214176888], [-0.424817919238348, 51.565563929181891], [-0.42714155756835498, 51.566300837784134], [-0.42824371220269303, 51.566687789216957], [-0.43026743936595901, 51.567364698295762], [-0.43116316507450297, 51.567645593667429], [-0.43014633034704403, 51.56797467848304]]]]}, "type": "Feature", "id": 1335, "properties": {"pk": 1335, "name": "Manor"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Manor, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Manor, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Manor</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Hillingdon</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Manor
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Manor, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Manor: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>17</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Manor</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-704"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-704" id="name-704">
+                    A Personal Account - Written in 1948 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-704" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by crissycross (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/82/a3263582.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Written by Arthur C Brougham, Northwood Hills, Middlesex</p>
+<p>The second great war was in progress then (September 1942) and everything was blacked out after dusk. Every room had to be completely curtained or screened so that no light at all could be seen outside. Otherwise the police or Air Raid Wardens wanted to know the reason why! I was then in Civil Defence in the Northwood-Ruislip Council Area being firstly in the Ambulance Section then in the ‘Mobile Unit’ section (a sort of travelling hospital unit) and finally in the ‘Light Rescue’ section which was a mixture of first aid workers and rescue squads. I could only get one week’s holiday and so we didn’t have a long honeymoon.</p>
+<p>The war was very near home at times and through the latter half of 1940 and the first part of 1941 we were heavily and frequently raided by German bombers. Day raiding turned to night raiding as their day losses got heavier and then we had night after night of raids. As the nights got longer in the Autumn of 1940 so did the raids and eventually they started at dusk 6.30 - 7.00 o’clock and went on for 12 or 13 hours. Before we were married I used to spend one or two nights each week at your mother’s house and this being in the area of Greater London proper, was frequently raided. Bombs often fell in the district and the gunfire was sometimes terrific, but fortunately little damage was done to their house — just a little glass blown out. Eastcote and district also had its bombs though, of course, not so bad as London. Haydon Hall, Eastcote, our Civil Defence Depot had some small bombs in the grounds and was twice bombed with incendiary bombs, but without much damage.</p>
+<p>Sometimes your mother came to my house and then we (your grandma, Auntie Ethel, your mother and I) all slept on the floor protected as far as possible by the table and piano. The raids gradually diminished and left off and the ‘war’ got quiet. In 1944 a new series began but these were about ‘tip and run’ raids by fast fighter-bombers and our defences were then so strong that they had a rough time. However they did damage of course and it was in one of these raids that 48 Chichester Road, N.W.6. (where I was born and which belonged to your grandma) was struck by incendiary bombs and burnt.</p>
+<p>All the time I was in Civil Defence (from September 1st 1939 to July 1945 when it was disbanded) I spent certain hours on duty daily and after we were married I was on shifts of 24 hours on and 24 hours off duty. Your mother, therefore, spent every other night alone and when the raiding was severe this was very worrying and unpleasant. She was very courageous, for it is always lonely in a house by oneself at night and especially so when all the windows and glass doors have to be heavily secured and one dare not switch on a light for a moment without making sure the windows were covered. We had a ‘Morrison’ shelter - a kind of heavy steel table with a mattress underneath — in which she slept when the raids were on. I always felt more nervous at home in raids than when I was on duty at the Depot, and I should have hated to have been home alone. Your mother’s pluck was all the greater as she had always been accustomed to a busy home and you should be proud of her courage accordingly.</p>
+<p>Your mother was a designer of soft furnishing embroidery and was in charge of the department at Brook Bros and Dean Ltd of Rathbone Place, Oxford Street, W.1. She carried on work after we were married firstly because my Civil Defence pay wasn’t very high and rent and cost of living was, and secondly she would have been compelled by the Government Officials to work part time anyhow so she decided she’d keep on at the work which she liked and knew.</p>
+<p>In 1944 (June 6th) the allies started the great landings in France. I was on duty that morning and I shall never forget the sight of formation after formation of aircraft, bombers, fighters, troop carriers and gliders being towed, hundreds and hundreds, for hours. The whole arc of the sky would be filled with columns of aircraft in a steady and continuous procession. A pause as the sky would clear and as the tail end of one lot disappeared so the van of the next great contingent started. It was a wonderful and awe inspiring sight and we only saw part of the great invading force. It was a day of excitement and great hopes. The landings were announced during the morning over the radio although we suspected great events by the masses of aircraft passing over earlier.</p>
+<p>The Germans were not long bringing in their last desperate effort. On the 12th June (I think it was) I was off duty and at home that night and during the night we were awakened by sudden and violent gunfire very close. As things had been quiet for months we had given up sleeping in the shelter for it was a bit hard and cramped, and had returned to our proper bed.</p>
+<p>We had heard no warning syren but only the loud guns and the noise of a loud, rattling and apparently low aeroplane. I lay petrified for a minute and then as the ‘plane’ faded away and the guns stopped, I jumped out of bed and went to the window. As I reached it there was a distant flash and a loud ‘boom’ suggesting the explosion of a bomb. The guns were those protecting Northolt Aerodrome and surrounding factories and I’d never heard them fired before. All became quiet and I returned to bed and sleep. In the morning I went on duty and then found that an air raid warning had sounded at night and what was more, was still on - after 8.00am.</p>
+<p>My squad was on duty away from our depot, being stationed during air raids at a nearby depot by Ruislip Manor Station in a converted shop. We waited there and about 9.30 the “all clear” syren sounded. A few minutes later, however, the “warning” was repeated and I saw what I took to be a small plane flying past which was being fired at by every gun in the area. It disappeared and soon after the expected “boom” suggested another bomb. All sorts of rumours began to get around. It was strange after all this long time to be getting day raids again and such long “warnings” too. It was said that German paratroopers were being dropped. That a counter-invasion was taking place! The warnings continued on and off all day and night though we heard no more local guns. Then the truth was announced. We got it first through official channels (I was a Civil Defence Instructor and lectured on High Explosive bombs, gas etc and so was given some information) and soon it was publicly announced.</p>
+<p>The Germans were sending over small pilotless planes (VIs) of which the nose was a bomb and a biggish one. These “Fly bombs” as they were officially called or “doodle-bugs” as they became known to the public, were powered by a simple jet type engine (like a blow-lamp) and travelled fast and low — about 400 miles an hour. When they reached the distance their makers intended, the engine cut out and the plane dived straight to earth, exploding on contact. They were fiendish but ingenious contrivances and were launched from sloping ramps all along the French Coast. In a few days they increased to hundreds and although many were destroyed by gunfire and fighters, many got through to London. When their nature became known they no longer fired at them in London for even if they were hit they still exploded on impact, so once they got past the barrage and fighters in Essex, Kent and Sussex, they were left alone as some over-shot London and landed in open spaces beyond. We were entertained by these pleasant contrivances for weeks — day and night — at frequent intervals and they were usually sent in batches, so one would get first the syren — a pause — then a peculiar humm as it approached — a sudden silence and then the “boom” of the explosion. As this died away the next “engine” could be heard and so on. When they got close the humm became a violent vibrating rattle — distant yet undismissable but horribly menacing and when the engine stopped! Well, you dived for cover and hoped for the best.</p>
+<p>The explosion was heavy and violent and the damage by blast was severe. We had several in our area and many houses were damaged and a number destroyed. I had to assist in getting out bodies from a row of small houses destroyed by a Fly bomb at Uxbridge and it was very disagreeable and the little houses were just heaps of rubble. All through this period your mother was at business. Her company had been destroyed by fire from enemy action in 1941 and had been removed to New Cavendish Street where they still are. Fly bombs fell near her business several times though fortunately they were not damaged. I spent two or three Sunday afternoons up there with her when she was fire watching and there were plenty of warnings and “booms” but all some way away. At night either at home in the “Morrison” (to which we had returned) or at the Depot Shelter, I used to hear the buzz-buzz of the engines and the sound of explosions and we used to wonder where they were falling and if our various relations were safe. Fortunately they were, although there were several near misses. It was a very trying time for they came at all hours and especially during travel hours, during lunch time and early evening. Then they started again at night and frequently continued all through.</p>
+<p>Personally, I found the frequent syrens and droning engines with their inhuman and ruthless efficiency more nerve racking and I hated those Fly bombs more than the earlier raids. They gradually subsided as we overran the French coast and captured the launching sites and although later a few were launched from aircraft over the North Sea, the main attack was broken down. Then, before the Fly bombs had entirely stopped, but when they had been reduced, news came that the Minister for Defence (Morrison) had examined an explosion at Chelsea. It was referred to as a “gas explosion” but no official explanation was given. As the days went by we used to hear periodic and irregular explosions of considerable heaviness but none were near us. No warnings were sounded and the explosions just boomed and that was all. They became more frequent and then we began to hear that they were German Rocket bombs. Soon after this it was publicly announced but many had fallen before the officials made a statement. These weapons (V2s) were huge rockets with an explosive war-head and they travelled to immense heights (40 miles or more) and at speeds so much faster than sound that nothing was heard of their passage till after they had passed and frequently after the explosion had died away. Speeds of 3000mph were probably reached. They were not very accurate but London was a large target and most reached their objectives. The damage they caused was even greater than the Fly bombs taken individually, and the noise of their passage was like a roll of thunder — a long and loud rumble. In view of their speed, no warning of approach could be given so one had to grin and bear it. They were fired well back from the coast so took longer to stop. In fact they were being used till almost the end of the war.</p>
+<p>Your mother just missed one when in the train one day and another time one exploded in the air very high up right over Ruislip. I was on duty at the depot in Eastcote when we heard the terrible rumble. We half reached our feet when the explosion occurred. It burst like a puff of smoke high in the air which spread out like a cloud before long. It was about 2 or 2.30 in the afternoon and Air Raid Wardens after, collected a whole van load of bits and pieces which fell on Ruislip. If it had not exploded when it did it could probably have done a lot of damage to Ruislip.</p>
+<p>After this, we over ran the Germans and finally joined up with the Russians and the war with Germany was over. VE Day (Victory in Europe Day) was a public holiday, with great crowds and jollifications. We, with others, crowded outside Buckingham Palace and cheered the King and Queen and Mr Churchill who appeared with them. It was a great day and night.</p>
+<p>The war was still on with Japan though and at last on August 6th 1945 the world’s first atomic bomb was dropped by the Americans upon the Japanese city of Hiroshima with devastating results. Some 200,000 were killed and injured and a second bomb a few days later on Nagasaki finished the war. Then we had another holiday for VJ Day (Victory in Japan Day) with more jollifications. The atomic bomb was a terrible weapon to use, being the equivalent of 17,000 tons of TNT and similar ordinary explosives, but it undoubtedly saved the lives of many Americans and British by bringing the Japs to collapse.</p>
+<p>The war itself will be a matter of history, albeit recent history, by the time you read this, and you will no doubt be able to read Mr Churchill’s book (just published) and those of others to obtain all the official details. I can only give the personal perspective. I will add that during the air raids I was frequently frightened and on a few occasions, had acute “wind-up” and yet, when the war had ended, I found that I missed the tension and thrills of air raids and the various excitements incidental to a great war. Even now the sound of air raid syrens in plays given on the wireless and in films gives me a kind of morbid thrill and it is almost an old friend.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/82/a3263582.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-704">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-715"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-715" id="name-715">
+                    The War in Ruislip Manor Part2 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-715" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Derek Hunt (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/63/a3946863.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The War in Ruislip Manor Part 2</p>
+<p>It was difficult to find your way during the war as the authorities removed all signposts in case they would have helped the Germans in an invasion.</p>
+<p>My father was stationed at A.R.P. wardens post K4 in Bessingby Field. Ruislip Manor..   In the early time of the war there was no telephone installed at the wardens post and as we were one of the very few families to have a telephone and lived just a short distance from the wardens post an arrangement was made whereby we would be told of impending air raids and state of alert, green, amber or red and either I or my mother would then run to the wardens post to pass on the message to enable the air raid siren to be sounded in good time.  Fortunately there was no need to put this into operation before the telephone was installed in the wardens post.</p>
+<p>My father owned a Morris 8 car and used this while petrol rationing was in force but had to lay the car up in 1942 for the duration of the war as petrol was then only issued for wartime purposes.  While he was able to use the car we made occasional visits to the seaside but were unable to get to the beaches as they were mined and covered in barbed wire.  The centre sections of seaside piers were demolished in case they were used by the Germans in an invasion.</p>
+<p>The “Phoney War” was a strange experience.  Although nothing happened to us at home we were always expecting an air raid or an invasion by the Germans (or “Jerries” as we called them).  There was much speculation that German spies would arrive by parachute and we were all on the alert.  We were all issued with identity cards which we had to carry at all times (we could see the reason for this in war time) and ration books for food and coupons for petrol.  There was only one brand of petrol, “Pool” petrol.</p>
+<p>The huge silver-grey barrage balloons had become a familiar sight.  We had learnt how to operate stirrup pumps and how to put out an incendiary bomb with a bucket of sand.</p>
+<p>When the first air raids started in August 1940  it was in a strange way a relief.  At least we now knew what war was about.  It was fascinating to see the searchlights criss-crossing in the sky searching for enemy aircraft, the sound of the ack-ack guns firing at the bombers and the occasional tracer bullets from the fighters.  Living so close to Northolt aerodrome the Spitfires and Hurricanes would take off over our house and I used to wave to the pilots from my bedroom window.   I still thrill to the sound of a Rolls Royce Merlin engine.  We quickly learnt the difference between the note of the engines of the German planes and our own and to identify the different types of plane.</p>
+<p>The lawn in our back garden was dug up to build the Anderson Shelter which was constructed of six curved corrugated steel panels with flat corrugated steel end panels.  The shelter was buried some three to four feet deep, lined  with concrete inner walls up to ground level, and the top was completely covered with soil on which grass and plants eventually were grown.  We were fortunate in that we had electricity laid on to the shelter from the house which enabled us to have electric light, an electric fire and electric ring to boil a kettle as well as a small De Wald radio so that we could listen to broadcasts during the many hours we spent in the shelter. To ensure that no light could be seen from the shelter there was a black curtain over the entrance and a timber porchway protected by sandbags.  To enable us to get into the shelter without jumping down we used to step on to a large wooden blanket box which was filled with tinned food and water in case we were trapped in the shelter.  </p>
+<p>We spent many nights sleeping in the Anderson shelter and always listened to the radio.  One broadcast that we always listened to was a German propaganda programme - news from “Lord Haw Haw”, an English traitor William Joyce.  We always had a good laugh at the way the Germans tried to make us downhearted by broadcasting news that we were losing the war (even if sometimes there was some truth in it).  We also listened to the various wartime programmes such as “ITMA” with Tommy Handley,  “Monday Night at Seven” (later Monday Night at Eight)”, “Band Wagon” with Arthur Askey and Kenneth Horne, “In Town Tonight” and the Nine o’ Clock News with various news readers such as Bruce Belfrage who always identified themselves by name “Here is the news and this is Bruce Belfrage reading it” so that people recognised the voice and would not be taken in if an enemy were to broadcast false news.  Other good programmes were Children’s Hour with Uncle Mac.  Toytown and Wurzel Gummidge were always enjoyed.  Workers Playtime was a variety programme broadcast at lunch time from various factory canteens.  </p>
+<p>Our air raid shelter measured 6’6”  x 4’6”, the inside was painted cream and it was fitted with three bunks made from timber and flat steel strips, one either side and a smaller one for me which ran across the end of the shelter near to the roof.  After a short time in the shelter the condensation from our breath would form on the roof of the shelter and drip down on me in my top bunk.  By morning my bedding would be quite wet.  If I sat up in bed my head would hit the corrugated iron roof so I soon learnt to keep my head down when I woke up!  We all slept in the shelter for most nights in 1940.  “Jerry” (the Luftwaffe) would arrive with monotonous regularity at about 11.00 p.m. by which time I would have been asleep for a couple of hours when the air raid siren would wail and wake me up.  My mother would wrap me up in my dressing gown which she had made from an old car rug, and we would go down into the shelter where we would spend the rest of the night fitfully sleeping between the  sound of bombs whistling down and exploding around us and the barking of the ack-ack (anti-aircraft guns).  When bombs fell nearby the whole shelter would vibrate.  On one occasion during a heavy air raid the electricity in the shelter failed and my father  risked life and limb by leaving the shelter to change the fuses in the house to restore the supply.  We all had our steel helmets to give protection against falling shrapnel, but they did not protect against much else.  Gas masks of course had to be taken with us wherever we went.</p>
+<p>We had a young kitten named Soot.  The first time we were warned of an air raid by the siren the poor little kitten was so frightened by the eerie wailing sound of the alert that he trembled violently and peed on the settee cushion.  Needless to say he was not scolded for this as he was otherwise well house trained.  During the air raids which followed in 1940 Soot used to follow us all to our corner of the dining room underneath the staircase which we thought to be the safest place in the house during day time raids.  We used to wear our tin hats during a raid.  When we went to our Anderson shelter, Soot would always come in with us and snuggle down on a bunk. </p>
+<p>After an air raid we would collect pieces of shrapnel, cartridge cases and  “window” (silver paper dropped by enemy aircraft to confuse our Radar).  I still have a couple of pieces of “window”. Swapping pieces of shrapnel was a popular pastime at school.  It was often a dangerous practice to pick up shrapnel shortly after an air raid as it was very hot and could  burn the skin.</p>
+<p>I often travelled up to the West End with my mother and would see the shattered buildings sometimes still smouldering after the previous night’s air raid.  Also I remember the devastation in the City area when I visited my father at his office.  It was strange to see the remains of tall buildings with fireplaces and wallpaper still intact but the rest of the building only a heap of rubble.  These walls were quickly demolished as they were unsafe.</p>
+<p>Food rationing made us very conscious of the value of food and we never left anything on our plate at the end of a meal.  We grew vegetables in our garden instead of flowers and grass and I learnt a lot about gardening as I had my own little plot of land in which I grew carrots and lettuces.  We still use one of the wartime recipes for upside-down pie on a regular basis today.  Rose hip syrup and malt with cod liver oil were available for children.  In 1942 it became illegal to make white bread and the “national loaf” was an unappetising grey colour.  I was delighted when white bread became available again after the war.</p>
+<p>Clothing was rationed and my mother was an expert at “making do and mend” and knitting garments using wool unpicked from old garments.  Toys were scarce and my mother made dolls and soft toys from old dresses and her wedding dress.  These were much prized by my school friends who received them on their birthdays.</p>
+<p>As a child I was affected by the rationing of sweets.  My parents used to give up part or all of their sweet ration for me.  I used to buy Wrigleys Spearmint chewing gum and Rowntrees Fruit Gums as you could get more of those for your ration than you could get chocolate, and as the fruit gums were more brittle than they are today you could snap them into quarters to make them last longer.  On rare occasions I would buy a Mars bar and cut it into very thin slices to make it last for several days.  Ovaltine tablets and Horlicks tablets were not on ration and I developed a liking for them as substitute sweets.</p>
+<p>On the decisive day of the Battle of Britain we were enjoying a picnic in Burnham Beeches watching the many dog-fights in the sky overhead.  Little did we realise the significance of those aerial battles at that time fought by our courageous pilots.  When we arrived home everywhere was deserted and people had been in their shelters all day while we had enjoyed the fresh air of the countryside.</p>
+<p>The  air raids stopped as the war progressed and we were able to sleep indoors at night instead of in the Anderson shelter.  However the next phase of aerial bombardment started in June 1944 as Hitler launched his V1 doodlebugs.  The speed of the doodlebugs meant that there was no time for air raid sirens to give warning of their approach.  The engine of these unmanned missiles made a distinctive “whump — whump” noise as the  doodlebug approached.  As soon as the noise stopped we knew that the missile would drop and we dived for cover under the table or wherever we felt safest.  I did not worry too much about the doodlebugs as they could be seen flying across the sky with the flames coming from the engine.  The worst missiles for me were the V2 rockets which travelled faster than sound and started arriving later in 1944..  The explosion came first followed by the sound of the rocket whistling to earth.  The explosion and vibration could be heard and felt for some distance from the point of impact.  The V2s were more powerful than the V1s and certainly more unnerving as you had no time to take cover and never knew when one would land.  I was very glad when these weapons ceased.</p>
+<p>On D-Day on 6 June 1944 I was awakened by the tremendous sound of many heavy aircraft droning overhead and on looking out of the window I was amazed to see the sky almost blacked out by aircraft towing gliders.  Wave after wave came over for a considerable length of time.  This was the first time I had seen a plane towing a glider and the sight of so many at once has left me with a lasting memory of that day.  Of course at the time we did not know the reason for this but later in the day heard on the radio the news of the D-Day landings.  I then followed the progress of our forces every day on the radio and in the newspapers until the wonderful day on 8 May when we heard that the war in Europe was over.  The war in the far east continued until August 1945 but it was remote from us and although we rejoiced on VJ day it did not have the same impact as VE day.</p>
+<p>VE day was celebrated by bonfires with guys of Hitler on top, thunderflashes for fireworks, music and dancing in the street and in the field opposite our house.  There was a fancy dress parade and street parties for children with tables and chairs in the road and food which miraculously appeared. </p>
+<p>The War was an exciting time for me as I was growing up and it has made me appreciate our freedom and the wonderful country that we have.  It is a terrible thing that so many lives were lost and homes destroyed and we have to honour those who fought for us by ensuring that needless conflicts are not entered into in future.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/63/a3946863.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-715">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Manor: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>17</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Manor </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Clissold - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922406400000, 11], [-922233600000, 2]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.089702698391198002, 51.557966126287219], [-0.088982749481108001, 51.558299060573212], [-0.088297219206850006, 51.558757195175822], [-0.087771787445410004, 51.559031052239533], [-0.087319363023075997, 51.559241040324494], [-0.08702227438356, 51.559444995673267], [-0.086339448328359006, 51.560031020662421], [-0.085789950517087002, 51.560361945593684], [-0.085200980914880001, 51.560773855632746], [-0.084956191061441005, 51.560976974174409], [-0.084752872194693005, 51.561094910734823], [-0.084488485847903999, 51.561163800953281], [-0.083286186284194999, 51.561192924598103], [-0.082872719131498004, 51.561225931083762], [-0.082632890216539995, 51.561267952529462], [-0.082409503666498005, 51.561326835619106], [-0.082000373228446999, 51.561470907111008], [-0.080350176320991007, 51.562114848208488], [-0.079442567639976994, 51.562125852491846], [-0.078592726241649993, 51.562199896741632], [-0.078527355732685003, 51.561675848205176], [-0.07899764987591, 51.561663879988842], [-0.078963521896419003, 51.561189948478294], [-0.078511311873704998, 51.561200951145253], [-0.078485282666735004, 51.560385016398776], [-0.078917826056666002, 51.560370045374505], [-0.078922863632183995, 51.560058057407957], [-0.078626852364809, 51.560064030162856], [-0.078571513857428998, 51.559537199078918], [-0.078528332831490993, 51.559535083049674], [-0.078402354443485006, 51.558138343595424], [-0.078439172685709005, 51.558099323119258], [-0.078700816595917003, 51.557988393215879], [-0.078794320709185003, 51.557930346403374], [-0.078837470581612001, 51.557869366304907], [-0.078864477075900996, 51.557763443004696], [-0.079260565389571006, 51.555124721991078], [-0.079224901115626994, 51.555093649307572], [-0.079211776107096996, 51.55504159147236], [-0.079257228937507002, 51.554775790945548], [-0.079215069504203997, 51.554770920154425], [-0.079200450640927997, 51.554746610216434], [-0.079436192999628993, 51.553694834334458], [-0.079422148690925995, 51.553621821690314], [-0.079351712270887997, 51.553538898549064], [-0.079224863967417, 51.553446893233776], [-0.079161074129317999, 51.553355929402734], [-0.079099775295553995, 51.553205842709438], [-0.079034683981707002, 51.55282497881602], [-0.079025885936503004, 51.55260607211904], [-0.079061534748785994, 51.552209011840958], [-0.079074035994429998, 51.551955038564344], [-0.079196131996107005, 51.551903085887851], [-0.079308187870546998, 51.551811059748736], [-0.079442863532228999, 51.551652947160434], [-0.079707491121699003, 51.551770099445704], [-0.079980654159493, 51.551834010034916], [-0.080514321371138994, 51.551899088316745], [-0.083219629163608005, 51.552138903156283], [-0.083714999973275001, 51.552128864086541], [-0.084633729953004999, 51.55204101856399], [-0.085300984566266003, 51.552123845536038], [-0.085505835948339007, 51.552161894735882], [-0.085640209279405993, 51.552203996317083], [-0.086079767798589002, 51.552427830720617], [-0.086353039151088995, 51.5525327512836], [-0.086607808013358004, 51.552605895359633], [-0.087347656287253994, 51.552720806868933], [-0.087535038537058005, 51.552788780248896], [-0.087801530500394007, 51.552990679557823], [-0.08858481670776, 51.553897636789408], [-0.089309749512767003, 51.55376668815002], [-0.089645311722864995, 51.553977719223823], [-0.089873037744509998, 51.55407260785249], [-0.090075559812588996, 51.55412353955311], [-0.090404445661976002, 51.554149547273838], [-0.090394773168758005, 51.554423521786227], [-0.090341752501690006, 51.556679361895554], [-0.090421934940369, 51.557671105118956], [-0.089702698391198002, 51.557966126287219]]]]}, "type": "Feature", "id": 1235, "properties": {"pk": 1235, "name": "Clissold"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Clissold, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Clissold, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Clissold</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Hackney</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Clissold
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Clissold, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Clissold: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>40</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>2</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Clissold</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-499"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-499" id="name-499">
+                    A Cockney in the Blitz
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-499" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by BBC LONDON CSV ACTION DESK (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a4611223.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>"I'm a cockney born in Kingsbury Road near the Ball's Pond Road in the East End in 1937, so I was like 4, 5 and 6 when all this happened.  I went to a Catholic School and during the Blitz when the air-raid sirens went, we'd get under the table and our teacher would say 'now you've got to pray' so we all prayed until the all-clear went.</p>
+<p>One morning at 3, my mum's sister cam in and said 'there's a big bomb dropped near the old lady's house - that's what we called my gran - but she said she's all right.  We rushed down the road and saw that a bomb had dropped on a school.  I'll never forget, there wasn't a window left in none of the houses around. We went into a schoolhouse, the door was wide open, and there was blind man upstairs which they got our early; the whole ceiling had come down on him.  We went into the kitchen and there was only about three bits of plaster left. The plaster round the rose on the ceiling was about the only bit left.  I asked the blind man if he was okay and he said 'yeah' so I made him a cup of tea.    We was lucky because if that bomb had dropped at three o'clock in the afternoon it would have killed all the kids.  </p>
+<p>I'll never forget this, the front door swung open and a fireman stood there.  He said 'Everyone all right?' and one of the women said, well, I can't say what she said, but to the effect of 'that xxxxx Hitler can't kill me!'  </p>
+<p>We lived off the Ridley Road at the time and during one of the air raids one night, everyone went down the shelters and my dad said to me "Want to watch the airplanes?'  My mum said 'That's not a good idea', anyway, he put me on his shoulders and we stood in the doorway and watched the dog-fights overhead.  And I tell you, when them German planes got caught in the headlights, they had a hell of a job to get out.  Anyway, the morning after these raids, all us kids'd go out collecting shrapnel from the shells, I had a great big box of the stuff.  </p>
+<p>Was I scared? Only when I was in bed at night and the air-raid warning went. When you're asleep and you suddenly woke, you didn’t' know what was happening so it was pretty frightening. At that age, you didn't know what air raids were all about.  Some of the time I slept in the cupboard under the stairs and it felt a bit safer there.  </p>
+<p>One day, I went round to the corner to my aunt's house and she was sitting by the window when there was an air-raid warning. Inside the window where she was sitting was a table with a statue on it.  They told her to come in away from the window.  I'll never forget this, there was a bomb blast, the window come in and the statue toppled off the table and onto the floor.   If she hadn't have moved, she'd have been covered with flying glass.  </p>
+<p>My dad didn't go in the army, because he was wanted on the railways.  He took me down the dog racing one day at Hackney Wick. This flying bomb - a doodle-bug it was - suddenly appeared over us.  You could see every detail of it.  We all ran.  It went right across the track and dropped in a field somewhere.</p>
+<p>One day a landmine dropped near us in Kingsbury Road and didn't go off.  A fellow came down from the Bomb Disposal unit, to try to disconnect it and he got killed.  Opposite us there was a block of flats and they named it after him - Ketteridge Court.</p>
+<p>I was evacuated for a little time, to Kettering, but I don't remember much about it, only that I didn't like it.  I'd have to ask my mum about it.  She's 100 but still remembers everything. </p>
+<p>Me and my family are Pearly Kings and Queens and we do a lot of charity work, entertaining with music and the old cockney songs and that (Phone 020 8556 5971).  We are now the biggest 'Pearly' family, made up mostly of the Hitchins (my mum's family name) in Hoxton, Tower Hamlets, Hackney, Clapton, Shoredich, Hommerton, Dalston, City of London, Westminster, Victoria, Islington and Stoke Newington. "</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/23/a4611223.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-499">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-494"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-494" id="name-494">
+                    Buzz Bombs and Bath Tubs
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-494" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by RoyalFusilier (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/93/a4439793.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>People were friendly in those days and if the siren warned us of an air raid when we were out of doors, they would open their door and call us in.   I have taken shelter in stranger’s homes on many occasions and given shelter in return.   Our flat was open house for anyone passing or for residents of the top flats who didn’t feel safe during a raid.   We had as many as twelve people sleeping as best they could on the floor of our little flat.   The comradeship in those days was wonderful!   One of the most horrifying sounds was that of the whistling or screaming bombs.   These were meant to put fear into us and lower our morale.   They really terrified me and lots of other people as well.   As they came down, they made such an awful piercing, screaming whistle that I could not stand up.   I had to sit on a chair before my legs gave way as they completely turned to jelly.   My heart seemed to stop beating and I couldn’t get my breath until the explosion came.   It certainly was one of Hitler’s most effective terror weapons.   It broke my moral every time and left me with a terrible fear so that, even now, I am nervous when a low aeroplane flies overhead.   Often I cried when one came down, only to hear more falling from the sky.   This was the time that I looked forward to hearing Winston Churchill give one of his morale boosting speeches, as we all felt better after one of those.   If it wasn’t for him, I don’t think that we would have won the war.   He was staunch, strong, stirring and comforting.   Good old Winnie!</p>
+<p>The V1, buzz bomb or doodlebug was another horror.   When the first one came over the newspapers said that our artillery had shot down a new type of aeroplane, but when they went to examine the wreckage, there was no pilot and no parachute to be seen.   On closer examination, they found that there was an engine at the back and flames came out of it.   More came over and we realised that when the engine cut out, the unmanned ‘plane would dip and fall to the ground.   They fell anywhere and everywhere and Hitler could not claim that he was trying to avoid killing innocent civilians.   When you were at home and heard these things coming, your heart would be in your mouth, especially when the engine cut out.   It would fall and explode killing and maiming some poor devils and we breathed a sigh of relief until the next one came our way.   Peter was a baby when these things were on the go and many is the time I’ve thrown myself across his pram, as I couldn’t get him out quick enough.   If you were outside, you could see them coming and if they were pretty near, the best thing was to run towards them so they passed over you.   Dad was often delivering letters when they came over and he would go towards them and then crouch behind a garden wall to escape the blast when they fell and exploded.  Next came the V2 rockets that you couldn’t hear at all.   There was no warning, just the explosion so there was nothing that you could do to protect yourself.   You couldn’t stay in the shelters all the time just in case a V2 came over, so we just carried on with things and hoped for the best.</p>
+<p>During the war years, it was not all horror and fear.   We had some happy times and laughed at all sorts of things.   I remember one old girl called Mrs Thompson used to come out and put up her umbrella during an air raid as she was afraid of the shrapnel.  She thought that the umbrella would save her — poor old girl!   We used to go out and watch the dogfights and shout “Hooray” when a German plane came down and boo and hiss when a German was the victor.   At the beginning of the war, I went out with a boy called Ron Calnon.  Sometimes during the bombing, you’d lose your water supply.   One evening, Ron and I were carrying a galvanised tin bath full of water back home from his parent’s house near Manor House, which was a long way.  Then the air raid siren howled its warning!   We emptied the water, put the bath over our heads and ran like anything through the dark streets!   The shrapnel whizzed all around and one piece struck the bath with a great clang that sounded right through our heads.   Then we had to go back and get another bath full.</p>
+<p>Doris Robson wrote this as part of her memoirs in "Gaslight on the Cobbles" She married Leonard Herring in 1943 and died on New Years Day, 2001</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/93/a4439793.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-494">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-460"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-460" id="name-460">
+                    Coronation Avenue, Stoke Newington, in the Blitz
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-460" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Researcher 249331 (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/26/a2090026.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>In September 1940 the bombing raids really started. The warning would start wailing very loudly, the nearest siren being on top of Stoke Newington Police station, which was almost opposite where we lived. The bombers started coming over every night, the first few nights we sat on the stairs with blankets wrapped around us, shivering from cold - or was it fear? All of us were very quiet listening to the pulsating sound of the bombers overhead.  </p>
+<p> After a few nights of discomfort we started going into the basement of our next door neighbour. We couldn't use our cellar, as it was full of bundles of firewood that were in stock to be sold in the winter - they were sold for tuppence a bundle, in my father's greengrocery shop. The Vogue cinema was at the other end of of the block of buildings where our shop was situated. It was the sort of cinema that when the film was over you waded through monkey nut shells, on your way out to the exit.</p>
+<h3>The Blitz comes close to home</h3>
+<p> One night a bomb dropped onto a bus outside the Vogue. It made a large crater, and fractured a water main. After a while, water seeped into the cellar we were in. As we were hearing a lot of noise from the anti-aircraft guns, and from the dropping bombs, it was decided to go over the road to a proper shelter under the Coronation Buildings, where there was a very large air raid shelter.  </p>
+<p> We came out and saw the sky criss-crossed with searchlights. Whilst we were running across the road, a bomb landed with an enormous bang on the West Hackney Church. The blast blew out the windows of The Star Furnishing Company windows. The huge glass windows just disintegrated, and fell to the ground like a beautiful waterfall, with all the noise and dust. We rushed into the shelter, but amazingly we were all untouched.  </p>
+<p> During the day I used to watch the occasional dogfight overhead, and like most boys of my age (I was 11) at the time, my hobby was to go around looking for bits of shrapnel. One morning, coming home from the shelter over the road, I found an incendiary bomb on the pavement outside our shop. I stupidly picked it up, and was examining it when a policeman appeared and said  'I'll have that' - and ran across the road to the station with it. </p>
+<h3>Shelter</h3>
+<p> Coronation Avenue buildings consists of a terrace of about 15 shops with five storeys of flats above. The shelter was beneath three of the shops.The back exit was in the yard between Coronation Avenue and another block of buildings, called Imperial Avenue. We went over the road to the shelter whenever there was a raid, and when the 'all clear' sounded in the morning, we would go back over the road, half asleep and very cold, and try to go back to sleep in a very cold bed.  </p>
+<p> The shelter consisted of three rooms. The front entrance was in the first room, the rear entrance was in the third room, which had bunk beds along one wall.The rooms were jam packed with people, sitting on narrow slatted benches. I would sit on a bench and fall asleep, and wake every now and then, and would find myself snuggled up to my mother and sister. My father had the use of one of the bunk beds, because the men were given priority, as they had to go to work. </p>
+<h3>Direct hit</h3>
+<p>  On 13 October 1940, the shelter received a direct hit. We had settled down as usual, when there was a dull thud, a sound of falling masonry, and total darkness. </p>
+<p> Somebody lit a torch - the entrance to the next room was completely full of rubble, as if it had been stacked by hand. Very little rubble had come into our room. Suddenly i felt my feet getting very cold, and I realised that water was covering my shoes. We were at the end of the room farthest from the exit. I noticed my father trying to wake the man in the bunk above him, but without success - a reinforcing 
+steel beam in the ceiling had fallen down and was lying on him. </p>
+<p> The water was rising, and I started to make my way to the far end, where the emergency exit was situated. Everybody seemed very calm - with no shouting or screaming. By the time I got to the far end, the water was almost up to my waist, and there was a small crowd clamberinig up a steel ladder in a very orderly manner. Being a little more athletic than some of them, and very scared, I clambered up the back of the ladder to the top, swung over, and came out into the open.  </p>
+<p> It was very cold and dark, and I was shivering. The air was thick with brick dust, which got into my mouth, the water was quelching in my shoes. I still dream of, and recall, the smell of that night, and the water creeping up my body. My parents and my sister came out, and we couldn't believe the sight of the collapsed building. My brother had been out with a friend - so was not hurt, and we were all OK.</p>
+<p> My mother, sister and I went over to number 6, and my father and brother stayed to see if they could help in any way. Some bricks had smashed the shutters in front of the shop, and had to be replaced with panel shutters, which had to be removed morning and evening. The windows were blown out, and were replaced temporarily with a type of plastic coated gauze. </p>
+<h3> Afterwards </h3>
+<p> The next morning, we were told that only one person had survived in the other two rooms, and about 170 people had been killed. (In recent years I have been to Abney Park cemetery, where there is a memorial stone, with names of a lot of the victims who must have died in our shelter.)</p>
+<p> There was a huge gap in our building, on about the third floor. There was part of a floor sticking out, with a bed on it. Someone said the person in it was OK, but this story might just have been hearsay. </p>
+<p>  A lot of the women used to bring photographs of their families to show each other during the long periods of waiting in the shelter. That evening my mother had brought a handbag full of photos to show some women, and fortunately she had not gone into the other room to show them. The photos were never recovered. My sister said she was alright, until she went up into our parents room the next morning, and saw soldiers arriving outside, with shovels - then she started crying (she was 15 years old). </p>
+<p>  A few days later, I saw men wearing gauze masks bringing out bodies, and placing them in furniture vans. Having seen bodies since, this is the only thing that comes back in my dreams - the furniture vans and the water.  </p>
+<h3> Where next?</h3>
+<p>  Having nowhere to go for shelter, my parents decided that we would go to the Tube station to sleep. We would close the shop early, and with bundles of blankets go to Oxford Circus station, via Liverpool Street, and sleep for the night on the platform. When the trains started to run the next morning, we would get up feeling very dry and grubby having slept fully clothed all night. We had to wait patiently until the platform cleared, and then back we went to Liverpool Street, and the 649 trolley bus home.  </p>
+<p>  One night we heard a lot of noise above, and the next morning I went up to have a look, and saw a lot of Oxford Street burning. On the way home by trolley bus - amazingly they were still running - we went through Shoreditch, and saw fires still burning. But the motto everwhere was business as usual.  </p>
+<p>  Looking for shrapnel when I got home, I saw an Anderson shelter in Glading Terrace that had received a direct hit - it was just a twisted lump of metal. The bombing was very heavy and some areas were roped off because of unexploded bombs. But it was a pleasant surprise when the King and Queen visited Stoke Newington - that was when I first had my photo taken with the Queen.</p>
+<h3>Photo with Queen Elizabeth</h3>
+<p>  A water main near us had been had been hit, and my sister and I were trying to find a bowser lorry to get some water, when somebody told me that the King and Queen were in Dynevor Road, nearby. So I ran there, and managed to sqeeze through to the front of the crowd. The Queen made some comment about me to the woman behind me. Some time later my sister saw the photograph taken at the time, and contacted the newspaper and got some copies.</p>
+<p>  Eventually my parents arranged for my sister and me to be evacuated, and my brother (who was 19 years old) was posted to North Africa. He went from Alemein right through to Italy, and came home and went to the continent - finishing his war in Germany.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/26/a2090026.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-460">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-890"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-890" id="name-890">
+                    It Was A Long War! <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-890" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by normanfosh (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/86/a3895086.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>I was born in Navarino Road, Hackney, in 1929 and my first home was in Clifden Road, Homerton, where we lived until 1933. Then we moved to Firsby Road, Stamford Hill, where I was attending Northwold Road School, Stoke Newington in 1939.</p>
+<p>The day before war was declared I was evacuated.  There we all were in a crocodile clutching our cases and as we walked to the station, I saw Mum crying, frantically looking for me to say goodbye. The first time I had ever seen her cry and I was desolated. Goodness knows how long the train journey took from Upper Clapton Station or how we got from there to Old Warden in Bedfordshire</p>
+<p>Then started the worst seven weeks of my life. Somehow or other, I finished up with<br/>
+about twelve others from another class, none of whom I knew and they were all very<br/>
+tough. We were billeted on the Lady of the Manor, Lady Shuttleworth. Sounded fine<br/>
+but it wasn't. We were in dormitories and it could not have been more wrong for me - the first time away from home, apart from having my tonsils out in hospital. I still<br/>
+shudder to think of the dinners in the village hall. Stewed rabbit twice a week; rice<br/>
+without milk which they cut with a knife and added some unsweetened prunes. The<br/>
+only good meal was sausages with delicious gravy. The village school was good and I soon became a member of the church choir, which I thoroughly enjoyed. Mum and Dad used to travel by coach every Sunday but had to walk a couple of miles to get to Old Warden. However, most fortunately I caught mumps after seven weeks and had to come home. I remember I had a bed down in the dining room and although the<br/>
+mumps were painful, it was worth it to be home again.</p>
+<p>Then it was a problem finding a school. The only one still operating was St Thomas's in Upper Clapton. But there were so many children wanting to go to it and so few teachers that I only went for an hour a day to start with. Then it was a day a week and increased from there. Despite that, I was one of the three who passed the Junior County Scholarship, having taken the exam at Millfield Road School in Lower Clapton.</p>
+<p>So was I to be evacuated again? Fortunately not, because I was one of the lucky six<br/>
+who got a place at Mercers' School, and whilst Mercers' was evacuated to Horsham, in September 1940 they decided to start operating from Holborn again as well, and that's where I joined them.</p>
+<p>With the bombing, the journey to and from Holborn on the 643 trolleybus was quite<br/>
+hazardous, so in the early days my mother took me to and from Holborn on the bus.<br/>
+On one occasion, the 643 could not get through to Holborn so we took a bus to<br/>
+Moorgate and walked through to Holborn from there. Fires were still burning and<br/>
+there were firemen’s hoses everywhere. Another time, as I came out of school, the<br/>
+sirens went, so we dived down into Chancery Lane Tube Station but had to get on a<br/>
+train as they closed the station. So we returned home via the Central and Piccadilly lines to Manor House Station and took a 653 trolleybus home from there.</p>
+<p>Around that time, nightly air raids began. So each night was spent in one of our cellars<br/>
+in our basement, with me on a camp bed and Mum and Dad sleeping in deck chairs.<br/>
+Later on we had a Morrison shelter in the basement and decided to stay in our beds<br/>
+until the sirens sounded, when we came down the stairs carrying pillows and got under<br/>
+the shelter until the all clear. It became such a routine that, on a couple of occasions, I<br/>
+was found sleep walking with pillows under my arm at the bottom of the stairs.<br/>
+When the bombs fell we used to count "one two, three ..." because I believe after a<br/>
+certain number, it couldn't be you who was hit, so you were waiting for the bomb to<br/>
+strike.  Several times we had our windows blown in.  One night an incendiary fell in<br/>
+our front garden and Dad was busy dealing with that when a neighbour told us there<br/>
+was another one in our back garden so we all had to dash there and put that out too.<br/>
+The biggest fear was one on the roof.<br/>
+Then there was one night we heard shushing which meant there was a landmine<br/>
+coming down. In fact there were two falling on Clapton Common. One destroyed St<br/>
+Thomas's Church and opposite a number of shops in Old Hill Street were destroyed<br/>
+and about ten people were killed including our butcher Mr Bosley.<br/>
+Immediately the vicar of St Thomas's, Father Dachtler, where I was a regular attender,<br/>
+started the New Church Fund, and services moved to St Thomas's Hall, next door to<br/>
+the Swan public house. Sometimes there was an ack-ack gun on the forecourt of the<br/>
+Swan and throughout the War there was a barrage balloon on Clapton Common.<br/>
+Because of the bombing, people were firewatching at home and work. Dad used to<br/>
+firewatch once a week with two other Firsby Road residents, each of them, I think, <br/>
+doing two hour shifts between midnight and 6am. However, in addition, he also had to firewatch at his factory in Hertford Road behind Kingsland Road Hospital once a week too. Whether they got a chance to sleep or whether they kept watch all night I am not sure. Whilst before the War, Dad made and repaired gas meters, during the War he was making fuel tanks for aircraft.</p>
+<p>Other memories of air raid precautions were always carrying a gas mask wherever we<br/>
+went, the blackout when, as there were no street lights, everybody needed a torch, and<br/>
+vehicles had masked headlights and all homes had blackout curtains over all windows<br/>
+so no light escaped. Even interior bus lights were put out when there was a purple<br/>
+warning, when a raid was expected but was the stage before the siren actually went.<br/>
+Later in the War, flying bombs, which we called doodlebugs appeared. You could see<br/>
+them quite clearly, and when the engine cut out, they dived to earth and you dived for<br/>
+cover. Later the V2 rockets took their place, but as they were completely silent you<br/>
+received no warning. In the Summer of 1944, during morning school break, one fell<br/>
+on Smithfield Market killing many people and showering us with glass in our Holborn<br/>
+playground. The Headmaster decided to close the school for the rest of that term, and just brought in one class at a time to take exams in the shelter.</p>
+<p>One enjoyable feature of the war time summers was going to school harvest camp for a month to Minster Lovell each year between 1943-1945. Quite a new experience and hard work too. In 1945, when the end of the war with Japan was announced several of us hitchhiked to London for two days to join in the VJ Day celebrations. Another school activity was being a member of the Honourable Artillery Company cadet force which met in Armoury House, City Road. That really was most enjoyable because you really felt you were contributing something to the War. Besides the military activities, we used to play football and cricket against local teams and also marched in the Lord Mayor's Show and took part in the Remembrance Day services at St Paul's Cathedral.</p>
+<p>Of course, rationing was with us throughout the War and even continued into the first half of the 1950's. To help our food supply, Dad used to keep six chickens which ensured we were well supplied with eggs but I was not that amused trudging home from Stoke Newington High Street with a heavy bag of chicken balancer meal. Normally we did not eat many sweets, but because food was so short generally, we made sure we had our full sweet ration and there was always great excitement every Friday night to see what Dad had bought at the sweet shop. Two ounces of butter, a similar amount of cheese and ten pennyworth of meat a week really had to be stretched. Cooking and heating were difficult too, because due to the bombing, electricity, gas and water supplies were often cut off. Paraffin heaters were a real boon for cooking and heating but getting the oil was not easy.</p>
+<p>How wonderful it was when the lights came on again and the blackout curtains came down. I remember celebrating VE Day in the West End with boys from school. It had been a long war!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/86/a3895086.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-890">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-800"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-800" id="name-800">
+                    I was a war child <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-800" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Ann Bradbury (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/14/a4534814.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>BBC The Peoples War</p>
+<p> My father appeared at the living room door; he had been listening to the wireless. “It’s war” he said in a grave voice to my mother. There was silence. It was just after eleven o’clock on the third of September 1939. I was seven and a half years old to the very day and it didn’t mean much to me wrapped as I was in my child-world.. It wasn’t until February 1940 when my sister’s husband, who was in the Merchant Navy, went down in the North Sea, leaving her a widow with a three-month old daughter that I realised that life was going to be very different.<br/>
+     I was born the youngest of ten children in a Victorian house in Hawksley Road, Stoke Newington in North London. I was the youngest by a long way, and at the outset of war, the rest of the family were in their teens and twenties. I stayed in London for the duration of the war except for a fortnight in September 1944 when the V1s were coming over the North Sea and dropping in a circle round our house. I did not want to leave my parents to be evacuated in 1939 and my parents couldn’t leave; they had to work and look after the family.<br/>
+     My school closed down and was used for storage; one morning, I went to the school gates where there were red double-decker buses parked and said goodbye to my school friends as they went on their long journey to a place they didn’t know and to live with people they hadn’t met. I never saw them again. Two months later I was sent to a Church school and made new friends. The school attended church monthly. Churches weren’t heated in winter during the war and they were so cold that all the children dressed up in extra jerseys, scarves and gloves.<br/>
+     When the blitz started in the autumn of 1940, I soon learnt to differentiate between the sound of the German bombers with their unsynchronised engines and the sound of our own aircraft. At home, my father had reinforced some of the house to withstand bomb blast. Wooden rafters were put up in the living room to support the ceiling and there were wooden shutters outside the window that we could draw up at nightfall. Brown paper strips  were gummed crisscross inside every window in the house to contain flying glass. Buckets of sand were placed everywhere to deal with incendiary bombs. In fact my father was called out one night to help when five incendiary bombs fell on our row of terraced houses.<br/>
+     The coal cellar was reinforced with girders to be of air raid shelter standard and the coal hole in the front garden was enlarged into a square with steel rungs going up the wall inside to be used as an escape hatch. The cellar under the stairs was only four foot wide so for a bed we had boards across the width supported on trestles and a mattress was laid on top. I slept here with my parents during the blitz, the mini-blitz of 1944 and the flying bombs, although more often than not, my parents were in the kitchen brewing up tea being unable to sleep.  Some of my siblings slept in the reinforced living room where a mattress had to be laid on the floor every night; some slept in their own beds preferring to die in comfort.<br/>
+     In 1941, a delayed action land mine dropped at the end of our road. Luckily it got caught up in a tree and the immediate area was evacuated so there were no casualties. I was alone in the cellar when it eventually exploded at 4am  and the bang was horrendous. It was followed by a thumping down the length of the staircase overhead. This was my 14 year old brother leaping downstairs shouting ‘Mum, I’m on fire!’. Apparently there was such a firestorm when the mine exploded that it lit up his bedroom with a red glow! The impact of the blast slightly sucked out one wall of our house so that there was a gentle curve to it and it stayed like that until the late forties when it was rebuilt under the war damage scheme. The cracked windows were replaced by opaque glass as clear glass was hard to come by. The resulting bombsite became our playground. There were dilapidated houses to investigate and damaged stairs and floorboards to clamber over.<br/>
+     One evening, after I had had a birthday party, I went out with my father to take some of my friends home. There was an air raid on but all was quiet. Suddenly on the way home the guns started booming and an enormous piece of shrapnel about a foot long came from behind our heads and fell in front of us. One of us had narrowly escaped being killed that night.<br/>
+     We collected shrapnel from the streets after a heavy raid and exchanged large pieces with our friends. We collected newsprint from our neighbours and gave them to shopkeepers to use as wrapping paper and played many games such as tag, marbles, hopscotch and skipping. Children make their own happiness.<br/>
+     By the end of 1939, I had three brothers in the RAF: a sister joined the WAAF in 1941 and another brother went into the army in 1943. I did plenty of letter writing when my brothers were posted abroad. My brother Ernie, who was a rear gunner on a Halifax 111, was killed on the night of 3rd/4th March 1945 when the Germans mounted their Operation Gisela in which nearly 200 night fighters were sent over this country at low altitude to infiltrate the returning bomber stream. His aircraft had been diverted from his home base at Melbourne, Yorkshire and was approaching a nearby airfield when it was shot down by a JU88. it crashed at 0145 hours on the 4th March on Spellow Hill, Staveley. Ernest’s body was brought home and buried at Chingford Cemetery, North London on 10th March on the very day he was to have been married in York. He was to have finished his tour of operations that week.<br/>
+     We were continually being asked by the government to save to help the war effort. We had standard metal money boxes in the shape of a small book which had a crest on the side and was locked, the key being held by the post office. When it was full, we took it to the post office and the money was extracted and put into National Savings Certificates and the box was locked again.<br/>
+     Many of the popular songs written at this time were about the conditions we had to tolerate. We children all hated Hitler, Berlin and the German nation most intensely and wanted them obliterated. There was one song called ‘Run, Rabbit, Run,’ that we sang as ‘Run, Hitler, Run’ and it continued about having a gun and shooting him. Many songs were adapted like this by us and were sung with great intensity.<br/>
+    My mother coped magnificently with meals in that we never went hungry. The weekly rations of tea, sugar, meat and dairy foods were very small, but we had bread and potatoes to fill us up, also suet puddings with golden syrup; and dumplings in a vegetable stew with the bone from the Sunday joint. The dripping from the roast was used to spread on bread and was very tasty. There was sometimes fried bread with tomatoes or a strip of bacon for breakfast. Sausages were made with mostly bread but sausage rolls were tasty, heated with thick gravy poured over them. Steak and kidney pies were also in evidence but they only had one cube of steak and one piece of kidney inside; the rest was mush. Nevertheless they made a tasty dinner. We ate lots of vegetables but only fruit indigenous to this country except for oranges; no peaches, grapes, pineapple or bananas. We had to queue for nearly two hours for a few oranges per person when a boatload occasionally came in. Word soon got round that Jim the greengrocer had had a consignment of them.. Children were allowed a pint of milk a day and free concentrated orange juice and free cod liver oil. My one weekly egg was always boiled for breakfast and was a special treat. We were allowed extra points for dried fruit at Christmas for the puddings and extra sugar for jam making during the summer. At one time, soap became scarce and one of my sisters came home with a stick of shaving soap which was beautifully soft to wash with.<br/>
+     The mini-blitz and the V-weapons came as a terrible shock after nearly five years of war; it seemed that the blitz was starting all over again and it was generally felt that we couldn’t stand another lot. Everyone had pasty-looking faces and were tired with sleepless nights and it was back to sleeping in the cellar again. At least you could see the V1s and take shelter when one was coming your way but the rockets came from nowhere and one wondered if one would be alive in a moments time. Sometimes at school when we heard the explosions of a V2 weapon, I would run home when school finished wondering if my home and family would still be there. Occasionally I had to leave for school in the morning when the alert was still on and was told by my mother to shelter in a doorway if necessary. <br/>
+     Every day we followed eagerly the progress we made on the continent after D-Day and sometimes we thought the Allies weren’t going to make it so it was a great relief when the surrender was signed in May and we could at last hope that it would soon be the end of the World War. I can remember going to bed that night, the fear gone, and that, after nearly six long years, I would be able to go to sleep knowing that I would wake up in the morning and not be lying under a lot of rubble. The feeling was very strange. We didn’t celebrate the end of the war as we were in mourning for my brother Ernie: we were just very relieved it was all over. The promised big party that was to be held when they all came home from war service, failed to materialise as one of us was missing from the family.<br/>
+      I still had two brothers abroad, one in India and one in Ceylon: they were posted there at the end of 1944 preparatory to fighting in the Asian war to overcome the Japanese. The atom bombs saved them from having to fight and possibly losing their lives and they arrived home safely.<br/>
+     We could at last look forward to peace.</p>
+<p>Ann Bradbury</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/14/a4534814.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-800">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Clissold: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>40</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>2</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Clissold </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

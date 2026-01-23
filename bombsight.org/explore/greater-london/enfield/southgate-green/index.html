@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Southgate Green - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.143988173634056, 51.615579587748613], [-0.142940981911027, 51.615888581142123], [-0.14197941201134201, 51.61620060560702], [-0.14209092757630501, 51.616343578048884], [-0.141898648080795, 51.616608474273846], [-0.141910768840049, 51.616886449254565], [-0.14141062919532801, 51.617217567670124], [-0.141365994594806, 51.617293436188298], [-0.14135560852753001, 51.617370970354735], [-0.14138920108071701, 51.617587461631103], [-0.141174559635831, 51.617692397267867], [-0.140984626698999, 51.617678431858174], [-0.14079262492008901, 51.617693374679803], [-0.140641198669892, 51.617731437043545], [-0.13975161773459999, 51.618489283507138], [-0.139832890568058, 51.618533288124937], [-0.139484001594573, 51.618719261612434], [-0.138531692022691, 51.61950926339734], [-0.13833303051295301, 51.619642265196802], [-0.13723290083979001, 51.620491174271706], [-0.136170010176554, 51.62122305754238], [-0.13540020120542001, 51.621787043920115], [-0.135441649984539, 51.62236195191722], [-0.13514556730819199, 51.622337994583788], [-0.13510157848466001, 51.622376080642802], [-0.13486769441227101, 51.62277294837439], [-0.134653481438233, 51.62332889561366], [-0.134445074954094, 51.623654785525005], [-0.13435523763597201, 51.623863838391642], [-0.13429757546702101, 51.624080842741321], [-0.134113872256378, 51.62395877849243], [-0.133956961226007, 51.624151866136458], [-0.13382940281127501, 51.624223743317664], [-0.13364753945698099, 51.62427677346512], [-0.133328022982626, 51.624317780300942], [-0.132974474737723, 51.624329718106587], [-0.13226639016980399, 51.624311714420934], [-0.131560247931793, 51.624246803276513], [-0.131334667853957, 51.624264852005332], [-0.12949171020572101, 51.624500099039402], [-0.129212215984714, 51.624540866809362], [-0.12907898825257699, 51.624574848936497], [-0.128477231033675, 51.624781778492284], [-0.128101453391359, 51.624872878342103], [-0.12761171011327399, 51.624946836957314], [-0.12728676397783001, 51.624943762507435], [-0.126353413312043, 51.624782883308711], [-0.12605564360892199, 51.624755791441821], [-0.12549486047216499, 51.624734895511992], [-0.124585361473115, 51.624630866054176], [-0.12407933901584201, 51.624770876465242], [-0.124387736733527, 51.625043891281187], [-0.124608917402562, 51.625307777125983], [-0.124247100579516, 51.625366776186247], [-0.12287779436829099, 51.625660739564346], [-0.12280163042935199, 51.625755774907674], [-0.122801861419209, 51.625815769951259], [-0.122371369247549, 51.626072755362102], [-0.122216183379045, 51.626200808525972], [-0.121151455235849, 51.62720861705742], [-0.12048048276458299, 51.627777605997622], [-0.120338282681495, 51.627853589720878], [-0.11796181743398999, 51.628915535869751], [-0.11771130167862499, 51.62881541368067], [-0.117417649182323, 51.628666550885292], [-0.116983836931264, 51.62852245597886], [-0.11667918607720899, 51.628399547744948], [-0.115381944043323, 51.628062585178483], [-0.114447835081237, 51.627766717646914], [-0.11394534948485199, 51.627558708478482], [-0.113320542435908, 51.627273693771592], [-0.112420862087712, 51.62691078420535], [-0.11365308028427, 51.624664424447417], [-0.113450068301581, 51.624652110536772], [-0.113134719324075, 51.62450513481707], [-0.113433786925281, 51.624348079519017], [-0.113722319388965, 51.624249160525501], [-0.113223308069165, 51.623806136718883], [-0.11525284396311, 51.621612415868931], [-0.116126900014661, 51.62069545030554], [-0.116298389238044, 51.620500511276703], [-0.116368622351027, 51.620374482152435], [-0.11497654109196601, 51.620065641920057], [-0.114906365950186, 51.62019054776686], [-0.114123324871038, 51.620000519490091], [-0.11420874225880701, 51.61985660459171], [-0.113135880407219, 51.619514655852967], [-0.112137919946771, 51.619173616324339], [-0.111750883554341, 51.618950768177086], [-0.11206254696183, 51.618705787244473], [-0.112419438504383, 51.618829833590567], [-0.114237747638418, 51.61678293736977], [-0.114481472383634, 51.616783905791401], [-0.114621700380153, 51.616558954690134], [-0.114805561645123, 51.616413959243673], [-0.115923542503032, 51.61520711492561], [-0.11557399312701699, 51.615124090596289], [-0.115339709913215, 51.615048238251198], [-0.11619959110404, 51.61407821688455], [-0.116269151181653, 51.613968199243693], [-0.11629047378935101, 51.61386723265268], [-0.115885329040498, 51.613928318750602], [-0.115363915717951, 51.613984719082183], [-0.114900088823673, 51.614219778868787], [-0.114813690709769, 51.614235260806964], [-0.11438975261181, 51.614248258518984], [-0.11413186597231, 51.614219244286495], [-0.115703272046773, 51.612460479927265], [-0.115899258422094, 51.612436498435805], [-0.117199977844478, 51.612351419169329], [-0.117653310433755, 51.612347464834819], [-0.119014098255393, 51.612447060184159], [-0.12050593927261501, 51.612674319721542], [-0.121474998886623, 51.612882329465243], [-0.121729877331956, 51.612962283709514], [-0.124469201846119, 51.613674185112018], [-0.12585750258756001, 51.614203021528027], [-0.12821840884609501, 51.61160831543382], [-0.130113271510364, 51.612155298049657], [-0.13283714855224299, 51.61291363650129], [-0.13528285026762099, 51.611214227371832], [-0.13596763801446701, 51.61093636240556], [-0.136359151995749, 51.610832283230067], [-0.13704119082992999, 51.61062125672521], [-0.13878737819043999, 51.610192304547361], [-0.13962633101550401, 51.610823270966918], [-0.14027339729129601, 51.61135719407028], [-0.14141739367879699, 51.612345082364058], [-0.14453826424771801, 51.615483614562265], [-0.143988173634056, 51.615579587748613]]]]}, "type": "Feature", "id": 1210, "properties": {"pk": 1210, "name": "Southgate Green"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Southgate Green, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Southgate Green, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Southgate Green</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Enfield</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Southgate Green
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Southgate Green, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Southgate Green: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>26</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Southgate Green</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-841"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-841" id="name-841">
+                    Blitz and V Weapons continued: A Child in London <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-841" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by eric heathfield (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a2056673.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>As I said previously after May 1941 enemy activity diminished considerably, we had a few raids usually around xmas time or just after.Also a few fighter bomber daylight raids in 1943/4. Then in the early part of 1944 the germans made a series of rather heavy raids. They dropped what were known at the time as oil bombs. These did a great deal of damage, I remember one fell on Priors dept store near the Tally ho North Finchley this was a modern concrete building it was completely destroyed apart from the steel girder frame work!There was very little damage locally although I think it was around this time that a large bomb fell on Cat hill East Barnet demolishing several houses. One point i will make we always knew when a raid was coming because the BBC would stop broacasting when a raid was imminent so that the enemy could not use them as a method of navigation and take bearings from them.When the radio went dead we would move into our morrrison shelter and put up the wire screens. Then later would come the gut wrenching sound of the sirens.These raids in 1944 cost the enemy heavy casualties and as the nights shortened they stopped.Then on the 6th June 1944 I was woken early in the morning by the sound of many aircraft flying over.We were used to seeing American flying fortresses in large formations most days but it was too early for them as they always flew over during assembly at school.I got out of bed and went to the window which had a good view of the sky to the east.I had heard people say the sky was black with planes but this day it really was hundreds of planes towing gliders and squadron upon squadron of Boston and Marauder light bombers all heading east!Also Spitfire squadrons were airbourne to all planes had white stripes round the fuselage to identify them as allied aircraft. This was D day!When we listened to the 8 o'clock news the landings were announced.THe next few days were euphoric we were all excited and the standing joke repeated ad nauseum was " Do you know where the landing is- at the top of the stairs" very corny by the 3rd day! Then in the following week on the thursday  night we found that "Jerry" had a nasty joke of his own up his sleeve! Went to bed about 9-30 as usual when it was school tomorrow. Then about 1 am the sirens sounde and I made my sleepy way down to the dining room and the morrison shelter.It was soon evident this was a heavy raid constant gunfire and low flying aircraft and machine gun fire. This continued for about 2 hours then all was quiet,the all clear didnt sound but aftre a while Dad said we might as well go back to bed its over! The following morning I went to school as usual and asked my friends if they had heard the all clear?None of them had -very strange then later in the day we were all made to go down to the cloakrooms which served as a shelter the ceiling being strengthened with beams and the windows covered with sandbags.When we were sent home at noon we heard that this was hitlers secre weapon a pilotless aircraft packed with a ton of explosives.These kept coming over for the next 3 months at odd intervals.The next day which was a Saturday I went with my dad to chesthunt Resouvoir for a days fishing it was very civilised there we had a small hut where we could cook and sahelter from the weather and could even sleep there as we had 2 naval hammocks slung.It was a rather dull overcast day,we heard a few flying bombs in the distance, suddenly I heard a strange sound unlike any other aircraft noise I ha ever heard I was by this time as most of my friends were an expert areoplane spotter. Then suddenly there it wa at about 500 feet flying west a Gloster Meteor thogh of course I didn't know that at the time although the radio had reported about jet aircraft about a week earlier.A wonderful sight ! Well as I said the attacks continued,one night a V1 fell in Grange Ave East Barnet in the next road to my sister Grace.I dont think anyone was killed. Then one lunchtime at school I was in the wash room in the cloakrooms when we heard a V1 coming Mr Zissell our headmaster rushed in from the playground roarinng "Everyone down on the floor" we didn't need telling twicethe bomb slid over the school down church hill rd clipped the flagstaff on St marys Church and exploded in Oakhill park near the bridge near Rushdene ave luckily not killing anyone! Some of my friends from the East barnet grammer school had a narrow squeak as they were in the park at the point of impact but saw it coming and just made into a surface shelter they were badley shaken but unhurt. Then in late august we had our worst tradegy of the war. I did not witness this personally as we had gone away for a couple of weeks fishing in Dorset as was my fathers custom whenever he could snatch a few days away from the Times I think this helped to keep him sane! these were stressful times as they were not only publishing theTimes but also the American paper The Stars and Stripes for the troops.Anyway on or about the 21st August about 7-45 in the morning the Standard telephone factory which was about 200 yds from the end of our street was hit by a flying bomb causing horrendous casualties in fact the highest ever casualties in a single incident.several hundred dead and many many severely injured . One young girl aged about 15 in her firsat week at work lost both legs,luckily she made a full recovery and 11 years later was in victoria maternity hospital having a baby at the same time as my late wife.Ou house had all the windows blown out and the ceilings down.The last flying bommmb to land near us was sometime in the autumn, it was my most scary moment of my 71 years! We were in the morrison because the bombs came at any time it was after  midnight because Dad had come  home from the office.Something woke me and I heard the bomb coming then suddenly the engine cut! When that happened your heart stood still and you could hear a pin drop.Then to my utter horror I heard a sound it was the sound of the V1 gliding! I could literally hear the air over the flying surfaces Dad swore then came the explosion  the solid steel shelter lifted with the blast.The bomb had landed further up the hill in Russell Road causing several deaths including a friend of my mothers and her twin sons aged about 13.This was the last f lying bommb in the district.In September 44 one saturday morning I was lying in bed just having woken up when there was a tremendous explosion followed by what sounded like a roll of thunderwe were to get to know that sound all too well over the next few months hitlers second secret weapon was up and running the V2 rocket hurtling in at supersonic speed devastating wherever it hit. This one was at Bounds Green many of these landed in London and you could hear them for miles  the only other one in our area was at New Barnet killing several people and burying others for a couple of days (this was always one of my worst nightmares the thought of being buried alive)One poor chap held a beam up over his Brother but sadly his brother was dead, later he lost his mind and used to wander the streets shouting and talking to hiself the children in later years used to make  fun of him not  knowing his story unless someone told them.Personally the V2's worried me less than aircraft attacks which always seemed directly aimed at one or flying bombs which were nerve wracking.With the v2 if you heard it go off you were alive and that was that,I am sad to say we were mostly pretty callous by this time well you had to grow a hard shell or you wouldn't have been able to stand it!Well by March 45 the raids and rockets peterd out then suddenly it was all over I was then nearly 13 going on 30.Would like to say a couple of final things clear up a couple of myths.Firstly despite many documentary 's Londoners on the whole did NOT shelter in the underground in fact people who did were rather despised, any way they were not very safe as was the case at Bounds green station when a bomb penetrated to the platform ripped all the tiles from the walls killing a number of Poles who used it to shelter.Most people had there Morrisons and Anderson shelters and prefered to take their chance above ground.Also I get very angry when i hear people talking about soft southeners as we were bombed throughout the war not just a few nights as were plymouth and southhampton the blitz lasted from Sept7 40 to May 10th 41 almost every night so I don't think we were soft If you would like any more information please don't hesitate to ask.How ever I am suffering from Chronic renal failure at the moment so if you want to know anything better ask soon All the best Eric Heathfield</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a2056673.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-841">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Southgate Green: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>26</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Southgate Green </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

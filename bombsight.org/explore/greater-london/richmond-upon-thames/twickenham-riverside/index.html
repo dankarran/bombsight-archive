@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Twickenham Riverside - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922579200000, 2]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.33376573663569198, 51.447453074704462], [-0.33371180008468498, 51.447551084546951], [-0.334277473225015, 51.448479999001719], [-0.33446158187485098, 51.448833880094547], [-0.33354477571927499, 51.449050863578314], [-0.33177286484410401, 51.449567870373777], [-0.32974820727562298, 51.450268830405172], [-0.32746546904109902, 51.451125698482073], [-0.32572861202107101, 51.451860759789035], [-0.32524383296216502, 51.452141730431471], [-0.32464584798586898, 51.452455649051991], [-0.32247201929535302, 51.453820492884226], [-0.32226724225568998, 51.453713592783693], [-0.32232607332756602, 51.453617628735081], [-0.32232426705623102, 51.45328656772277], [-0.32236117453173002, 51.453224572100403], [-0.322221173818178, 51.452945631746957], [-0.322114214037932, 51.452673619032872], [-0.32208707600780201, 51.452493670509881], [-0.32211812820776398, 51.452247666326571], [-0.32170728633727003, 51.451848788492271], [-0.32080903291082702, 51.452120736516811], [-0.32086618218691698, 51.452217661165008], [-0.31999519398764198, 51.452432663151775], [-0.31869441349789701, 51.452715677334631], [-0.31867866792573402, 51.452911595722334], [-0.31872952311916303, 51.453094702920779], [-0.31825864230289602, 51.453191643074824], [-0.318276399790967, 51.453234614703327], [-0.31802154572480701, 51.453303602349955], [-0.31771078903009697, 51.453412671785813], [-0.316967696867476, 51.453695665983666], [-0.31708152258834399, 51.453804649312787], [-0.31734065439959003, 51.453974586188409], [-0.31691087513794203, 51.454237619321297], [-0.31682554825194498, 51.454307490985144], [-0.31679506383154599, 51.454402597770034], [-0.31673596764878698, 51.454480580854096], [-0.316673737204343, 51.454521557133319], [-0.31677462487513403, 51.45465254677439], [-0.31690968037252099, 51.454967399206438], [-0.31686062087780098, 51.454980461192832], [-0.31704066914220203, 51.455392479851795], [-0.31708277486582898, 51.455385358561244], [-0.31715403078594401, 51.455600371019116], [-0.31715281209134299, 51.455682407909897], [-0.31712086589791799, 51.455768359231811], [-0.31716092991294997, 51.456024379313924], [-0.31793973831893002, 51.456153300692876], [-0.31805262168596499, 51.456129348947748], [-0.31805369028816199, 51.456100275538937], [-0.31810494319300398, 51.456113377419058], [-0.31846664692282001, 51.456050277540776], [-0.31847649363749497, 51.456088356592758], [-0.318782522243091, 51.4562432258857], [-0.31692806072413698, 51.457598219033791], [-0.31484814953962598, 51.459087071654388], [-0.31354045355216698, 51.460051954625072], [-0.31205671678180702, 51.459531941846251], [-0.30976072321188203, 51.458899189057348], [-0.30937381141566, 51.458779097220393], [-0.308919009223589, 51.458597186207371], [-0.308546982568766, 51.458403115694168], [-0.307381825792926, 51.457664238023064], [-0.30652199669476599, 51.45714740460722], [-0.306164219355409, 51.456909424802241], [-0.30574906094188498, 51.456556515595047], [-0.30548500768902398, 51.456277447294802], [-0.30510435799330599, 51.455952567056414], [-0.304577586283383, 51.455317907319909], [-0.30413934446443502, 51.454646799560422], [-0.30387146277249, 51.454301777969413], [-0.30337837986118399, 51.453358866317117], [-0.30327435562336102, 51.453046840934526], [-0.30324547053131401, 51.452442952232907], [-0.303277998789305, 51.452099044321017], [-0.30341097004588302, 51.451873064903275], [-0.30351430758365899, 51.451633028340119], [-0.30399234705624101, 51.451064144795389], [-0.30450522890361897, 51.450550147038079], [-0.30469384595634902, 51.450278183873543], [-0.30474385568247497, 51.450057191178331], [-0.30484085660171301, 51.449903186419725], [-0.305302061170175, 51.449545244986382], [-0.305834884611349, 51.449208281769678], [-0.306413733044959, 51.448903316659148], [-0.30703685078704002, 51.448799349954207], [-0.30740253932929901, 51.448664407206792], [-0.30781471674205901, 51.448463383879904], [-0.30879768439920802, 51.448053381575612], [-0.30926036907048399, 51.44788541190367], [-0.30978931775129198, 51.447749436735982], [-0.31033539244115899, 51.447636468775045], [-0.31122517975715203, 51.447386403827814], [-0.31312674871305002, 51.446930440738761], [-0.31466288012649002, 51.44663948181271], [-0.31521775754137299, 51.446470419941257], [-0.31563846619070102, 51.446366454548276], [-0.31605634955165601, 51.446265531826782], [-0.316527586442856, 51.446181534229346], [-0.317173422550872, 51.446106496122006], [-0.31769029137674298, 51.446065442261656], [-0.318212048590862, 51.446038508004989], [-0.31875921476366398, 51.446029495904341], [-0.31969891961379199, 51.446046476727219], [-0.320082219046115, 51.445993377975846], [-0.32100192430181002, 51.445783428982651], [-0.32195102225629302, 51.445519518978536], [-0.323757768704102, 51.444958609344489], [-0.324304396087922, 51.444767471149923], [-0.325762507189373, 51.444380554788935], [-0.32845714743523202, 51.443564585600328], [-0.32902582603115099, 51.443347607016996], [-0.32934880706104103, 51.443134702906505], [-0.32965569340432699, 51.442882654663947], [-0.330214053078218, 51.442257765021935], [-0.33069689086677501, 51.441606797048891], [-0.33076451712674898, 51.441453761744881], [-0.33191958229452601, 51.441666770840243], [-0.33220131087361698, 51.441684830988393], [-0.33134869474358902, 51.442463610183061], [-0.330965579628408, 51.443129628716505], [-0.33067659118450798, 51.44375456408779], [-0.33049301456778402, 51.443991510849344], [-0.33018280908356301, 51.444507384598452], [-0.32981272508634801, 51.44504953186491], [-0.329775008172006, 51.445183452868257], [-0.329781941991379, 51.445449392804477], [-0.32984656118918898, 51.445551898429187], [-0.33067087367370401, 51.445403323988522], [-0.33152372174620298, 51.445286338113419], [-0.332276428304352, 51.445202351019226], [-0.33291476654177499, 51.445159302377334], [-0.33379569678860599, 51.445209340331147], [-0.33409740037376001, 51.445865154832326], [-0.334656292431251, 51.447215062714463], [-0.33376573663569198, 51.447453074704462]]]]}, "type": "Feature", "id": 1532, "properties": {"pk": 1532, "name": "Twickenham Riverside"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Twickenham Riverside, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Twickenham Riverside, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Twickenham Riverside</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Richmond upon Thames</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Twickenham Riverside
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Twickenham Riverside, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Twickenham Riverside: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>17</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Twickenham Riverside</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-498"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-498" id="name-498">
+                    Nurse Jean
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-498" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Derek Palmer (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/98/a2324198.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>No doubt, for the majority of the contributors, it was our fathers, mothers even, who were in uniform during the 1939-45 war?  Nevertheless, for many of us, taking place during our childhood, the Second World War formed an important memory in our formative years.  Living close to London, my earliest memory is, when aged around 4-5, seeing the huge glow in the sky, as the London Docks, some 20 miles away, were aflame.  However, allow me to relate a little happier memory of the WW2 - and my very first love affair . . .   </p>
+<p>Besides those unfortunate East Enders, my family had also experienced the Blitz when our former home, west of London, in Twickenham, was flattened in 1941.  But moving on, it was now 1942 and the war was still raging.  My father was with Monty on the Western Desert.  Aged six, I now lived in Isleworth, Middlesex with my mother and, two years my junior, my sister Pam. </p>
+<p>Opposite our home was one of the largest hospitals in the country, the West Middlesex, and, with a bedroom to spare; we were compelled to billet two nurses.  One was a Scottish lass called Joan, and she was fairly plain.  The other nurse was a London girl and her name was Jean.  People described her as being petite.  She was also dark-haired and extremely pretty.</p>
+<p>Luftwaffe permitting, my mother put my sister and me to bed each night at around 7 p.m.  Mum kissed us both goodnight - and so did the nurses, if they were not already out for the evening, or on night duty.  Oh, how I loved being kissed by Jean.  This was not like being kissed by my Mum, or by one of my aunts.  This was a real kiss, on the lips, and me with my arms hugging tightly around her neck.  Jean was probably about to go out on a date.  There were plenty of British uniformed young men around and later the Canadians, with their attractive accents, arrived. The American GIs, with their bubble gum and smart gabardine uniforms, followed these.  They were stationed not so far away from us, at General Eisenhower’s headquarters in Bushy Park.</p>
+<p>Later my father was invalided out of the Army and it was not long before my two nurse friends had to leave us.  Oh, how I cried!  Fortunately for me they were only moving into nurses’ quarters within the hospital grounds, right opposite our home.</p>
+<p>The war went into another year and, during the following one, the bombing resumed. It was 1944 and the incendiary and other bombs had failed to set London completely afire. Now, Hitler was sending us his latest little package of terror - the terrifying V1 flying bomb (or doodle bug as it was called).  The V2 rocket bomb followed this and, of course, there was no warning at all with those.  You heard a whoosh and then you were either dead or seriously injured! Samples of both types of weapon were delivered close to our home. A V1 landed three streets away causing considerable damage to the semi. Some weeks later, a V2 landed on a factory about a mile away, which, besides making a deafeningly loud bang, also caused death and devastating destruction.</p>
+<p>Most of my school classmates were evacuated to the relative safety of the countryside, some for the second time.  However, my father decided that Pam and I were to stay put in the London suburbs.  I had no objection whatsoever.  I knew my beautiful Jean was just across the road.  Occasionally, she came to visit us.  Sometimes, after school, I would peer through the hospital hedge, the railings having been removed to make guns or tanks, in the hopes I may catch a glimpse of her.</p>
+<p>The following year the war ended.  Imitating all the other little streets throughout the land, we had a street party on VE (Victory In Europe) Day.  Lovely Jean came across helping the mums serve the kids with sandwiches filled with goodies we could not remember having tasted before.  Cakes, jellies, blancmanges and something I did not recall having tasted previously nor, mercifully, since - junket followed these!  Our biliousness passed within a day or two but, in any case, I had only feasted my eyes upon the very tasty Jean.</p>
+<p>I loved my mother very much but Jean was definitely the first woman with whom, from the age of six and until nine, I was really in love.  Or, was it just infatuation?  I wonder how she looks now?  If still alive, she would have to be approaching 80, but I bet she’s still a great beauty or, at the very least, a very pretty old lady!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/98/a2324198.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-498">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Twickenham Riverside: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>17</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Twickenham Riverside </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

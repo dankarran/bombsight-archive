@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Hillside - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922320000000, 5]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.22486957209168401, 51.419139077356107], [-0.22419294556828301, 51.419423053073082], [-0.223329940499394, 51.419842039806348], [-0.22194133630174201, 51.420461976379059], [-0.22088757453207999, 51.420849947299494], [-0.22043621670056501, 51.421060882113146], [-0.21921456041579099, 51.421731803415824], [-0.21809780393530201, 51.422235839876222], [-0.21734907569619399, 51.422602844694794], [-0.217145827887858, 51.42247778837487], [-0.21673100304529699, 51.422291905215921], [-0.21623409938892801, 51.421997853041105], [-0.215757175293426, 51.42174497882413], [-0.21530710680305901, 51.421540855514749], [-0.215115914028429, 51.421475980910955], [-0.21480581022255599, 51.421336926270193], [-0.21467406712335901, 51.421441994520933], [-0.21423924678158601, 51.421216036060315], [-0.21377988036640899, 51.421585032446842], [-0.21450228741573901, 51.421985949911367], [-0.21445093562977899, 51.422011871890113], [-0.21469691222933701, 51.4221358894697], [-0.21479631017999501, 51.42216887769473], [-0.21372684176604501, 51.423222273844807], [-0.213535409189715, 51.423474658272028], [-0.21334178114353899, 51.423667716221132], [-0.21298672384410899, 51.424150715320216], [-0.21356939722871099, 51.424239682849134], [-0.213475302875127, 51.424462647425827], [-0.213372784797555, 51.424532596960105], [-0.213014174299163, 51.424714575599083], [-0.21220664723820101, 51.424881686122106], [-0.21190743583753399, 51.425015661755708], [-0.21039987357262399, 51.425865496261295], [-0.21012488453019501, 51.426056671288336], [-0.209749484600432, 51.426404530278944], [-0.20958746966252001, 51.426340516012182], [-0.20912113431411, 51.426218590874917], [-0.20868429401312599, 51.426147419983955], [-0.20745586005334499, 51.426156605109107], [-0.20726647543422499, 51.426309532693615], [-0.20703602852269201, 51.426562792459031], [-0.205691075537736, 51.427487478127794], [-0.20435066753891601, 51.428494347640878], [-0.20418332380364401, 51.42856625197102], [-0.203996935101075, 51.428619318577731], [-0.20348666534969101, 51.427508510258704], [-0.20294761709811199, 51.427315480776166], [-0.202758457800923, 51.427278573908836], [-0.20203984921058901, 51.427239587041271], [-0.201860401557271, 51.427207468713583], [-0.20145352491629001, 51.427174530930586], [-0.19911408856131901, 51.427314526534765], [-0.200929746911089, 51.425127710894181], [-0.201979251665316, 51.424110938876446], [-0.2023092209332, 51.423811939534566], [-0.202478840207164, 51.423704942826525], [-0.20298939318109099, 51.423316958623722], [-0.20402424933070601, 51.422648683769062], [-0.20500435425885399, 51.422000077643489], [-0.20570150546646601, 51.421575168353925], [-0.20642181786536201, 51.421086123096373], [-0.20647223627380401, 51.421061184836624], [-0.206679375259509, 51.421166079414917], [-0.20695151834025799, 51.420988147362237], [-0.20719893895010799, 51.420822056043896], [-0.20701230506115201, 51.420744171166128], [-0.20844462217382201, 51.419885218711073], [-0.214789767646137, 51.415703696901126], [-0.21670045382664899, 51.414392754326734], [-0.21832616635080701, 51.413357899426032], [-0.218848326051507, 51.413034942385003], [-0.21937224438987901, 51.412735887089418], [-0.220076932616532, 51.412375926734825], [-0.22208465078299, 51.411451925725913], [-0.222558849265272, 51.411958912491833], [-0.22318469392020801, 51.41250173334371], [-0.22342046348151301, 51.412751990768001], [-0.22312595682154099, 51.412897815899036], [-0.223349612745846, 51.413086819838632], [-0.223138015938701, 51.413177758380883], [-0.22326079243529601, 51.413302846235112], [-0.223474783994381, 51.413416811687782], [-0.22299578074246099, 51.413716695144664], [-0.22292469809603499, 51.413776742528967], [-0.22272193733705301, 51.413871737080157], [-0.22147597147968001, 51.414607655458624], [-0.22098720139488301, 51.414857648138359], [-0.22236782076258099, 51.415806515522036], [-0.223012065123915, 51.416333353788097], [-0.22317805322982101, 51.416503361422855], [-0.22326166990458701, 51.416630240440966], [-0.22343289984897299, 51.417024431247064], [-0.22374671799908899, 51.417473335008907], [-0.22498876514653901, 51.419102096931603], [-0.22486957209168401, 51.419139077356107]]]]}, "type": "Feature", "id": 1463, "properties": {"pk": 1463, "name": "Hillside"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Hillside, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Hillside, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Hillside</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Merton</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Hillside
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Hillside, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hillside: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>24</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Hillside</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-597"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-597" id="name-597">
+                    Geoffrey&#39;s War <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-597" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Geoffrey Hoad (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/27/a1310527.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>During the war I worked as a lift boy at a large block of flats about 100 yards away from the sea and my boss was an ex army man, a quarter master sergeant in the rifle brigade.</p>
+<p>He called me down to the flat on the Sunday when I was on duty and said ‘listen lad, this is very important’ and the message came through from Neville Chamberlain that we had started the war against the Germans.  The first thing that happened was within the hour the sirens warning went off and there was an aircraft heard.  We heard the aircraft around but obviously they were just flying around and I’m sure it was a German aircraft.  It was seen over St Leonards, very close.  It didn’t take long really, the all clear went and then he got on to explain what could happen.  In this block of flats they were a very reserved type of people there and they were back to back.  There was a boiler house there and they said ‘look the first thing we are going to do’ he said ‘is we are going to breed some rabbits, so if food is short, we’ve got rabbits’.  I didn’t live here at the flats at that time but that was his first thoughts on how we were going to eat when the rationing would come.</p>
+<p>It was very shortly afterwards, within a couple of months that we were invaded by young children from London, the evacuees.  They arrived one morning by train, the residents were asked to take the children in and give them a home.  So we, my mother and my grandfather who we were living with, decided that we had a spare room and that we would take two children.  We had two girls who came along.  They were about 13, they came from Greenwich in London and it was for me, the 16 year old, great fun to have someone share the house, and someone to play around.  It was really good to have someone else in the house but it wasn’t for long because as there was no activity in London.  There were no expected air raids, their parents decided — most of them did this — at Christmas instead of just going home for Christmas, they didn’t come back.  But of course we all know it wasn’t that long after that things started to hot up all round.</p>
+<p>The next major thing happened that I remember is the boats coming over from Dunkirk and landing our troops back in this country who’d been serving in France.  That is the first time that really things showed that there was something going on.  The troops after landing, were in Bexhill, where the regiment were stationed.  They stayed in some of the big hotels.  Also some of the RAF came to do their training as pilots and aircrew.  By the autumn there were notices up in the town that, (I think it was in mid-summer) that people, if they would like, they were encouraged to be evacuated themselves.  My mother and grandfather went up and finished up near Trowbridge, away from the coastline.  I didn’t want to go, so my boss said you can stay in the flats.  We’ll fix up a couple of rooms down in the cellar, which was quite clear, nothing much in it.  So we (his wife who died shortly before), so we both stayed down in the cellar in case of air raids.  Mr Thatcher being an ex army man, he decided that he would invite some of the army boys on their evenings out or what not to come down into the flat we made in the cellar and play darts and cards and he would give them tea and coffee.  So we had plenty of company.  Most of the tenants had then gone and they just moved away keeping the flat on but they moved away to various areas in which they thought were safe in the country.  One morning there were four or five of us, the postman had called in, Mr Thatcher and one or two of these lads and we were standing in the main hall, the siren went off and before we had time to move there was a terrific bang.  Well it was never discovered exactly what had happened.  Obviously there was a bomb dropped but it hadn’t hit anything.  It had exploded before it reached the ground or it might have landed in the sea, but no crater was ever found.  But it broke many of the plate glass windows in the flats and most of them were on the seaside of the building, so it could have been a blast bomb.  But it meant a lot of tidying up for us to do to clear the glass away.  That was a very fortunate thing for us, because it could have been very near.  We often had hit and run raiders come in.  They would fly in and by the time the sirens had gone they’d circle in on their way out so it didn’t give our aircraft, the Spitfires, time to get down from their airfield to keep them away before that, bombs had been dropped across the town.  We had quite a few on the coast, Eastbourne, Hove, Hastings and I remember one particular occasion Bexhill had two or three bombs, one hit a local chemist shop and also one of the cleaners that were in the town.  One of my friends who were at school with us, he worked in this dry cleaners and it was a direct hit so he was killed on that occasion.  Blackey Barker we called him, he was quite a dark lad and it was a great shame.  There were several other times hit and run raiders came in.  One afternoon we had a Messerschmitt, the warning was on and we were down in the cellar and this Messerschmitt came in, or came through, obviously escorting some bombers and they were shooting their machine guns and I know I went up from the cellar and looked out and I was really torn off a strip for going out and having a look because later on when the all clear had gone we found some of the spent bullet shells and holes in the wall so I was very lucky.  But my boss didn’t appreciate what I’d done and he really gave me the dressing down.</p>
+<p>Another occasion, a little later on, I had to be home, to see if everything was o.k. and stayed the night and on the way back, there was an aircraft, a warning and an aircraft.  We saw it was a clear morning, a clear moon up in the sky, it was quite early and I stopped and spoke to the milkman as I was going to work.  We saw this aircraft circle round the moon and as we thought it was going away we both said ‘oh well it’s not dropped anything…’ we can hear bombs coming down.  Well the nearest landed, to us, landed about 400 yards away and they dropped 13 bombs across the town.  So it did quite a bit of damage.  It just missed the town hall, there was quite a bit of damage there.  There was several occasions when we had working in the town and living by the sea in this building that stood out, it was right next to the De La Warr Pavilion so several occasions that we had near misses around there.</p>
+<p>One day there was a big fire next to the De La Warr Pavilion, the other side of where our flats were and it was the Metropole Hotel, which the air force had taken over.  I still have pictures (small photos) of the fire at the Metropole but no one ever knew how it caught light.  Whether it was carelessness by the forces or some kind of bomb but we never found out what caused it.</p>
+<p>Of course being 17 there were several of us young lads who used to get around the place and I remember one evening, there were two of us just walking along the sea front and we came to the end, past the clock tower and to where what was called the flag staff where they put a siren up on the scaffolding.  So in devilment we decided to climb the scaffolding not realising the problems we could have caused.  As we were coming down the air raid warden was waiting for us.  It was a very good job he knew us because he said we cold be blamed for trying to sabotage the siren that was up there so we got a good dressing down for that.  He went up and had a look to make sure everything was working all right and I imagined it was working.  It went off a few days later but when you’re young you do silly things and not realise what you’ve just done. </p>
+<p>As I was then 17 ½ and not available, or not possible to go into the army or the forces because my eyes were not so good, I decided I would go to London to an engineering course and work in munitions so my boss wrote a letter to the minister for labour saying that I’d tried and nothing happened so he wrote to Aneurin Bevin and said that I wanted to serve my king and country and so within a week I was called to the labour exchange and fixed up to go on this course.  I would be highly qualified to go into engineering.  Well this I did and by November I went to Waddon training centre near Croydon and spent the next 3 months at this centre earning very little, just enough to pay some lodgings money.  A lady and man that had this big house, there were about 20 people there lodging and most of the money that we earnt went to pay out for our digs.  After going through the course, I got a good job in the company Phillips which was a big electrical engineering company and I thing it’s still going now, Phillips.  That was only 3 or 4 miles cycle away from Waddon to Hatbridge, near Mitcham.  I managed to get a job as an improver in their tool room, which was something well worth doing because I spent the rest of my life in engineering and doing tool grinding and tool making.  So for me it was very good to do that but I still had one or two near misses when I was staying in Croydon.</p>
+<p>I remember one day going to the cinema.  I was on nights and going to the cinema on a Monday afternoon and my friend who had to work asked me if I could take his girlfriend to the pictures because he’s promised her that she would see this film and it was at the Davis Theatre in Croydon.  In the middle of the film there was a terrific explosion, the siren had gone but nobody used to worry because we were inside.  We didn’t think we would be any safer outside, the terrific explosion was in the front and fortunately for me I was fairly well back in the stalls and a bomb had gone through the roof down into the stalls but it didn’t explode but several people were killed on that occasion and I fell that, that was another life that I had had.  I’ve been well looked after by someone above.  So when I went out afterwards I realised that one of my friends daughters worked there as an usherette, so I looked around for her and found her and I went afterwards to see her father, saying that she was alright.  But by the time I got back to the lodgings there had been a call for me from the Home Guard, which I had to join a few months before.  This was to call me up into town with the rest and to patrol because there had been other bombs dropped and a certain amount of looting.  I had quite a busy day that day.  I didn’t go to work that night; well we were called out all night so we didn’t get away until the following morning.</p>
+<p>One or two things I remember about being at Phillips.  The first thing was that there was no proper air raid shelter in the actual company and not enough for everybody.  So there were quite a few, it was all men in the department I was in and we used to go into one part where we thought it was reasonably safe when the siren had gone off.  I was amazed all the young lads, most of them fairly young or less than 30’s anyway and we used to go down to this place and all the time that there was a warning on they would sing and it was really great friendship.  It was good to hear all these men singing the popular songs of the day and some of the older songs such as Roses Are Blooming In Piccaddy and that type of thing as well as the popular shows at that time and the Holy City is another one that I remember.   Another thing that I recall of the men in the tool room, on a Saturday before Christmas we always had the day off and we would go to Morden station but we all had to wear bowler hats which was great fun and travel up to London where we would see a show.  Well before that we would go and have a meal and see a show and all the way up in the tube we would sing carols and it’s something to hear at that time anyway.  We might have been noisy but we weren’t a rousy crew and people used to listen and laugh with us, then after seeing the show we would have something else to eat then go back to Wimbledon.  Wimbledon Palais to a dance and that was an annual event that happened every year but of course some of the boys they lost their bowler hats.  I know coming back and spending the day and not being used to hats like that many of them had to buy a bowler hat for the person that lent them their bowler hat. </p>
+<p>After working at Phillips I had to do quite a bit of night work.  So I decided a couple of times to cycle back down to Bexhill.  Well it was quite a long journey, especially on a cycle without any extra gears or anything but the worst thing, I got lost several times because all the road signs were taken down because of the threat of invasion so it was very difficult unless you got to know the roads.  You could easily turn off especially over the Ashdown Forest or somewhere like that but I know I was lost twice.  The second time coming back I went on a slightly different road it was the weekend which they called the Big Fire in London and quite a few fire engines had gone up from the coast to help.  The London Fire Brigade and on my way back on the Monday morning I met quite a few of them coming back towards the coast and it took me quite a while to get back and of course I had to go back to work in the evening so I made an early start getting back early afternoon and then going onto work about 7 o’clock.</p>
+<p>Another memory I have of Croydon and the war.  My landlady woke us up one night and said the sirens had gone and there were several aircraft about.  While we were talking about it there was the sound of an aircraft as we thought and it suddenly went quiet and I remember saying ‘it’s alright it’s landed at Croydon Airport’ and then there was an explosion.  What it was, it was the first night we had discovered that it was the fly bomb or Doodlebugs as they were called so I remember that first night and the bomb had only just landed 2 or 3 roads away.  Shortly after that I remember particularly cycling home from work after doing just a Saturday morning and watching this fly bomb come over and what they did, when they cut out, it normally did a half circle turn back and then drop onto the ground.  I remember this one flying across and praying that it wouldn’t cut out until it got past.  Of course someone else would have got it and I was terribly worried at that moment that it could have done exactly the same and it would have been very much nearer.</p>
+<p>One other very important thing happened quite late in the war.  I met a girl at Phillips when I was working and she was working there and she later became my wife in 1946 and we were married for over 30 years before she died.  So that practically concludes my wartime experience and I would like to say that VE Day or rather the day war finished, I spent at Phillips social club jollying it up with some friends.  I went up to London and waved my flag and there were thousands of other people at VE Day and also I saw the big victory parade which they had after and when the generals of all the regiments paraded through the streets of London which was quite an exciting thing but that was a couple of years after the war.</p>
+<p>There is just one other thing I have just remembered.  It was while I was a Bexhill, it was about two years after the war had started.  The first big raid by Germans on Croydon.  I was going to see my friends at Sidley and the warning went and we could see in the clear sky it was a beautiful summers evening we could see clearly squadrons of German aircraft.  The bombers flying in formation through to London we thought, well that was the beginning of the big bombing raids in London.  They went in formation, they came back in formation but the only things we saw and know afterwards there were one or two of the fighters shot down not far from the coast.  One near Catsfield so we know at least two were shot down and they still came back in that formation flight as they went out.  I just remembered that when I saw it and I think that’s about all I can remember about the war.<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/27/a1310527.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-597">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-579"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-579" id="name-579">
+                    Memories of a Schoolboy: In Norfolk and Wimbledon <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-579" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by John Clark (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/69/a2080469.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Born in 1930, I was not really conscious of the events leading up to the Second World War but my memories of the war itself are very vivid. However I do clearly remember my father making a crude air raid shelter in our garden in Wimbledon in 1938. The shelter consisted of a deep trench (I can still see the yellow clay my father had to dig out to get sufficient depth) lined with wooden planks and covered with corrugated iron and a pile of earth on top. He made a small ladder for access. We were all issued with gas masks in cardboard boxes with a string loop on them so that they could be hung round our necks.<br/>
+My first real war memory was being piled into our 1927 Austin 7 on the evening of September 1st.1939 and driven down to my grandparents at Didlington in Norfolk where my grandfather was the butler at the Hall. The car had no luggage rack so the back seat was removed to make space for the luggage and my brother and I sat on a suitcase together with our dog.<br/>
+On the day war was declared there was an air raid warning at Didlington and I can remember standing on the front step with my grandfather looking for aircraft and brandishing my toy pistol.  <br/>
+   For a few days it was just like being on our usual summer holiday but after a short time an elementary school from the east end of London arrived and was billeted in the villages and farms around Didlington. Some of the children were allocated to local village schools but in addition a two class school was set up in the unused  tack room and the grooms' room in the stableyard at Didlington. My brother and I were allowed to attend this Didlington school along with the grandson of the head gamekeeper who had also been privately evacuated. He and I were the eldest boys in the school and we had interesting jobs like fetching a large container of hot water each morning break from the Hall kitchen to be used for making chocolate Horlicks which appeared to be issued by the government. Whatever happened to chocolate Horlicks ?- it was delicious! We also had to fetch bundles of kindling wood and help get the fires going in the two rooms.  Apart from missing our father we really had a wonderful time.  School seemed easy and I loved the country life. As a reward for collecting barrels full of acorns for feeding the estate's pigs, the owner of the Hall, a Colonel Smith, had a couple of swings and a seesaw made for the school. The winter of 1939/40 was particularly hard and we had several feet of snow which was great for the children. The lake in the Hall grounds froze over and we were allowed in once or twice to slide on the ice -nobody had skates. <br/>
+   I made my first contribution to the war effort that winter. I think it was the Women's Institute in the area which encouraged people to knit mittens for the North Sea trawlermen. My Grandfather and I took this up with help from my Grandmother and Mother and I produced 8 or 9 pairs of mittens and eventually graduated to socks. My Grandfather established some sort of record with his knitting and received an official commendation.<br/>
+  A few weeks after the birth of our youngest brother, my Mother went back to Wimbledon as there had been no air raids and the war was very quiet. My other brother and I were left at Didlington to avoid another change of school especially as I had to take the so-called Scholarship exams that summer. <br/>
+Despite the fall of France and the very real prospect of a German invasion, we returned to Wimbledon, sometime in late June. I imagine it was a relief for our grandparents as they were 72 and 64 and it can't have been easy for them to look after us for that length of time. A large number of children evacuated in September 1939 had drifted back to London by the summer of 1940 .Many of my school mates from Wimbledon Park had been evacuated to Arundel in Sussex and it was probably as well that they had returned as much of the Battle of Britain was fought over Kent and East Sussex.<br/>
+   Before the new school year started (around the beginning of September), my new secondary School (Rutlish, of later John Major fame) was hit by a German bomb but only a small area was damaged and school started on time. This was the time of the Battle of Britain and we were frequently in the air raid shelters. At school these were brick constructions with thick concrete roofs set in the school yards. At home we had an Anderson shelter named after the Home Secretary of the Chamberlain government. This was like an igloo made of heavy corrugated iron though the floor shape was rectangular. It was intended to be half sunk in the ground. My Father excavated where our rockery had been and replaced the rockery on top to provide extra protection to the roof. Many people covered the roof with sand bags. He also built a sort of porch on ours to stop the rain coming in when the door was opened. Soon night bombing started so he made bunks for us in the shelter and we just went to bed there. My parents were very strict about our being in the shelter during air raids but I remember the day Croydon aerodrome was attacked and my father took me up to the top balcony of the block of flats close to our house to watch the dogfights over Croydon. In fact all I saw were a few black and silver dots milling around as it was all happening 7 or 8 miles away .<br/>
+We soon learned to judge how close the raids were to us from the sound of the anti- aircraft guns. A particularly noisy one was mounted on a railway truck and used to move along the line which ran about 80 metres from our house.<br/>
+   The intensity of the night bombing increased through September and October. Locally a public air raid shelter received a direct hit causing many casualties. In October the government organised another evacuation. Although my brother and I were now at different schools it was customary for siblings to be evacuated together so one morning we found ourselves on a railway platform (probably at Wimbledon but I'm not sure) with hundreds of other children. On our backs were small khaki-coloured rucksacks which my Mother had made for us and hung round our necks were our gas masks and a name tag. I can't remember whether we had any other luggage but later when travelling from our place of evacuation to my grandparents in Norfolk I certainly remember struggling with a (to me) large suitcase across Peterborough en route from one station to another.<br/>
+Neither we nor our parents had any idea where we were going but my Mother had given me a stamped, addressed postcard to be sent as soon as we had our new address. Sometime that afternoon we arrived at a small station and were told to leave the train. There were probably 15 to 20 of us but only one other Rutlish cap to be seen. I didn't know the boy ,who was about three years older than I was. He also had a small brother in tow. A party of ladies, some in WVS uniforms, greeted us and gradually, one by one, the children disappeared. We and the other pair seemed to be the last to be selected but eventually someone said they would have us and we were taken off .<br/>
+Our foster home was with a teacher and his wife in Glapthorn road, Oundle, Northants. The husband taught German and I think, French, at the Oundle public school. The house seemed quite large and we had a bedroom on the ground floor in a sort of extension which also contained a bathroom. The family had a small daughter about 2 years old who was looked after by a nanny. We and the daughter always ate in the kitchen supervised by the nanny and rarely saw the parents. We never ate with them and never went into their sitting room.It was very different from the loving family surroundings we were used to and I'm sure my 6 year old brother was pretty unhappy. We weren't treated badly by them apart from one occasion when the mother beat my brother with the handle of the bathroom brush because he hadn't cleaned the bath properly.  Thereafter I had to make sure it was cleaned. It was during this period that the habit of writing home once a week was established and it remained with me until my mother died in1972.<br/>
+      My brother went to a local elementary school and I went to Laxton Grammar school which predated the public school but now shared some of the staff and facilities and had the same official headmaster . Having many of the advantages of the public school was a great plus in my parents' eyes and I think that was why they left me there for three years.<br/>
+My Father came to visit us before Christmas (1940) and decided that my brother shouldn't stay. I can't remember whether he took him away there and then but he certainly didn't return after Christmas which we spent at Didlington. By this time my Mother and baby brother were living at Didlington again.<br/>
+Whether it was just before or just after Christmas I can't be certain but the family I was billeted with were expecting another child and decided they couldn't cope with an evacuee as well. I was billeted temporarily with the manager of the local gasworks. This was a very kind and welcoming family and I was sorry the arrangement only lasted about three weeks. The house was lit with gas lamps which was a novelty for me. I remember being taught to play 'Bezique' by the family.<br/>
+My next billet was in the centre of town with the manager of one of the main banks. The house was alongside and over the top of the bank with three stories so it was quite large. Close by was a large wooden ‘thermometer’ which recorded the town’s savings contributions towards paying for new Spitfires which I believe were reputed to cost £55,000 each.<br/>
+This  family treated me very well and despite a significant 'class' difference I was fairly happy with them. I was regarded as part of the family and received Christmas and birthday presents from them.  They had three children, one already in the army, the second(17 in 1941) at the public school 'Blundell's' in Somerset and a daughter (about 13) who was at a boarding school a couple of hours journey from Oundle. I was given the 'boys' bedroom which had bunk beds and shared it with the second boy when he was at home. I got on well with him and looked up to him. I copied his habit of always washing in cold water in the morning and I still do. I can remember his scorn when he found that I wore my vest (woollen in winter) in bed and I immediately stopped ! He went into the RAF to train as a pilot whilst I was there and I can still see him flying over Oundle in a Tiger Moth and waggling the wings at the time he passed the first stage of training.<br/>
+During the week I had my tea in the kitchen on my own or with the daughter if she was at home as the Laughtons had dinner in the evening but on Sundays we all ate together at midday. I only had two real complaints .One was that I had to use a bathroom on the top floor that was always freezing cold and the second was that I never had my butter ration and had to make do with margarine. For some reason it was decreed that the parents needed the butter - the children lost their ration too. <br/>
+The bank manager was in charge of the local Observer Corps unit. These units were made up of civilians operating part-time who were trained in aircraft recognition. They manned posts all over the country and formed part of the air defence system. I was mad keen on aircraft and sometimes I was taken to the observer post. Eventually I passed the Air Spotter exam but was too young to join the corps.<br/>
+ I stayed with this family for two years except for school holidays when I went to my grandparents at Didlington. The journey there was an adventure for an 11/12 year old. Oundle station is some distance from the town and buses were few and far between so it was a struggle to get there with a largish suitcase. From there the train took me to Peterborough where there was another struggle with the suitcase as I had to change stations (about a mile apart) for the train to Brandon which is 9 miles from Didlington. The last bit was a great relief as I was driven in style by the Smiths' chauffeur.  <br/>
+During the Easter and summer holidays I worked on a farm on Didlington estate and received the special farmworker’s food ration which included extra cheese! Most of the work was pretty boring, singling sugar beet plants in the spring and hoeing out the weeds in the summer. However, harvesting the corn was much better. Mostly, it was stooking the sheaves dropped by the 'binder' but when a field was almost cut, there was the great fun of chasing the rabbits which had gathered in the centre. The farmer had a greyhound which caught most of them but I and the farmer's son usually got one or two. My weapon was one of my Grandfather’s walking sticks. Sometimes we were disappointed when men turned up with guns.<br/>
+Sometime in 1941/42 the Army took over part of the Hall and estate as headquarters of Eastern Command and part of the 52nd (Lowland) division was stationed there in Nissen huts in the woods. My grandparents had a Major billeted with them. There was a Naafi hut and local people, including me occasionally, served chocolate and drinks in the evenings.<br/>
+Overall, my time at Laxton school was fairly easy and enjoyable although in retrospect the education I received left much to be desired. For some reason the first form was called the third and I started there but after a couple of weeks I and another evacuee were promoted to the fourth form. This was good for the ego but bad because we were much younger than the rest of the form. The school was small with just four forms( 3rd., 4th., 5B, &amp; 5A) and four or five  6th. formers who took all their lessons in the public school.The school plan was to get pupils to School Certificate  (equivalent of "o" levels) in 8 subjects in 4 years and then for further subjects to be taken along with the chosen 'Higher Certificate' subjects in the public school. This was fine for pupils who stayed at Laxton but caused problems for those like me who changed schools . <br/>
+Two of our teachers we understood to have been invalided out of the army with shell-shock. They were clearly disturbed , had no control of the classes and spent much of the time gazing out the window. I don't think it was coincidence that the two subjects (Physics &amp; Applied Maths) I failed in my School Certificate were taught by one of these masters..<br/>
+We had school six days a week and 'town ' boys had supervised 'prep' in the evenings except on Saturdays. Wednesday and Saturday afternoons were for compulsory games. Although we were associated with the public school we were very much second class citizens. We couldn't use their playing fields or games coaches and played soccer not rugger. We weren't part of the 'house' system and never played with or against them. As a consequence of this and the absence of most able-bodied teachers in the forces we had no coaching unless we were naturally good enough for the school team which the Laxton headmaster struggled manfully to help. The one concession we did have was one hour a week's use of the open air, unheated, swimming pool. Once the water temperature reached 52F we were expected to go swimming.<br/>
+One exciting event for the small boys of Oundle was the arrival of the American Army setting up an air base near the village of Barnwell (I think). They seemed  generous lot and for many years I cherished a baseball thrown to me from a passing truck.<br/>
+   Laxton school ran a small Scout troop which I joined and enjoyed very much. It was run by the English master who was quite young and had been invalided out of the forces but we never knew the reason. Under him a few of us became 'Firewatchers'. Once a month (I think) two of us plus the master spent the night in a room near the top of the highest building in Oundle and had there been an air raid warning we would have stood on the roof to watch out for fires. Of course there never was an air raid but it was fun for us to stay up late, play cards and drink cocoa. At the end of 1942 the bank manager and his wife decided they could no longer keep me (I never heard the reason) and I went back to the teacher and his wife.. There was a live in nanny to look after the two little girls and I resumed my life with them in the kitchen. To be fair I did have a reasonable bedroom to myself.I was well looked after but again saw almost nothing of the parents. I stayed with them until the summer of 1943 and then returned home to Wimbledon after taking the School certificate exams. I had failed Physics and Advanced Maths, the two subjects 'taught' by a shell-shocked teacher, but the remaining six subjects were enough to give me my 'Matriculation' which was essential for eventual entry to University.<br/>
+   I now went back to Rutlish school.I suppose I wasn't really happy with this first year back at Rutlish. I didn't know anyone there, all my class-mates were one to two years older than I and I was a small fish in a much bigger pond than at Laxton. Sport was a problem too because I'd missed the forms where one had general coaching and hadn't the natural talent to get into a school team without. Another problem for me was that my father refused to let me join the school Army Corps in which most of my class mates were active. My father’s expressed reason was that with Scouts and the Church Youth club which I Joined when I was 14, provided plenty to fill my time.<br/>
+The consequence of all this was that I found my friends, recreation and sport largely through old Wimbledon Park contacts who either went to other schools or were two years behind me at Rutlish.<br/>
+   By the end of 1943 the tide of the war was gradually moving our way, at least in the west. There were very few air raids but on one occasion during that winter the Germans made a short but fierce night incendiary bomb raid on London during which a "stick" of bombs fell near us. Most of them fell harmlessly in the cemetery next door but one hit our wooden garage and set it on fire. We, apart from my father, were in our Anderson shelter in the garden and our main concern was for our dog who was in the garage with a litter of puppies. There was no car in it as petrol was only available for ‘essential purposes’ and my father had sold the Austin 7 for £11!  My father was captain of the street 'fire-fighting team' and they held their practices in our garden because it was the largest in the street. This meant they knew where everything was and were able to tackle the blaze quickly and put it out without too much damage. My father had dived in at the beginning and thrown the box of puppies into the garden. I was very frustrated at being kept in the shelter and missing all the excitement. Apart from a hole in the garage roof the main damage was to our bikes. Father's was a write-off as it had a direct hit. My Mother and I lost our celluloid mudguards and saddle-bags and I had a jagged hole in the rim of my rear wheel caused by an anti-personnel bullet which fired out of the fin of that particular type of bomb. That was my trophy of war for several years - it didn't affect the running of the bike.<br/>
+  1944 was, of course, the year of the D-Day landings in Normandy and like many other boys I had a large map of the area on my bedroom wall and moved little flags on it as the battles progressed. However the more immediate event for us was the start of the 'Doodle -Bug' ( V1or Flying- bomb) attacks on London and the south-east of England early in the summer. I can remember the first day absolutely clearly as it was one of the two occasions during the war on which I was really frightened. It must have been a weekend as I was on Wimbledon Common with two friends when the sirens went . We didn't take much notice as there hadn't been a daylight raid for literally years and we thought it must be a false alarm. Then we heard a very odd aircraft engine noise and suddenly all hell was let loose. By this time London had enormous numbers of anti-aircraft gun and rocket batteries all over it, including a naval gun turret on the Common a few hundred yards from where we were. It seemed as though every gun and rocket in London was firing at this 'attacker' but the really frightening thing was the sound of the shrapnel from the spent anti-aircraft shells hissing through the air all round us. We dived into a ditch and lay there with our hands over our heads for what seemed ages. The strange engine noise became louder and then suddenly stopped. We looked up in time to see an odd looking plane dive into the ground a mile or so away with a huge explosion. We heard on the news that night that large numbers of people had been injured by shrapnel - many more than by the bomb. It was soon realised that it was no good trying to shoot the V1s down over London as they'd explode when they crashed anyway, so very rapidly all the moveable guns were taken to the south coast to try to catch them over the sea. The situation in London then seemed eerie when a V1 got through as we just had to listen for the engine to cut out and guess where it would crash and no-one could do anything about it. My second moment of terror was one evening when a friend and I were out on our bikes . We heard a doodle bug and set off towards the nearest public shelter. Just before we got there the engine cut and we were certain it was right overhead. We hurled ourselves through the door of the shelter on to the floor followed by a man with the same conviction. Fortunately for us the V1 fell about half a mile away and we were only shaken. Two V1s fell fairly near our house and both times we had cracked window panes and some roof tiles displaced.<br/>
+Shortly after the second of these came my third evacuation and my brother Michael and I were once again shipped off to our grandparents who were now living at Abergavenny in Monmouthshire where the Smiths had rented a house following the total requisitioning of Didlington by the army in1943. (It had become the headquarters for the 2nd Army in the lead up to D-Day in Normandy). This gave us a three month summer holiday in idyllic surroundings and I was particularly pleased not to be with my class mates who were sitting in the school air raid shelters taking their School Certificate exams.<br/>
+ During the school summer holiday the Science block and junior form rooms at Rutlish were hit by a V1 and completely demolished and most of the windows in the rest of the school were blown out. There was no glass available to replace them and as a consequence we had to wear overcoats and gloves in the classrooms for much of the winter. We also had to share the science labs of the Technical School a few hundred yards away. <br/>
+  By this time the launching area for the V1s had been over run by our troops and the only danger to Londoners now was from the V2 rockets which arrived without warning and caused great devastation but were too few in number to have a serious effect on the population as a whole<br/>
+  The last wartime excitements were the VE day celebrations, especially the fireworks, though my personal memory of that day was dominated by a severe bicycle accident which nearly prevented my participation in any of the revelries. <br/>
+   My lasting impressions of the war are of exciting events. Even as fifteen year old in 1945, the horror of war didn’t strike home and none of our family or friends were bereaved or suffered serious injury.</p>
+<p>.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/69/a2080469.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-579">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-753"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-753" id="name-753">
+                    My War Years 1939-1945 (Part 1 1939-1942) <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-753" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Leicestershire Library Services - Melton Mowbray Library (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3816722.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Pre-War</p>
+<p>I was born in Melton Mowbray, a small market town now famous for pork pies and Stilton cheese, on the 19th August 1917.  The Great War was in its last stages, leaving many families without fathers and sons.  My father was an agricultural engineer and he spent his days going around the farms and great houses in the area mending farm machinery and servicing central heating installations in the large halls.  Mother always stayed at home, she was a wonderful cook and as food was plentiful, we lived well.  My brother was born two years later and a sister when I was ten.  My father was always happy with his life but my mother was ambitious for us to improve our station.</p>
+<p>The chance came in the form of my father’s sister, who had married a local builder and had two sons.  Their business was doing well but in order to be really successful the expanding South was the place to be.  By coincidence, as I was leaving school at the age of fifteen my Aunt was moving to London.   Her condition for moving was that I became her companion and the daughter that she had always wanted.</p>
+<p>In London I attended many social gatherings, tea dances and functions.  To be seen in the right places meant contracts and they were coming in thick and fast.</p>
+<p>We lived in Southfields and on a Saturday afternoon we would go to see the local team play football, Fulham.  My best friend Betty, whom I’d met at a dance, invited me to her house and I was surprised to find that she lived next door to Joe Edelston who was a former Fulham player and was now in charge of the reserve team who seemed to be winning everything.  He was one of the first coaches to gain qualifications and his methods were seen as too revolutionary in many quarters, but much more importantly he had three sons, all good looking and unattached!</p>
+<p>I soon started going out with Joe, the eldest son.  We had little money but when we did we would go to the local cinema to see the latest release.  My favourite was Humphrey Bogart, “a real man”.  At night we would listen to the radio to hear the latest play or short story.  In summer we would go for long walks by the river and during the tennis tournament at Wimbledon we could always get in for free when the doors were opened in the afternoon.  Life was always easy paced and gentle.</p>
+<p>The big crisis pre-war was the abdication of the king.  At the time everyone was confused as to what was really happening.  When Edward finally gave up the throne, everyone was very sad and Mrs Simpson was the most hated woman around.  The new king was seen as being weak and not groomed for the job, but everyone loved his wife.  However, during the Blitz they really came into their own, touring the bombed out areas and talking to everyone they came into contact with.</p>
+<p>I remember going past Croydon airport one day, on the runway were two large planes with black swastikas on them.  The sight sent a shiver down my spine and made many of us fear for the future as we watched the growing emergence of the military power of Germany once again.  It was no surprise to any of us when they marched into Poland, as no-one believed that Chamberlain and his piece of paper could halt the military machine that we had witnessed in action in Spain.  On a brighter note just before the war started uncle bought a television, the first one in our road.  Everyone came around to have a look at the new invention and the reception was really very good.  However, when war started programmes finished, much to the annoyance of the family.</p>
+<p>1939-1940</p>
+<p>The winter of 1939-1940 was long, dark and very cold.  Joe was one of the first to be called up as he worked for Shellmex and was an expert on petroleum.  He was sent at once to France with the British Expeditionary Force and so began a long and anxious time.  Prior to him going we had become engaged as so many of our friends had done.  He wrote to say how cold it was and how ill prepared the troops were, not all of them had the proper equipment and some didn’t even have a gun, but they survived with the help of the local wine and goodwill.</p>
+<p>Back home the criticism of the government had grown to alarming levels and it was a great relief to everyone when Winston Churchill took over as Prime Minister.  At last we had someone to look up to as a leader, a fighter who would never give in.  In June Dunkirk was turned from a disaster into a national triumph as the troops were evacuated.  Joe came home on a barge and was taken to Aldershot.  It was a great relief when I got a call from him to say he was Okay.  I was desperate to see him and got the train to Aldershot as soon as I could.  He looked so well but he had changed, he was much harder and more worldly wise but after witnessing so many tragedies, I couldn’t expect anything else.</p>
+<p>In August the bombs started to fall.  Joe was posted to Swindon and because women were not allowed to stay overnight with their boyfriends, we decided to get married.  I had to make all the arrangements and we were married in Wandsworth shortly afterwards.  Joe’s unit was moved to Yorkshire and the lovely couple whom he was billeted with said I could go back and stay with them to be near him.  Soon afterwards he was moved to just outside London at Hadlow Down and after moving back to the capital I would see him every Sunday.</p>
+<p>At that time the Blitz was on and from dusk until dawn we would spend our time in the underground shelters.  We would do our shopping in the daylight and hope that there was no air raid.  We did our shopping in Clapham and how I admired the stallholders who carried on as normal even though they had been up all night because of the raids.  On the bus you could see the bombed out ruins of houses and flats but somehow we never thought that a bomb would actually hit us.  At night the noise was terrific with the sound of ante aircraft guns and the mighty explosions of bombs landing.  Many times we put out incendiary bombs that had landed in the garden.  </p>
+<p>My luck was in when Joe’s unit was moved again, this time to Hatfield.  He had met a lovely lady in the village who had been evacuated from Cardiff.  She had a lovely house and needed help in looking after eight little girls who had been evacuated from London.  One of the girls was only three and was totally bewildered after leaving the city.  She became my special charge.</p>
+<p>The Blitz was still on and on many nights we heard the planes on their way to bomb London.  The country was a refuge for the girls and we would go for long walks in the woods that surrounded us.  One day as we were walking I found a pheasant’s nest with eight eggs in it.  It was a great temptation to take the eggs as we had no such luxuries but I let the pheasant have her babies and upheld the law of the countryside.</p>
+<p>On the whole we were a happy lot and I was able to see Joe frequently.  He would bring his army friends to see us and they always brought gifts of sweets and eggs, which were considered luxuries and strictly rationed.  It was a sad day for everyone when the unit was moved once again to Dene Park in Horsham, a lovely place with abundant wildlife and a herd of deer.  It didn’t take Joe long to find me a new billet close to him, with a family who had been evacuated from Portsmouth.  They lived in a cottage on top of a hill with no bathroom, no running water and an outside toilet.  If we wanted a wash we had to draw water from the well and heat it on the copper boiler.  To do this we had to light a fire under the copper, which, at times, was much easier said than done.  Washing day was always a Monday, which was easy, compared to keeping the deer off the washing line as they continually tried to eat the wet laundry.</p>
+<p>Joe had a friend who asked if I could find some accommodation for his wife in the village.  The people in the village were only too willing to help and from then on many wives would come down and stay for short breaks.  The only problem the men had in getting here was petrol for their bikes.  I don’t know how they did it or where the petrol came from, but the local pond was soon full of submerged petrol cans.  At the back of everyone’s mind was the fact that the men would soon be going overseas and some of them would not return.  Life at Dene Park was much easier than elsewhere as we had a plentiful supply of eggs, milk and cheese from the farms and game from the abundant wildlife, duck and rabbit.</p>
+<p>The air raids continued and several German planes were brought down close to us.  The dog fights in the sky above us were breathtaking.  The spitfires seemed to be more mobile and faster than their foes but our admiration for the pilots was unlimited, they were the true heroes of the hour. </p>
+<p>The winter soon came and brought with it short frosty days and long cold nights but we were tucked up in our cottage with warm log fires and time to ourselves and time to entertain the children with a game of cards.  At Christmas the cottage was cut off by snow and it seemed that the war could not touch us, but always at the back of our minds was the thought of how much time we had left together.  The family we stayed with had two children with whom we have stayed in touch to this day, exchanging letters and cards throughout the years.  Sadly, their parents died many years ago but we have treasured memories of their kindness and friendship in our time of need.</p>
+<p>1941</p>
+<p>The war was going badly for Britain throughout the year with the Axis powers taking over most of Europe, Africa and the Far East.  At home even Churchill was coming in for criticism.  The Japanese took Hong Kong and Singapore, pushed into Burma and started to threaten India, my worst nightmare was coming true, Joe was going to fight in Burma.</p>
+<p>At the start of the year I had wondered how long it would be before we would be separated and the thought of having a child and a bit of Joe forever had grown and grown.  In the spring I knew that I was with child.  The doctor advised me to move back to Melton Mowbray to be with my parents.  Back at home I kept very well.  My mother, who was still a young woman, was eligible for war work and had a job looking after the local doctor.  This meant that I looked after the rest of the family.  I was kept busy making clothes for the baby out of any piece of cloth I could get hold of.  My father was kept very busy looking after all the farm machinery in the area.  This of course meant many perks; a sack of potatoes, a sack of swedes, eggs, a rabbit, an old hen and if one of the farmers killed a pig, a bit of offal or even a roast.  We had so little meat and many times the only ration was corned beef, so it was corned beef hash with plenty of vegetables.  It is no surprise to anyone who lived through the war that nowadays they can’t abide the taste of corned beef.</p>
+<p>At the end of 1941 there was a brief hint of better things as America came into the war after the bombing of Pearl Harbour and Germany invaded Russia, thus opening up another front.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3816722.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-753">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-696"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-696" id="name-696">
+                    Wartime Diary of a Customs Officer: Ch 1 - Intro, Aug - Oct 1939 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-696" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/26/a3693026.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Arther deliberately did not included official details of his working life in his diary “in case this diary should fall into enemy hands”<br/>
+Italic printing = I’m not absolutely sure I’ve deciphered Dad’s writing correctly.<br/>
+Question marks indicate where I cannot decipher what Dad has written.<br/>
+Super script notes  = my notes where I feel a comment necessary. <br/>
+PO = Preventive Officer<br/>
+APO = Assistant PO<br/>
+When the war started, Dad was married to Kay with 2 daughters, Betty , born 21st November 1931 and Beryl, born 8th March 1939.<br/>
+He had his mother and step father ( his ‘real’ dad was killed in 1st world war).<br/>
+He was the oldest son with five brothers, one Roy, a half brother many years his junior. The others were: Sidney, Fred, George &amp; Jack, not necessarily in that order!<br/>
+His wife, Kay was from Blackpool. She had a mother and father and three sisters. Vera, an actress and a Tiller Girl, Aurea, married to a professional footballer and Myrtle.<br/>
+Kay herself had been on the stage until marriage.<br/>
+They had further children, a boy in 1941 and twins — boy and girl — in 1943. Sadly, the baby boy of the twins, died on Christmas Eve 1943 at 8 months.<br/>
+Kay and the family were evacuated to Blackpool for three periods during hostilities. They lived in Dagenham, in a rented house, when the war started, but on evacuation of his family to Blackpool, he soon gave up the house and moved back with his parents in Raynes Park. Then, as the family moved to and from Blackpool, so followed two other addresses in Raynes Park. </p>
+<p>		AUGUST 1939<br/>
+24	THU	Up to the present, I have excluded “war” as a diary topic: now however, the situation is serious and news bulletins are being given continuously. The radio was giving them up to midnight, and though in bed, I could hear them through walls from next door.</p>
+<p>25	FRI	Being on holiday, decided to ignore war scare news. Merely looked at daily papers and did not listen in. Spent a pleasant “lazy” day, giving Kay a hand, mending Betty’s bike (front fork nuts). Spl listening interval to R. Normadic, 2.45 — 3.45 serials.</p>
+<p>26	SAT	Quite a fine day but with the prevailing threatened storm. At first, decided to walk into Barking, but on this account, shopped locally (Valance). Begin to see through Kay’s eye’s now, the dirt and squalor of this district. Really owe it to her to get away.</p>
+<p>27	SUN	War — scare even more serious than expected. Tremendous rush to buy things stated as “necessaries” for children rehearsing (it is hoped) evacuation tomorrow. Betty should go (if at all) with Kay and Beryl, Tuesday. A day of worry for thousands.</p>
+<p>28	MON	The little kids went off today with their rucksacks and haversacks and their gas mask boxes bobbing about as toddled along. But they didn’t go away. Waited about all day, and played, but no news. So they’re home again.</p>
+<p>29	TUE	Have we been busy at work! The returns of shipping required! So often does the telephone ring that the 4/11 and 8/11 APO’s have to stay in the office. Clerical needs tend to keep me at the office late. Don’t study, have to ease off at home!</p>
+<p>30	WED	Another busy day with orders and counter-orders from those “on high”. Keeping up with it though. Relaxing by gardening! Of all disliked occupations. A little a day’s not so bad. But oh! How much this is to do in my 120 feet back!</p>
+<p>31	THU	After watching political events closely and talking the matter over with Kay, decided to send her home to her mother again (although they only returned 18th). Spent evening packing up and finally saw them up to Euston. Thousands evacuating London.</p>
+<p>		SEPTEMBER 1939</p>
+<p>1	FRI	On this day, the government thought it a wise policy to evacuate all school children from London, Blind persons and cripples, and expectant mothers, and Mothers with children under school age to follow. Pleased my lot had got away.</p>
+<p>2	SAT	No half day today, even though I was to appear for duty again at 10.30 (11 officially). Kept myself busy though with Abstract. First experience in travelling in complete black — out. No train or bus lights hardly. Dangerous travelling.</p>
+<p>3	SUN	As all the world will know in the future, war was declared on Germany at 11 am. I had not long been in bed when the air raid sirens went — an unholy noise — so jumped up, conveyed all into kitchen and lay on floor out of way of broken glass. </p>
+<p>4	MON	Another false alarm at 3.40 this morning. Mr Bell and I did as above- we on floor of office. There was rent to pay in, shopping to do, laundry to sort and bundle and a bath to have (besides cooking).</p>
+<p>5	TUE	Things are getting a bit worrying. Relieve at 10.30, - ½ hour earlier; left at 8.45 = ¾ hour late. Additional business of shopping and cooking meals has led to little time for house cleaning, washing up (what an accumulation) and lawn mowing. How (and all last week) the Crown steal my time.</p>
+<p>6	WED	Grumbled at late relief yesterday, today left 10.15 am 2¼ hours late. This was due to an air raid warning 7 am — 9 am. Raiders only reached outskirts, radio reception evasive. Everyone doing defence arrangements.</p>
+<p>7	THU	A neighbour whose garden meets mine at right angles at the bottom has loaned his ARP shelter to Mr Higgs, in his own and families absence. Mr Higgs has invited me to “dig” in too, in the case of an air raid. Very pleased to agree! Second letter from Kay — worried.</p>
+<p>8	FRI	No news up to time I left home of whether O.K. to go to Mum’s for weekend. Want confirmation as she may have left London herself to a late neighbour’s at Eastbourne. Postal arrangements are upset just now. Busy day but achieved nothing extraordinary.</p>
+<p>9	SAT	Card from Mum on mat when I reached home, so cooked breakfast, shaved and left for Raynes Park. Arrived 12.30. great welcome. Lou and children living with Mum, Dad and Albert came in dinner-time. Also George after seeing Elsie and children off to Berks. George is now in British Red Cross. While Mum and Lou went shopping remainder of us took our ease. Jack and I practiced with good effect together on clarinet and piano. After tea, played radiogram.</p>
+<p>10	SUN	A very happy day after days of depression and loneliness. George came back again after being on Red Cross night duty, and F and M came in car with Pam and new baby Keith. We four boys went for walk (not forgetting our gas masks) over Wimbledon Common. With this war getting so serious, shall we all be together in the future? </p>
+<p>11	MON	Debated the question of Kay’s temporary return next ??? with Mum and our plans for the future. Finally sent a letter asking Kay to come home and arrange our future existence. Left Mum and Lou and children (now temporary living together) amid fond farewells 2 pm.</p>
+<p>12	TUE	Rather spoiled my day by getting up late. By the time I had seen to my toilet, and cleared up, shopped, cooked dinner, cut sandwiches, there was only time to get off an important letter. Cheap day tickets withdrawn! My fares now 1/2d a day!</p>
+<p>16	SAT	Had my first wash up for a week. Took me one hour. Not that there was a lot to do, but scouring pots and pans took half an hour. Mowed one back lawn, too. Neighbours previously self evacuated, returning. One next door neighbour back, “home-sick” I think. Much clearing up before Kay comes home.</p>
+<p>19	TUE	Well the telegram did not say “noon”, it said “morn”, and I was barely up when a ring on the bell came and Kay came flying in having travelled overnight. We had a joyous reunion and much to say, but I had to leave at 1 pm for 2/10 duty. Freed at 8 though, by CPO.</p>
+<p>20	WED	6/2 watch. No vessels to board but visited Woolwich for GO’s etc. Left 11 am for half day. Kay and I talked (and argued) over future plans, visited Pickfords, Ilford, Barking Corp. re billets allowance, Betty’s education and baby’s gas mask, and finally reached home with a 36” trunk to send home any items she chose to take, as we have decided to close house and store furniture.</p>
+<p>21	THU	Kay was up with me at 5.30 am. and spent all day packing up things for store. At 2 pm, I made a round of removers for better storage terms than Pickfords (7/6 per week). Also, had a good turnout and found lots of junk. Took another suitcase to station for Blackpool.</p>
+<p>22	FRI	Said bye bye to Kay and left her waving to me out of the front window. 6/2 but spent a considerable time writing a memo to WS re working in district 2. Came home and wrote many letters, and did a little towards clearing out.</p>
+<p>24	SUN	To Mum’s to ask her if she’ll have me for a lodger. Glad she will and arranged terms. Had a fine carefree day, we four boys — Jack, Fred, George and I. Played “Monopoly” a very enthralling game. George and Fred were visiting like myself.</p>
+<p>25	MON	Up at 5.30 am and timed my travelling for future reference — 1½ hours door to door (North Woolwich). Very busy day. I did not leave till 4.30 pm again. (Very late last night, watch work). Left very little time before dark to work on clearance of rooms not blacked out.</p>
+<p>26	TUE	Went along to Ilford Lane, Pickfords to sign agreement for furniture storage, at £3/10s for removal and 7s/6d per week. Can’t be done till next Tuesday however. Hoped to get away Friday. No other removers available. Notice already given.</p>
+<p>28	THU	It seems that pressure of work will now depend on the arrival and sailings of convoys. Ships began coming up river at 2 pm. a convoy having safely arrived. Missed the rush fortunately. Still sorting out papers, evening.</p>
+<p>29	FRI	Continued sorting out and put all my books of instruction into a suitcase, for conveyance to Mum’s Sunday. Disposal of some old uniforms etc into willing hands. Wrote a couple of letters, one enclosing £7/9s/10p premium, and made out my registration form.</p>
+<p>30	SAT	Up to stores branch and to uniform contractors re bad fitting jacket. To be rectified. Dinner in the coffee shop opposite Woolwich police station, which I have patronised this last fortnight, as they sell excellent meals at a reasonable price. After resting for night watch, bathing, housework, letter to Kay and packing of carton holding electric fire by conveyance to East Ham Cloak Room tonight and thence to Mum’s tomorrow.</p>
+<p>		OCTOBER 1939</p>
+<p>1	 SUN	The dear old launch broke down, so we had an uneventful first night watch. To mum’s for the day, taking gear previously mentioned. George in his Red Cross uniform was there, now reunited with Elsie and the children. Had to leave at 8.30 for 10.30 duty.</p>
+<p>2	MON	Running around the river in a tiny launch, borrowed from the “Harpy”. At home, substantially cleared out the largest bed and living room ready for removal. Received a visit from the national registration man, who gave me my identity card.</p>
+<p>3	TUE	Sugar ship from Cuba at Woolwich buoys kept us active during the night watch. Keeping up the schedule, today cleared front-room. Thus, almost half the house is now ready for Saturday. Disposed of about 1 cwt (I think) of reading matter.</p>
+<p>12	THU	Up 6 am. At Raynes Park station at 7.15 and there bought season ticket one month to London Bridge as I shall be stationed there or near it for the next month at least. Fare = £1/5/3d = 10d a day. In rummage crew for a few days. Companions good fellows. </p>
+<p>13	FRI	A river trip in the morning, and a rummage of a Yugoslavian in afternoon. Heard from crew of their hatred of Germans. Conditions on board their ship dirty and untidy. Evening doing some work in my room and to bed early. Jack Harris, Mum, Dad and Jack playing “pontoon”.</p>
+<p>14	SAT	Half day. Heard from Kay that she will be coming home on Tuesday. In consequence, down to Raynes Park station to make some enquiries re tickets and to Post Office for a withdrawal! Mum, Jack and I went to the Elite cinema, Wimbledon in evening and saw Lewis Stone and Mickey Rooney in “The Hardy’s Ride High” — a family story. It was so good that I deplore missing three others of the series previously. We were in good company and the seats were only 6d!</p>
+<p>16	MON	Proof of ARP in the pool. Two hospital ships, (late pleasure steamers), a fire float on which ?? constant jet playing and practice, many yachts and speed-craft. A (late) Polish vessel at the buoys still proudly flying her national flag.</p>
+<p>20	FRI	Half day spent with Kay and the baby. Beryl still queer but brightened up when we took her shopping. Mum had left on a visit to Roy (long evacuated to Barnstaple), so Kay took over culinary arrangements.</p>
+<p>23	MON	A night “on the march” with Mr Spencer PO but well enough at 11 the next morning to see Kay and Beryl to station. Beryl still teething. Parted at Euston without tears knowing she will be back next month. We “motherless” men managed well by ourselves in evening.</p>
+<p>24	TUE	Back to normal now Kay and the baby have gone. Hope to recommence studying Custom Regs. Exams postponed to March because of war, giving me extra opportunity. Mum returned home from Barnstaple at 8 pm, having had excellent time visiting Roy.</p>
+<p>26	THU	Full night and morning patrolling up and down our 5 mile (I think) station. Could not sleep very well at home. The intense cold of the night being carried into the day time. Up at 2.30, to hairdressers and post office. Wrote Kay. Did a very little study.</p>
+<p>28	SAT	The absence of shipping arriving or sailing somewhat alleviated our patrolling, half of which was quite unnecessary that we did so. Thankful when it came to 8 that the work was over. Home to bed till 1 pm. Pleasant afternoon, (quiet) and afterwards, Mum, Jack and I to Wimbledon, to visit cinema. I went off separately, but was unable to get into any cinema owing to popularity of the film, so came home and listened to “Band Wagon”</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/26/a3693026.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-696">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-670"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-670" id="name-670">
+                    Wartime Diary of a Customs Officer: Ch 3 - Jan - Apr 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-670" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/67/a3735867.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>JANUARY 1940</p>
+<p>1	Mon	Fog prevails, all shipping at standstill. Rummage that old standby, the Batavier. Finished Robt Hitchens “Bella Donna” — a powerful story. Cleaning up the bedroom prep to embark on standing course of study. Wrote Kay &amp; others.</p>
+<p>2	Tue	Still v. cold. Snow which has not cleared away has frozen to ground. Was careful to wear jacket &amp; overalls when rummaging as protection against cold. Put in a good evenings work clearing up almost all letters written, and other jobs.</p>
+<p>3	Wed	This morning, hand wash — bowl trap frozen, but luckily, other water services working. Getting used to cold now. Recommencement of study classes. Mr Burgess C.P.O. took us in “smuggling” from 5 — 8.15 pm. Wish I had his knowledge. </p>
+<p>4	Thu	I did not mention that Monday was change of station for P.O.’s, and that the new men are now installed. Having been absent from the upper end of the river for a number of years, I met many old friends. Thaw set in making study conditions better. (Warmer)</p>
+<p>5	Fri	The thing of paramount importance in my life now is study for impending P.O.’s exam. (March). Even between periods of rummaging I manage to do some study, and to do fairly well at home when the wireless wasn’t blaring downstairs.</p>
+<p>6	Sat	Half day. Went to Saddlers Wells theatre and saw “Marriage of Figaro”. I greatly enjoyed it. By appointment, went to Kings Cross Road police station and collected a wallet containing £3.2s.9d and a book of stamps, which I found and handed to the police a month ago. (Dec 2) I am still liable should a claimant appear. Heard that Mum had purchased a 6 guinea hearing aid, so gave her a guinea towards from my find. Elsie came (alone). </p>
+<p>7	Sun	Last day relieving in “Harpy” rummage crew. Tomorrow i.e. tonight, I start my minute as a “Harpy” boarding officer. Great activity amongst those changing stations, parcels packed etc. and although it was foggy, gear was delivered at Surrey Dock &amp; Shadwell.</p>
+<p>8	Mon	Terribly dark at night time, bulk of work done in morning. 6.45 onwards.My companion is Stan. Moe?r (?), a likable fellow, we shall get on well together. Went shopping, visited library, and studied. Sent Kay half my “findings” (see 6/1)</p>
+<p>11	Thu	Intensely cold and frosty. The runways and decks of launches were treacherous. Of the 4 stained glass windows in side of house, 3 had caved in seriously; probably also due to differences in temperature in &amp; outside of house. Afternoon &amp; evening spent similar to last 3 days. Sent off  8th preliminary paper to tutor. </p>
+<p>17	Wed	Still very cold, many people roundabout frozen up. Dad worked for 1½ hours on bathroom waste pipe outside house, finally cleared it. Studied in my room although electric fire insufficient to properly heat it. River duty 4/11. </p>
+<p>18	Thu	Spent some time writing to Kay, having received a letter from her today. This curtailed my study time but I was able to put in an hour before leaving for 4/11 watch. Now fully frozen out save main tap. 4/11 watch: normal for home 11pm to find pipe burst in loft. Dad &amp; Jack busy.   </p>
+<p>20	Sat	Reverted again to bitter cold. Patrolling the river and keeping a lookout was a painful business, it seemed as though my cheeks froze. To add to the dangers, a newly arrived vessel had a cargo of Esparto Grass over which we had to clamber. It was all disarranged with thin slippery planks over the gaps. This work has been most busy on the 4/11 watch. Glad to have it and the weeks work behind me.</p>
+<p>21	Sun	After the thaw on Friday, we are all frozen up again. Some people locally have even their main taps frozen and obtain their water from special tap off street mains. Snow fell later, taking the sting out of the air. 4/11 watch not quite so busy.</p>
+<p>28	Sun	Snow 1 foot deep this morning. Up 6am but waited ¾ hour for train on Raynes Park station, ¼ hour on Waterloo Junction. Difficulty in getting them out of sheds due to snow. Sleet fell all evening and on my way to night watch at 9 pm, Southern Railways withdrew service.</p>
+<p>		FEBRUARY 1940<br/>
+1	Thu	Before arriving home, call for my suit at Burtons, fitting seems OK, but finish to suit seems ‘cheap’. Thence to library to return book and to look out details of Saturday’s travelling. Slept part of day, wrote usual end of the month letters. Received Christmas gift @ uncle Harry something.  </p>
+<p>3	Sat	Caught the 10.40 am from Euston to Preston — and what a journey. Snow lined the permanent way, sometimes 8 inches thick, often engulfed the signalling wires, and putting system out of action. Proceeded very slowly and arrived at Preston 5 pm. Nearly 6 before left, and arrived in North Station at 6.40 pm. No buses to Layton, so eventually walked, arrived Drummond 7 pm. Kay waiting at Central Station, so had to walk there to find her. Returned by taxi. Kay, Betty and Beryl all fine and overjoyed to see me.</p>
+<p>6	Tue	Thawing rapidly here although thawing began in London before I left. Am getting pretty good rest, but principally from getting up very late. Kay, Beryl and I went down to town shopping. Woolworths, etc but it was very slushy underfoot. RAF boys were assisting to clear snow piles.</p>
+<p>11	Sun	My last day in Blackpool. Spent it in close company with Kay and the children, only going out to get medicines (including whisky!) recommended by Dr on his visit. Beryl much better, but not properly well yet. Ken came over. We had a “reading circle” around fire. (Dead quiet for 2 hours)</p>
+<p>12	Mon	Left Blackpool with a memory of Kay’s tears, Betty’s smile and little Beryl’s pale sleepy face. 10.10 am from Central, change Preston. An excellent journey by comparison with the outward one. Home by 5.30 almost. Warmly welcomed, Jack still convalescent from measles.</p>
+<p>14	Wed	Exchanged half days with obliging colleague and saw “The Importance of being Ernest” at the Globe Theatre, Piccadilly. Cast including John Gielgud, Edith Evans, Gwen Ffrancgon Davis &amp; Peggy Ashcroft. Good production, acting good.</p>
+<p>18	Sun	The cold snap now has almost lasted a month, snow is common place, Friday’s melted away to mud in the afternoon. 8/4 River, cold hands and feet in launch nothing arrived up. Yet another blind up against “black-out” = bathroom.</p>
+<p>24	Sat	A beautiful sunny day on the river such as I had hoped for on my holiday at the beginning of the month and provided for accordingly. (suit). Our launch broke down and caused us a little inconvenience, but I was away in time to get a seat for the matinee at Saddlers Wells “Don Giovanni”, which I much enjoyed. My only grouse was an obstructed view, but this is one of the known drawbacks to Saddlers. Left home 9 again for 11/8 duties.</p>
+<p>26	Mon	Give due thought and prayer to my precarious chances in this exam. Felt I had not been fair to Kay for all her past sacrifices and to my children, whose care and education God has entrusted me. At 8 pm began an 11th hour endeavour.</p>
+<p>29	Thu	Lemon and antiseptic gargle eased throat took more food. Became aware of my disgraceful unshaven condition and after sleeping best part of day, got up for toilet and decided to remain up and to go to work as usual tomorrow.</p>
+<p>		MARCH 1940<br/>
+3	Sun	Off duty. A beautiful sunny day but rather chilly. Had slept with Jack in his single bed giving him a terrible time with my constant coughing. He did not complain. Long walk over Wimbledon common to windmill, Very enjoyable. Looked up “health” in evening.</p>
+<p>5	Tue	The great day. Found my way to Burlington Gardens alright, and there met many old colleagues now in other ports. Did better at the first paper than at the second where I did not know all the duties. Estimate 50% marks. To film “Stars Look Down” in evening.</p>
+<p>8	Fri	Beryl’s birthday. Just one bless her. Letter from Kay says frock is lovely, also my sleeping bag (see Wed 6). Had my oral exam at 4.30 pm: as with written exam, didn’t feel so happy about it. The agony is waiting for the result (June). With Mum to “Beggar’s opera” at Haymarket. FG.</p>
+<p>16	Sat	Worked through the half day, and went to the opera — “Faust” at Saddlers Wells. Had a good view, (that is the important thing at SW. in the pit seats, hearing’s quite OK) and enjoyed the show. Received an agreeable surprise when I arrived home — 4 letters from people with houses for disposal: too late to investigate when I had had my tea. Letter from Kay too. I had begun to worry. </p>
+<p>18	Mon	Pouring with rain, house hunting a miserable job. Cleared up a little towards 11 am: did some telephoning, made enquiries at two agencies, visited houses in Somerset Avenue, and in Lambton Road. Later to one in Tennyson Avenue which seems to be the thing.</p>
+<p>19	Tue	Being unable to see the landlord of the Tennyson Avenue property because I am on evening duty, I arranged an interview with his wife at their Wimbledon home. Competition for the house has been keen she said, but I could have it on a one years agreement (Doing interior repairs) for 23/- a week.</p>
+<p>20	Wed	Rainy come sunny. When sunny it was brilliant and a long white yacht passed “Harpy” going down. Received written confirmation of tenancy of Tennyson Avenue. Rent now 24/-. Wrote Pickfords re removal, and advised Kay.</p>
+<p>22	Good   Fri	Spent the morning in my room sorting out matters consequent on our setting up a new home. I estimate an expenditure of about £10 at least. Went with Mum and Roy to tea with Sid and Doll, met cousin Cicely and her new husband Jack.</p>
+<p>23	East.Sat	Met my landlord Mr Hopkins for the first time at his Wimbledon home and there signed the agreement respecting the occupation of our new home. Also did some Easter shopping whilst in Wimbledon. George, Elsie and children were spending day at Mum’s and George and I returned to Wimbledon later to see a cinema show at the Elite. Received a letter from Kay. Seems rather apprehensive about the house in view of its low rental.</p>
+<p>25	EastMon	A complete exodus by 3 pm: Dad and I to work, Mum again to Lou’s, where Roy has been staying overnight, and Jack out cycling with friends. (Only 2/3 of usual traffic this Easter owing to petrol rationing). Fred called over from Sid’s where he is staying. 4/11 watch uneventful.</p>
+<p>26	Tue	Out again on the 8/4. Only two ships on the south side but more expected. Learned by telephone of Pickfords inability to remove me Friday and wrote to Kay telling her of altered date = Tuesday Apr 2nd. Mum, Roy &amp; Laurie playing monopoly.</p>
+<p>27	Wed	Final arrangements with removers and with Crown for moving in Tuesday Apr. 2nd. (Crown for necessary leave). Went down with Dad to look over interior decorations being done. Dad seemed impressed with the place — clean.</p>
+<p>29	Fri	Arranged for a half day’s holiday to show Kay house. Blithely set forth at 3 pm., Mum looking after Beryl for us. Kay not satisfied, determined to break agreement (see 23rd) and seek somewhere else. Saw a nice house nearby 29/-. Visited Hopkins &amp; withdrew from agreement.</p>
+<p>30	Sat	Beautiful sunny day with rather a cold wind. Beryl was out in the front all morning watching passers by from her pram. Fine weather persisted and allowed Kay and I with Beryl in pram to view houses (exteriors) around Grand Drive. All of the 35/- &amp; 32/6 variety. Phoned an agent regarding one in Greenway. Feel certain we shall find a house near enough 30/- a week somewhere in the locality. Off to work at 9 pm for the night watch.</p>
+<p>31	Sun	Our second day house hunting and it looks as though we have found something. After the night watch, I slept all morning, Kay and I with baby in pram viewed houses to north of Raynes Park station. An agent directed us to Elm Walk, later and we found a house which delighted Kay.</p>
+<p>		APRIL 1940<br/>
+2	Tue	Another busy day. Don’t know whether I’m sorry because of the tiring effect, or whether I’m glad because shipping is improving. Visited Hopkins (see Friday 29th) re a demand for two weeks rental in lieu of occupation of his house. Paid one week only.</p>
+<p>4	Thu	Typical April day of showers and sunshine and occasionally a strong wind. Fortunately was out on the launch during the latter weather. Mum offered to look after Beryl again and off Kay and I went to Raynes Park cinema. Splendid show, Dianna Durbin in “First Love”.</p>
+<p>6	Sat	Half day, and went to Saddlers Wells to see “Barber of Seville”. Had invited Kay to accompany me but she was not interested in opera. Show moderately good having seen better. All spent the evening in save Dad who went as usual to whist drive. After two late nights, Kay showed a preference for an early night in, for which I was profoundly thankful.</p>
+<p>7	Sun	Was given key of Elm Walk house by agent and went up with Kay to see it empty. Was a little less under Kay’s influence this Sunday and disputed on the score of excessive distance to the station. My side of the question wasn’t considered important. </p>
+<p>9	Tue	Today, Kay and I to Morden to local fuel office. Since deciding to take up a house have found out the effect of the war on the individual.- forms for food, forms for fuel etc. Explored the Morden shops with an eye on convenience for future shopping. Ordered coal. (3/6 a cwt).</p>
+<p>11	Thu	Kay and Mum went to Tooting Co-op in the morning for some blackout curtaining whilst I looked after the children. Betty, (under persuasion) was a great help in the house. Came home at 11 pm to find curtains ready made.</p>
+<p>12	Fri	Moving in day. Preparations in morning (window cleaning, paper laying) and van arrived noon. All furniture in by 3 pm. Only one breakage, Betty’s doll. (Which rather upset her). Spent remainder of day setting to rights.</p>
+<p>13	Sat	Great commotion, children bathing, feeding etc. but by 11.15, all dispersed, save Beryl whom Mum looked after until Kay, Betty and I had returned from shopping. Set off from Mum’s to take permanent possession of our house just like a colonising expedition, pram loaded up and each carrying packages. Once arrived, fixed up radio, de — vaselined Betty’s bicycle whilst Kay prepared meals. Mum came as I left. Work via Morden.</p>
+<p>17	Wed	Timed myself “Harpy” to home; bus, tube, bus and walk with good connections = just one hour. Fare 8/4 watch = 1d + 7d + 1d = 9d. Seems reasonable. Kay and  I did a bit more ??? to ????. Would wish for similar opportunities this evening.  </p>
+<p>18	Thu	Simple journey to Kingston to Dolland and Aicheson opticians, after work. Eyesight test and required glasses. Prescription to be £2/2s/6d, test 13s National Health and 4s HSA. Kay also requiring glasses. Called in on Mum, better. Turned to, and fixed front bedroom small.</p>
+<p>30	Tue	Shipping very slack in the pool; must be diverted elsewhere. Our work was confined to one ship. Increased rate of postage — 2½d for letters, 2d cards — takes place tomorrow, so did some letters writing. Called at Mum’s for sewing machine.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/67/a3735867.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-670">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-663"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-663" id="name-663">
+                    Wartime Diary of a Customs Officer: Ch 4 - May - Jul 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-663" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/94/a3741194.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>MAY 1940</p>
+<p>1	Wed	Beryl influenced Kay and I in the same manner as Monday — her charming little smile and ways brought us to play with her from after dinner till 8 pm. She and Betty had had first anti-diphtheria vaccination ??. May budget causes anxiety.</p>
+<p>6	Mon	Shipping on the river has altered from being abnormally slack to very busy. Was kept very active all day, clambering over barges, climbing rope ladders up ships sides, and walking up and down companions. Kay and Betty went to cinema, but I — to bed.</p>
+<p>9	Thu	The baby gave us such a disturbed night that Kay she was worn out when I got home. Went with her to the few shops in Martin Way, and after listened to Edith Coates on radio and then had an early night in bed.</p>
+<p>10	Fri	News of Holland Dutch invasion. Much talk and conjecture on the “Harpy”. Proclamation of military service up to age of 36. All warned to carry gas masks. Aggressive attitude correspondingly adopted by one of my colleagues to one, who will yet live to regret.</p>
+<p>11	Sat	Beautiful sunny day. In view of yesterdays political developments, there was very little traffic on the river, but enough to fill in the morning. Half day. First put Kay’s vacuum in working order and at 4 went with her to Wimbledon, (with pram), whole journey taking about ¾ hour. Kay not impressed with supposed cheaper cost of food in “market”, so visit was not entirely fruitful. Kay returned home by bus and reached the house only ten minutes before Beryl and I walking.</p>
+<p>12	Sun	Local AFS practicing on Cannon Hill Common and all barrage balloons up: it is thought a raid possible. Spent quite a good morning (after usual bad start — late). Among other things, wrote Brown again re defects to house.</p>
+<p>13	Whit Mon	This is not a bank holiday, cancelled because of political situation. Customs and a few others seemed the only people at work though, and the city was boarded up as on a Sunday. Net loss of income 26/-, serious blow to finances.</p>
+<p>16	Thu	Today threatened to become something like Tuesday, Kay was cross and worried about money matters, so withdrew still more from my meagre bank account leaving it at £4 with an annual insurance premium of £7/10/0d and an overcoat to pay for in September. Went out with Betty to ballet at Wimbledon.</p>
+<p>20	Mon	Additionally yesterday, rescued an old lawnmower from beneath coal and put it in working order. Finished second half of lawn today and applied mower. Works well but needs regrinding. Glad to have finished what a leg (!) aching job.</p>
+<p>24	Fri	After putting finishing touches to yesterdays  clock-job, and sharpening up small tools on oilstone I dressed intending to collect O/T at “Harpy” and thence to “Old Vic”. Owing to one office mans absence, my O/T not drawn, so returned, visited Mum and spent evening at home.</p>
+<p>25	Sat	A “privilege ticket“ entitling two persons to admission to Lupino Lanes’s show “Me and My Girl” for the price of one, which had been given me by a colleague, was very useful today, when Kay and a neighbour went to second “house”. I relieved her of seeing to the children and doing various household jobs and had supper ready on her return (11.30). She thoroughly enjoyed the show. I would have taken her myself but find I prefer opera or ballet shows.</p>
+<p>27	Mon	End of summer leave; back on duty (Wharves) at 4 pm. In the morning, Kay was rather queer, so gave her a hand with the housework. Filled in all our identity cards and made labels for tying to the children for identification purposes. War situation now “very grave”.</p>
+<p>28	Tue	Kay somewhat better today, but helped her as much as possible. Made some preparations in case of an air raid — all respirators near front door and important papers collected in readiness to leave house. It is said even more serious news has been received.</p>
+<p>		JUNE 1940</p>
+<p>1	Sat	Betty very proud of her knitting ability. This morning proudly showed us her doll complete with knitted “pixie” hat, scarf, muff and imitation gas mask. She is growing up fine, well proportioned child with a happy nature. Doesn’t like soap and water though! My principal worry is concerned with the nations fighting reserves, is how aerial attack will affect our kiddies, at present so happy and innocent.</p>
+<p>2	Sun	Beautiful sunny day and I was able to get out into the garden before leaving home for 4/11 duty at 2.45 pm. On duty, wrote about an air raid shelter, we are warned bombings are real. Quick turn round. (Up at 6 tomorrow). Vera spending night now in London.</p>
+<p>4	Tue	The summer weather holds. Every body in summer frocks or light suits. The war is the bar to complete contentment for Kay and I. Met her with her friend (our neighbour), at shops. Children bonny. Neighbour’s husband does us many deeds of kindness. </p>
+<p>5	Wed	Neighbour erecting his air raid shelter. Offers protection to Kay and I also, should events prove necessary. So give him a hand with filling of sand-bags (with earth). Our wives joined us and made it a gay party.</p>
+<p>6	Thu	Today my neighbour and I got rid of our respective wives to the cinema in the evening and were thus able to do much more to the air raid shelter. I filled very nearly a dozen sand bags with earth. We husbands go out tomorrow.</p>
+<p>7	Fri	Half day today, been stiflingly hot, so spent an afternoon of complete relaxation. Mr Hersey took me down to the Odeon in his car and we saw a film “Of Mice and Men”. Not particularly struck. Prompt journey home again, by 10.30.</p>
+<p>8	Sat	Pretty full day for a change as we took over the river station additionally in afternoon. Very hot, Kay boiling when I reached home, looking after baby, sending Betty off for a picnic and preparing dinner for me. Relieved her of baby and of seeing to myself, and packed her off in Mr Hersey’s car to Tooting. Later again helped Mr Hersey with sand bag filling.</p>
+<p>11	Tue	Hurried home after work as Kay and Betty were to go to see “Gulliver’s Travels” (Technicolor), whilst I saw to Beryl. Filled in application for air raid shelter, wrote Mabel (birthday) and Roy (at camp) and attempted to stain part of back room floor. Kay not so pleased however.</p>
+<p>13	Thu	As Kay was especially presentable when I came home this evening and had had the house cleaned for yesterday’s visitors, I suggested she should go out to the cinema with Mrs Hersey. Mr Hersey took and fetched them in car. Meanwhile we carried on with ARP.</p>
+<p>14	Fri	Work in the open air proved tiring today. And as my neighbour was away from home and would therefore not require me for sandbag filling, Kay and I had an early night in bed. First we had a good romp with baby who really enjoys it.</p>
+<p>15	Sat	Received an impression today on reaching home from work which I shan’t forget for a while. My front garden was trimmed and neat, and Kay had edged the pathway with white paint to good effect. From out of the opened lattice windows came the happy laughter of Beryl and Betty playing, and of Kay singing. This most certainly is a happy time in all our lives — but for the war.</p>
+<p>16	Sun	Registered unpaid volunteers for munition work and forwarded my name today. Workshop training at K &amp; S may be of use to me after all. Kay, with much unkindness said I volunteered to get out of the army, forgetting that I am already exempt from service.</p>
+<p>17	Mon	Grave news on the radio to the effect that we are the only country left at war with Germany and that the fighting would be henceforward in England. Considered the advisability of evacuating Kay and the Kiddies. At work they had much to say.</p>
+<p>18	Tue	An Anderson air raid shelter has been delivered, and it remains my job to erect it. Had however, got news of it from Kay, and when I got home from work, I found a good start had already been made. He really is a good old stick.</p>
+<p>19	Wed	Myself started to excavate site of shelter and removed about a spade’s depth of earth. When I got home however, the shelter was sunk 2’ 9” and erected. Dad and Albert had been operating. Was most thankful.</p>
+<p>20	Thu	Made a slight adjustment to the shelter and started to fill in sides with earth. Didn’t get far however, before I had to go. Mornings taken up with misfortunes (baby fidgety, bath taps not functioning, gas metre jambed etc.) and subsequent rectification.</p>
+<p>21	Fri	Meter now righted, cause of not functioning not ascertained. Betty came home from school excited and said children at her school could be evacuated to Canada, parents permitting; she wants to go. Kay going to talk to Mum about it. More progress with air raid shelter.</p>
+<p>22	Sat	Kay did not go down to discuss sending Betty to Canada with Mum, as we heard from Roy, who came up on a visit, that in any case, he wouldn’t be allowed to go, and that rather dashed Kay’s hopes of pairing Betty and Roy up in the venture. Gas company’s rep. Re resiting the meter in a more reasonable position of access and said the change would be £1 or so! That finished that. Earthed up back of shelter today.</p>
+<p>23	Sun	Work on the air paid shelter had to be postponed till evening as it was raining all morning and part afternoon. Kay rather poorly, found her in a lie-down after dinner, but Beryl made it a romp, she didn’t want to sleep! Succeeded in covering one side of shelter, Kay helping.</p>
+<p>24	Mon	Dull and rather cold. Didn’t like getting up at 6 in the morning, after a week of 10’s. Put in some more work at covering the shelter but will take a week yet! At 1 am had first air raid warning. Speedily dived into Mr H’s shelter. Sung songs and kept cheery. All clear 4 am. </p>
+<p>25	Tue	We were all very tired after our interrupted night (although many colleagues speak of sleeping through the raid) and the children were soon abed and asleep. Kay had a restful evening at the cinema with her neighbours, but I had to continue with shelter. </p>
+<p>26	Wed	Dry, good and bright. Mr Hersey being something of a carpenter, has undertaken to help me equip my air raid shelter and to that end he sawed up an unused table and my book-box. We hope to make a temporary bed too.</p>
+<p>28	Fri	Clay bottom of air raid shelter holding water; not the case with Mr Hersey’s. He advised me to loosen the clay and what a messy job it was! I slithered about chopping and levering at the sticky clay till dark set in and then emerged with shoes and trousers covered.</p>
+<p>29	Sat	Mr Hersey kindly helped with fittings for inside shelter. I levelled clay and perforated with hole for drainage. Then sunk in table top for floor and adapted rest of table to beam seats. Additional beams to be ordered for a temporary bed if we have to stay out again for 3 hours like am Tuesday. Mr Hersey promises more help for tomorrow when both he and I are, fortunately, not working.</p>
+<p>30	Sun	Another Sunday off duty. Very pleasant but the effect to my income is not so. Mr Hersey came over the fence and gave me his whole morning fitting up the seats and steps to the floor (table top) which I had prepared. Later, all to Mum’s. Uncle George and Aunt M. charmed with Beryl.</p>
+<p>		JULY 1940</p>
+<p>1	Mon	Went on covering my shelter with earth: a long job. Although I have had it two weeks, it will be another two before it is finally ready (I expect). Kay en route to Morden, walked with me to bus stop, Beryl in pram beaming up.</p>
+<p>2	Tue	Busy with pick (which I can wield expertly now) and shovel, still earthing shelter. Mum, Aunt Myn and Uncle George coming on Kay’s birthday (4th) so getting lawns etc in order. Mr Hersey in my absence preparing me a door for my shelter. Learned that Dad came for radio blueprint.</p>
+<p>3	Wed	Kay has given part of her vegetable garden for me, to provide more earth for the shelter — still piling it on. Kay toiled for the last time for rationed goods to RACS, Raynes Park. In future, Grand Drive branch.   </p>
+<p>4	Thu	Kay’s birthday, Mum and Roy, Uncle George and Aunt Myn coming for evening and to tea. I worked hard to reach a certain stage in my shelter and after dinner, tackled front lawn. Left Kay toiling and polishing expecting the arrival of the guests.</p>
+<p>5	Fri	After working for days on the shelter, really tired of the job and instead, did some writing etc. Discussed the shelters colour scheme with Kay (who will undertake all the painting) and set off early to work, to buy paint beforehand. 6d white, now 8d.</p>
+<p>6	Sat	Rain kept me indoors today. Beryl is such a charmer that I was in her company most of the time. She can now be left to play on the front room floor, but knocks h..l out of the fireside implements, and throws Oswald the tortoise about the room so he has to be kept elsewhere. Kay was busy during my absence on 4/11. She had painted part of the shelter — a good helpmate.</p>
+<p>7	Sun	Mr Hersey continued his carpentry job in the shelter. I helped as “mate”. He also helped me dispose of accumulated rubbish from the loft. We had some fun getting K up and down from there. Hailstorm (!)spoilt mornings work, also having to leave for 4/11 watch. </p>
+<p>9	Tue	The box in which I have kept all my study books, etc. having been used for air raid shelter door and fittings, this evening whilst Kay was at the cinema, I sorted them with a view of disposing of them. Continuous domestic duties preclude their study at all.</p>
+<p>19	Fri	Children much better and beginning to frolic in bed, so lit fire in front room downstairs, retrieved the old fireguard from back of coal cellar and allowed kiddies up. Called at Wimbledon labour exchange regarding tomorrow’s registration for military service.</p>
+<p>20	Sat	Initial letter ‘P’ should register between 4 &amp; 5 pm, my time of attendance for duty, but I was allowed to register 9.30 am. Afterwards spent an hour or so shopping in Wimbledon and a few household jobs. Children almost normal now. As the work passes out we are prepared to forget our troubles with it. Met Mum on 50 bus going Morden and wished her many “happies”. Kay takes a present up tonight (sideboard cover).</p>
+<p>26	Fri	Betty brought me home her school report, which was so bad that on being reproached, she wrote us a little note saying “I am ashamed of myself.” I gave her a talking to. We think she will do better after her week’s holiday and resumption in a different class.</p>
+<p>29	Mon	Betty has only one week’s holiday from school this year, and today, joined Roy and his friends on a fishing trip to Coombe Woods. Kay and I take Beryl in pram, on walk to food office, Merton, thence Wimbledon and quite enjoyed ourselves being fine.</p>
+<p>30	Tue	Betty’s fishing trip was a success; she caught 3 “tiddlers” and gloated over them all day. Joined Mr Hersey (on road) hedge clipping. Heard from room 11, my membership of Volunteer Munitions Brigade not approved. Stocking up with drift wood for threatened fuel shortage.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/94/a3741194.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-663">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-713"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-713" id="name-713">
+                    Wartime diary of a customs officer, Ch 9 - Jan &amp; Feb 1941 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-713" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a4100473.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>JANUARY 1941</p>
+<p>1	WED	Mum and Dad spent New Year’s Eve  (as usual) at Lou and Albert’s. I, on reaching home (after paying electricity bill at Wimbledon Town Hall) Found Dad ill in bed with attack of pleurisy, Jack in bed with general debility, Mum (waiting on both) with sore throat, George visiting with strained arm! Kay arrived safe.</p>
+<p>2	THU	Early morning, very cold as well as dark. Later, walking across desolate docks, face chilled to bone with blast of wind. On Kay’s behalf, called on a cleaner’s in Morden re skirt re-pleating, change disputed. Called Home Guard Headquarters for Dad.</p>
+<p>3	FRI	Weather still excessively cold — probably 40 deg F or thereabouts. Stayed in warm in evening. Found Dad better and did an odd job or two for him. George en-route to visit Elsie and children, here, picking up train at Wimbledon at 1 am.</p>
+<p>4	SAT	Dad being unable, I sent off his Income Tax for him, whether whole or part assessment, I don’t know - £3 — 11 — 4. Half day, spent it amongst our furniture looking for necessary articles. Used rummaging tactics, flat on stomach with mirror and lamp (!) at times. Found some borrowed records which owner has been worrying me for. Had some enjoyment with playing them over.</p>
+<p>5	SUN	Very cold. Helped Mum as much as possible, and straightened up furniture. Damage to date - one picture broken. To work for 4-8 duty, meeting PO en route. Usual air raid but all clear about 11 pm.</p>
+<p>7	TUE	Snow everywhere, steady fall, attempted to clear front path but soon re-covered. To food office where there were long queues, so deferred business, visiting cleaners re Kay’s skirt. AA shells blasting overhead at loan raider as I walked through streets.</p>
+<p>8	WED	Spent the night watch with Mr Blake, PO, my own PO on leave for 9 days. There were no night raids so perused last year’s official notebook, making a fresh start for 1941. Had a few hours sleep at home then went to see film version of “Pride and Prejudice”: much enjoyed.</p>
+<p>9	THU	First thing down to the food office at Merton to notify removal and to change retailer. Then called cleaners, Martin Way, and collected Kay’s skirt, sun-ray pleated and dispatched that to Blackpool. 4 pm duty: Air raid 7.12, all planes passing over.</p>
+<p>10	FRI	The violent AA explosions finished at 2 am and the comparative quiet was eerie. Left office at 8 am in moonlight and had what seemed a speedy journey home after the slower route taken over last few months. Bought Mum some flowers in return for her kindness the day Kay returned to Blackpool. </p>
+<p>11	SAT	One of the hardest day’s on duty in my official career. Mr Blake, my PO, one time athlete, walked me around Surrey Dock and it’s environs sight seeing. The afternoon was similar, walking to Pier Head to meet launch (change of stations) and hunting for a fresh arrival (small ship). Left office footsore and weary, not regretful at losing Mr Blake for a time. The change of minute places me on reserve air raid at night, finished early.</p>
+<p>13	MON	Change of station for PO’s , renewed acquaintance with a man I haven’t seen for some years, among whom was my own PO for the week, Mr Bishop. George brightened his solitary life by visiting us, and was immediately engaged by Roy, and later, Jack in chess playing. No night raid, read my book — Jane Austin’s “Northanger Abbey”. </p>
+<p>15	WED	Wintry conditions lead to a fall of snow today, making conditions mushy underfoot. As yesterday there was much to do in the dock, principally duty taking. The evening was quiet, Mum reading, Dad relaxing; Jack and Roy playing chess, whilst I amended.</p>
+<p>16	THU	Was awoken by distant and local AA guns and found a night air raid was in progress. The “all clear” went as I got up at 6 am. Damage was to be seen at a Bermondsey church, and at shops, on way to work. Half day, beautiful afternoon, sun shining on snow. Lou at Mum’s helping. Walked Merton returned records.</p>
+<p>17	FRI	Snow everywhere still but hard and rutty underfoot and still dangerous. Getting aboard vessels at buoys in dock by boat was a risky business. A Mr Rix called and examined Dad’s radio. He is a friend of a friend of Jack’s (!) Heard from Kay and replied.</p>
+<p>18	SAT	Still cold and during the morning, more snow fell, to about 4”. Not on duty till 4 pm today. Spent the morning parcelling up bedding to be put away in the furniture storeroom somewhere. I am gradually straightening things out there. The guns were booming as I reached Surrey Dock: bombs were dropped elsewhere. There was no night raid and I was able to peruse at length the second story in my Jane Austin book, “Persuasion” and find it very engrossing</p>
+<p>20	MON	My first day on the “reserve”. To the “Harpy” and before the day was out received my first commission, relieving a “Harpy” rummage officer from Wednesday — end of week. Saw the damage to the Custom House in which one man was killed and two injured a fortnight ago. Met my fellow “reserve” and other acquaintances.</p>
+<p>21	TUE	Snow having now completely melted and a grey drizzle adding to soggy ground, walking conditions require strong shoes, thankful for my brogues. Sky gave opportunities to sneak raiders and we had three “alerts”. Sent off parcel to Kay containing Betty’s shoes and tobacco for Kay’s Dad. No raid again.</p>
+<p>22	WED	Attached to rummage crew 8/4 today. In walking to and from wharves in region of Tower Bridge, saw the extensive damage done by the fire raiders about fortnight ago. Shells of buildings stand only. Mr Rix, the wireless serviceman repaired Dad’s radio: refused payment.</p>
+<p>23	THU	A dull misty day and very muddy under foot: consequently a walk to Free Trade Wharf and back to rummage a coaster was unpleasant. However, other air raid damage was to be seen and so lent a morbid interest to the week. Quiet evening around fire side. To read.</p>
+<p>24	FRI	Less congestion on the old 245 bus route (now 127), as double deckers are now employed, actually Manchester buses loaned to L.G.OC. Half day, went to Globe theatre, Piccadilly and saw Barrie’s “Dear Brutus”, an amusing and touching play. No bed-mate, I stayed at George’s.</p>
+<p>26	SUN	8/4 Rummage. Set off in pitch darkness for South Wimbledon Station soon after 7 am. Fortunate in picking up a bus at Nelson Hospital. Dull and thick mist on the river, one or two ships got through. Quiet evening, contrast to yesterday, wrote part letter to Kay, Budget and helped Roy with homework.</p>
+<p>28	TUE	The rainy, misty day gave “sneak” raiders opportunities for doing their nasty work and four times we had warnings. Found supervisors in office rather trying, but harmonised satisfactorily. Very quiet evening, Mum, Jack, Roy and I all reading or writing. Dad — Home Guard.</p>
+<p>29	WED	Not quite so misty and only two air raid “alerts”, one early, one late.(5.40 pm). Heard from Kay, last letter was twelve days ago, Says she has not been well (pregnancy) and disinclined to write. All well otherwise. Completed letter to her started Sunday (gv) in order to send money tomorrow.</p>
+<p>30	THU	The feature of the war activity on the home front, on misty days, is the continuous “alerts” caused by low flying German aircraft with the accompanying vibrating “crumps” of bombs and AA gun explosions. We had another such day today. Staff do not shelter now.</p>
+<p>31	FRI	A morning in the “Harpy” office, spent in preparing the Sunday duty lists for the ensuing year. Half day, went to Shannon Corner Odeon and saw a delightful film “Hired Wife” Rosalind Russell and Brian Aherne, and a nasty one (war) “Pastor Hall”</p>
+<p>		FEBRUARY 1941</p>
+<p>1	SAT	A few stray sunbeams in the early afternoon gave us a break from the grey misty weather. This observed from the “Harpy” office where I spent the time, the office PO having left for his half day. The great invasion is due to begin at the first sign of good weather — hence the interest in it. Having acquired a set of boxwood chessmen cheaply (ex previous staff sports club), spent evening repairing knights, cleaning and re — lacquering other men.</p>
+<p>2	SUN	Was awakened from deep sleep at 4 am by Mr Willoughby (neighbour No 2) knocking up Jack for his 4-6 turn firewatch. Awakened again when he returned (with frozen feet) to bed. Jack is a recent volunteer. George left at 2.30 to give first aid lecture in Croydon to women. Spent much time in spare room.</p>
+<p>7	FRI	Dad about before us all this morning having been on Home Guard duties all night. Sent off a 10 lb parcel of sheets and clothing to Kay. Hope she receives it before weekend. Again attached to London Dock officer. Spent over 30 shillings on linen etc. in Ely’s Wimbledon. Also paid electricity bill. £1/14s/6d.</p>
+<p>9	SUN	Another Sunday off duty — pleasant in itself but rather worrying with it’s financial implications. Last time Kay and the children received a billeting allowance of 11s from the government, but this time they went from a non-evacuable area. Had a pleasant walk and did a few odd jobs.</p>
+<p>10	MON	Standby on the “Harpy”. Called National Registration Office (Dorset Hall) and had my identity card altered. This should have been done when I first removed. Workmen commenced erecting brick shelter at side of house. (Concrete foundation was laid last December). George came and stayed overnight. Roy met Dad from pictures. </p>
+<p>11	TUE	Day of contrasts: thick fog in morning so that patrol launch cannot proceed much below Tower Bridge, and sunshine in the afternoon so inviting that the PO (whom I was assisting) went out onto a deck seat. and revelled in it for ½ hour. Letter from Kay, replied, enclosing 5s/5d postal order. </p>
+<p>12	WED	Very ordinary day: At “Harpy” assisted office PO  with revised Sunday list for Shadwell and RC stations. In the evening, Dad went off to Home Guard Headquarters, (Grand Drive). Was deputed to 8/10 pm watch and spent rest of night there. I played chess with Roy; mended letter rack.</p>
+<p>13	THU	Sent off Sid a set of brass buttons, 9 numerals for which he had asked, and to which we had all contributed. On arrival home, found Lou had been, leaving me a suitcase of clothes she had washed for me. The complete wash-up of all dirty linen and bedding, etc. has cost me nearly 10 shillings.</p>
+<p>15	SAT	A dull day turned into a glorious bright one by 1 pm. Worked at the Sunday List (see prec.) and left for half day at noon. There was a raid on so I walked over to London Bridge Station where the underground terminate during raids due to the line running under the river when continuing northwards. Dad and I put in some Spartan work, replacing the furniture in the “furniture room”. Drawers and cupboards are more available and a much broader gangway made.</p>
+<p>18	TUE	Continued clerical work as prec. And completed second copy of list. There was an air raid after I had made entry in diary yesterday. Bombs at Garesfield and slight traffic dislocation. Dad “Home Guarding” all night. Helped Roy with homework, listened to Handel’s “Water Music”.</p>
+<p>19	WED	Upon reading in newspaper that Puccini’s opera “Madam Butterfly” was to be performed at 2.30 pm at New Theatre today, I decided to go and secured a half day, lined up at the head of the gallery queue and saw a splendid performance (to a half filled house!!). Madam Butterfly = Joan Cross. Fine view of orchestra = 28 performers.</p>
+<p>20	THU	A cold but clear day. Finished up my Sunday scheming job in office and was told my job for tomorrow would be rummage West India Docks. Saw Mr W in room 11 who said he had in mind my travelling difficulties but the job was unavoidable. Dad and I spent evening trying to mend cleaner hose — no good.</p>
+<p>21	FRI	In West India Docks today. A straight forward journey via South Wimbledon, London Bridge and Blackwall tunnel was accomplished in 1¾ hours. Total fares (workman’s ticket) 1s/9d! — far too much expense for my pocket. Met many old friends, saw part of dock damage. George came evening, Dad brought chess board home from his work — a fine job!</p>
+<p>24	MON	Had my half day very early and spent it with Fred and Mabel and children who had come on a birthday (Fred’s) visit. Doll also called in so we had a brt gathering. Keith, quite a big boy running about and talking: Pam quiet by contrast. All left at 6 pm. Dad to Home Guard.</p>
+<p>26	WED	Police dragging river this morning, it being suspected someone having fallen overboard, owing to our launch crew recovering a wallet (no money) floating on the water. “Wharves” officer reporting sick gave me a job for the day. Sent off month’s money to Kay. Quiet evening round fireside. Read evening.</p>
+<p>27	THU	Am reading the second book of A. Bennett’s works “Imperial palace”, the other one was “Riceyman’s Steps”. It is proving very engrossing. Had plenty of opportunity for making headway on the "Harpy" reserve during work, 2 “alerts”, sneak raiders owing to clouded sky. Roy returned school today — better now. Budget.</p>
+<p>28	FRI	During morning, learnt that I shall be required for duty at Surrey Dock on Sunday: Welcome news so far as my packet is concerned for I have been off duty four Sundays consecutively. Obtained time off to see “La Traviata” at the New Theatre: Liked the opera, but touring stage props only, and small chorus.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/73/a4100473.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-713">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-877"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-877" id="name-877">
+                    WW2: War and Work <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-877" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by davidbeeb (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/91/a4052891.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>WW2: WAR and WORK</p>
+<p>	I was born on the 16th September 1918 and christened Eileen Alice Charlotte Jagelman. My parents were William George Jagelman and Cordelia Elsie Jagelman (née Penny).</p>
+<p>My father was born in South London to John Jagelman and Alice (née Crockett). He was one of six boys. He excelled at school and on leaving was accepted for the Civil Service. He started as a boy clerk in the Home Office, rising to Assistant Secretary. At the time of his retirement he was Prison Commissioner in the Home Office. During his service he received the C.B.E.</p>
+<p>My mother was born in Gravesend, Kent. Her parents were Thomas Penny, who worked in Chatham Dockyard, and Charlotte (née McLeod).  My mother came to London to work and in 1917 married my father.</p>
+<p>	At the time of my birth we lived at 19 Malwood Road, Balham. I had a sister Elsie Florence born on the 25th October 1919 and a brother Kenneth William born on the 25th August 1922.</p>
+<p>At approximately the age of four and a half years we moved to Leytonstone in East London. I attended the local council school named Kirdale and was fairly bright. At 12 years I went to Coborn School for Girls in Bow. Having started a year late for various reasons, one being time lost through ill health, I found keeping up was difficult in some subjects and began to lose interest in schooling. My one desire was to leave and work in a store. My father said if that is what you wish you are going to work in the best store in London!</p>
+<p>I was apprenticed for three years at Debenham and Freebody in Wigmore Street, W.1. I enjoyed my time there very much as it was interesting meeting all sorts of famous and well known people.</p>
+<p>	Then in 1939 it all came to an end. War had been threatening for two or three years. In 1938 Neville Chamberlain met Hitler and came back promising peace. No one really believed it, but at least it gave us a year to make some preparation, for in 1938 we were totally unprepared.</p>
+<p>Having been born at the end of the first World War and hearing the many stories, seeing films and knowing that it had lasted four years, we were quite frightened when on 3rd September 1939 we found we were at war with Germany. Almost immediately the sirens went. However this turned out to be a false alarm.</p>
+<p>This was on a Sunday morning. We had just returned from a holiday in the Isle of Man and were all gathered together. Arthur's parents also being with us. Monday morning we went to work but were told to return home unless we lived near enough to walk or just a short bus ride.</p>
+<p>However, after a week of idling, most people decided that life had to go on, despite war and so far we had not been attacked. Consequently I reported for work and life for a bit carried on as usual.</p>
+<p>	We were losing a lot of shipping and things were going badly on the continent. Finally Germany overran France, Belgium and Holland. The troops fell back to the French coast and we had to get them back to England. Every available ship was commandeered and the biggest rescue operation of all time took place. It filled us all with a great pride of country, but also we knew that we were now alone fighting the might of Germany. Quite frightening. We do not know why Hitler did not attack us at once, but thank God he didn't. Instead he declared war on Russia.</p>
+<p>However, the daytime air-raids began and they were very frightening. We continued working and as soon as the sirens sounded we went to shelters, where we spent many hours. I remember one day we spent all day there. Damage was very heavy in some areas, certainly the docks were targeted, but the Germans were not too fussy if the bombs dropped on hospitals, churches, etc. Fortunately our RAF pilots were wonderful and gradually the daytime raids lessened.</p>
+<p>	Arthur during this time had gone into the RAF and was being trained to be a Wireless Operator. He was moved all over the country and when he came down to Wiltshire in a camp at Compton Bassett he was able to get leave. He arrived home on a Saturday in September and we were going to get engaged, the sirens went which meant all the shops closed, so we could not get out to buy the ring. Fortunately, late afternoon, the all clear sounded and we flew out of the house, caught the bus into Wembley High Road, selected the ring and got home just as the sirens went again. We were determined to celebrate and in the evening went to a dance hall just near to us and despite gunfire and plane noise, managed to enjoy ourselves.</p>
+<p>	It is now some months later that I open this book and carry on the story. I am afraid after so many years trying to think back becomes difficult and many things may be out of sequence.</p>
+<p>Life carried on with day and night raids. We were losing ships, Rommel was winning all the battles in N. Africa - not much joy anywhere.</p>
+<p>It was felt that Hitler might invade us, but this did not happen, then he made the fatal step of going to war with Russia which took the threat of invasion away.</p>
+<p>My sister and I were called upon to fire watch. Elsie had returned from being evacuated with the firm she was working with. She went into the Air Ministry.</p>
+<p>	March 1941, Arthur was given leave prior to going overseas. We decided to get married before he went. It was a great rush around but it was all accomplished. Two days later Arthur left, finally ending in Iraq. He returned home three and a half years later in September 1944.</p>
+<p>Women were being called up at this time for the forces and war work. As I was married I did not have to go in the forces. My friend Peggy Davies and myself were interviewed for a job in the Air Ministry, a section called A.I.D. (Aeronautical Inspection Department). We trained for three months at the Aeronautical College in Wimbledon. A very "condensed" engineering course! I ended up with Bush Radio at Chiswick and Peggy went to Handley Page at Cricklewood.</p>
+<p>We lived through flying bombs, V2's and everything that Germany could throw at us. We lost friends but fortunately escaped in the family with no loss of life.</p>
+<p>	After the Japs bombed Pearl Harbour the Americans came into the war. We had stood quite alone for the period after Dunkirk which was a terrible period. However, the bravery of all the people at that period should never be forgotten. No one thought that Europe would fall so quickly to the German advance.</p>
+<p>Gradually the tide turned and we pushed Rommel back into North Africa and then pushed on into Italy. Mussolini was defeated and we began to look forward to the prospect of peace, though still a long way to go.</p>
+<p>Japan was busy on the Eastern front, taking Singapore and many other places. Our troops were then being sent there. My brother by this time was old enough to be called up and went into the Tank Corp; very soon he was in Burma. This was a terrible area of fighting and the cruelty of the Japanese was appalling. Prisoners suffered badly and those men on the Burma road, those that came home, were never the same again.</p>
+<p>In Germany people were rounded up, especially Jewish people, and were herded into gas chambers. Millions died this way. How can humans treat each other this way?</p>
+<p>	Finally on 6th June 1944 we opened the second front and soldiers landed in France. It was a hard long struggle but advances were gradually made until May 1945 when Germany capitulated. Such joy for us all. We had parties in the streets, to be free at last was shattering but wonderful. </p>
+<p>However for some the war was still going on in the East and the men were having a very hard time. They thought of themselves as the "forgotten army". Finally the Atom bomb was dropped on Hiroshima, a terrible thing, but it ended the war in August 1945.</p>
+<p>	All that terrible time was to bring peace to a world which really never wants peace. Though we in Europe have been free since for 60 years, there have been other wars going on all over the world. Peace is a dream we all want but seem unable to find.</p>
+<p>Eileen Atkins    </p>
+<p>~~~~~~~</p>
+<p>Reading this through, so much is left out. One should keep a diary of events as they happen. <br/>
+However I hope it gives a true picture of what it was like.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/91/a4052891.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-877">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hillside: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>24</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Hillside </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

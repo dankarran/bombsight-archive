@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Sutton - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.24476962404372399, 51.368681011463821], [-0.24456056252345901, 51.370460977578439], [-0.244712107499621, 51.371487723950196], [-0.24465900909562699, 51.374413651656646], [-0.24520562592980899, 51.377180239186892], [-0.24505377638374601, 51.380023051015677], [-0.24417238964302701, 51.383480901828186], [-0.24295921095796799, 51.38293382687548], [-0.241062759253865, 51.38486368552978], [-0.23885461734781099, 51.386017554341009], [-0.23897770662441301, 51.387034605321674], [-0.239429002404143, 51.387949372812109], [-0.239688990416802, 51.389285338031854], [-0.2385370326364, 51.389679297878672], [-0.23465545810463301, 51.390528297803655], [-0.234211292145421, 51.388718415534896], [-0.233668218794119, 51.387809555325369], [-0.23392720647874299, 51.387697532767383], [-0.22774161431961901, 51.383941956373477], [-0.22099919741937801, 51.381068303456949], [-0.21915035660356999, 51.380616422925748], [-0.218135595169485, 51.380138425232118], [-0.213799372818953, 51.384036111740869], [-0.213954422434045, 51.384137109257793], [-0.21298455686128701, 51.384800156282232], [-0.21337040298364701, 51.38499502968196], [-0.21263389101511701, 51.385477975695537], [-0.209791740608194, 51.388241872884521], [-0.20502635518264201, 51.386081087023022], [-0.20351506839033701, 51.387215041081021], [-0.200502479111516, 51.384873251442599], [-0.19652235063238799, 51.38674718702751], [-0.19524314850350699, 51.387114038661991], [-0.19394893693069901, 51.387861155103309], [-0.19360120728216601, 51.387658093751213], [-0.19321465934241899, 51.387847586365979], [-0.19185886366430699, 51.386920216873534], [-0.19165927164711999, 51.387061168456839], [-0.19078595359974501, 51.386633167313185], [-0.19033653908961601, 51.3863442207332], [-0.190467435492881, 51.386191252033157], [-0.189732916452615, 51.386116254365866], [-0.189565083881121, 51.385862283258966], [-0.18904642344943501, 51.385803398420535], [-0.18845267450296399, 51.385439428112491], [-0.18455128176108301, 51.387557266971207], [-0.18271836685968401, 51.388020646236946], [-0.18013995822056, 51.389612109178778], [-0.17986227994752799, 51.389456046174423], [-0.17486394138744199, 51.393406784214044], [-0.17288686273981399, 51.392631955283292], [-0.17127260844908301, 51.392537916132341], [-0.16996872567135801, 51.39171297787334], [-0.16987758388497101, 51.391385144092133], [-0.16834135968952901, 51.390733188863486], [-0.167378384472714, 51.389922261807484], [-0.166457261681147, 51.389683305472531], [-0.16605382288555101, 51.388854288588824], [-0.16528710571593899, 51.387967451163398], [-0.161926588093697, 51.388145498109161], [-0.16103126935769899, 51.387757538662797], [-0.159841085804386, 51.388494532245801], [-0.158813128043296, 51.388837528853784], [-0.158316372304141, 51.388814554351576], [-0.15816850142441599, 51.389208469682998], [-0.15789435385480599, 51.389279338953202], [-0.157632605029661, 51.389198358137662], [-0.15286667245070101, 51.389785416113227], [-0.14856860987842699, 51.390062528790843], [-0.14437578863227199, 51.390667423612456], [-0.14325304106599401, 51.390418487848187], [-0.14191985531001799, 51.389332688290125], [-0.13795041703414401, 51.390254516611144], [-0.136655249120095, 51.390292666306692], [-0.134633985467421, 51.390976550614297], [-0.13437490000173299, 51.390874628757643], [-0.13266228239858699, 51.390088712705356], [-0.13331458294528101, 51.389556724746932], [-0.129647788675057, 51.387149975391871], [-0.13006195780313401, 51.386664086947597], [-0.13062408495182601, 51.386316156194027], [-0.12883135300849799, 51.385694144754844], [-0.12895914526389299, 51.385446215371111], [-0.12958828535720901, 51.385393163855902], [-0.12949392853724601, 51.38468923511644], [-0.12871826493824001, 51.382477521040173], [-0.13032255440490301, 51.38218839183623], [-0.128216813556636, 51.380546582123529], [-0.12697726250274299, 51.377072936255772], [-0.12655707544917599, 51.376652118937812], [-0.12630757697071399, 51.376032110599972], [-0.126074079198922, 51.37605409561035], [-0.12595511295610301, 51.375559202980064], [-0.12694728934098401, 51.375409185894078], [-0.12680085788364501, 51.374904232042446], [-0.12790097323272601, 51.37468420617504], [-0.12477221921468799, 51.373628364944295], [-0.124629539978524, 51.37301034784025], [-0.124720435170299, 51.372873957702332], [-0.12335756402843701, 51.371153597958738], [-0.12342380695191001, 51.370521641419273], [-0.122095479785889, 51.366248105027424], [-0.122090625599935, 51.365796135585633], [-0.12408924344761101, 51.365336221066606], [-0.122998980646619, 51.3649912180705], [-0.12232873450064601, 51.364497246465291], [-0.1213384620064, 51.364649279917707], [-0.12098797239671499, 51.363275467535011], [-0.121303062096634, 51.363013403447432], [-0.12110813735045201, 51.362511447930643], [-0.121433326632191, 51.362309411782519], [-0.121389713597001, 51.362146555284419], [-0.121603555379786, 51.362120479908533], [-0.121441099017964, 51.360978585921721], [-0.121960765235289, 51.360916656686712], [-0.12186714175479101, 51.360505697275116], [-0.122050940075648, 51.360489674477918], [-0.121884247973228, 51.359918572772145], [-0.122931296311504, 51.359927677488734], [-0.12288308396306, 51.359679741913425], [-0.121905604383847, 51.359038778974245], [-0.123369545267373, 51.358891799401384], [-0.12351549639958, 51.3590768117785], [-0.124710941946947, 51.358821813730373], [-0.12419280473504, 51.357418905652743], [-0.121426353666269, 51.357718826566142], [-0.120173810968316, 51.35303238179921], [-0.11911144683439, 51.353131392868583], [-0.117362819696604, 51.34663006216396], [-0.11698704904630999, 51.346644961471171], [-0.116915510601886, 51.345741138989993], [-0.11840763470484, 51.345619125864793], [-0.118660247918909, 51.345784079993805], [-0.118926847245658, 51.345498055760864], [-0.125921188347106, 51.34522700499334], [-0.12692070912332801, 51.344859109477824], [-0.127173105428808, 51.345162025768708], [-0.12681523078523499, 51.345421026640921], [-0.12703153237141701, 51.345662938158291], [-0.127125092979576, 51.346779846627129], [-0.12731011060521699, 51.347172870270683], [-0.127559137968495, 51.347404769118079], [-0.128330299599241, 51.347421875442862], [-0.12889670935674699, 51.34724375800171], [-0.12873372350132301, 51.347058903320786], [-0.129150396926036, 51.34678889203461], [-0.12901681540587201, 51.346608862970285], [-0.12912870471733201, 51.346483910168494], [-0.13007317695676299, 51.346167939115659], [-0.13142647989804701, 51.345993945161496], [-0.13113347880337001, 51.345497043030271], [-0.13289628128200401, 51.34544900369967], [-0.132577966485351, 51.344249975189754], [-0.13441548670428999, 51.344460103073295], [-0.13625684847814601, 51.344377010025333], [-0.136418605508725, 51.344791998704089], [-0.14152262281230199, 51.343390957360711], [-0.14226260820182099, 51.343112115662848], [-0.142137660469181, 51.342984093512491], [-0.144204395457246, 51.342252038327771], [-0.144115379559248, 51.342145104610914], [-0.144607135346809, 51.341990177740918], [-0.14410999350437501, 51.341301230055912], [-0.14396271346870501, 51.341348208669224], [-0.143461910628954, 51.340550158984669], [-0.14432161633561599, 51.340194237534675], [-0.14426028960655701, 51.339846334830483], [-0.144523603205965, 51.339481374233046], [-0.14754589476611099, 51.338769314385395], [-0.145941426403073, 51.334077861916647], [-0.14561358739663699, 51.332418951111279], [-0.14516855377340901, 51.33153003434736], [-0.144065206826479, 51.330658217614229], [-0.14932768554260401, 51.328752246279144], [-0.14445148780126499, 51.326468572875918], [-0.144469410907339, 51.325913539972539], [-0.14426820285657499, 51.325897707601719], [-0.14553508572662599, 51.323513854341527], [-0.147756332690894, 51.322685827724371], [-0.14876497795177099, 51.322631939412339], [-0.14903461255893599, 51.322774895498632], [-0.150461879614252, 51.322192947704281], [-0.15145185682408399, 51.322401928353202], [-0.15215036226454001, 51.322274831252692], [-0.15279232251413999, 51.32292978652751], [-0.155424609449553, 51.321891849168317], [-0.155540226901104, 51.32200579640449], [-0.15595908029758401, 51.321872862378939], [-0.15579614501101, 51.321663881484611], [-0.15656618132094899, 51.321497274152833], [-0.15865693114469301, 51.32396500617822], [-0.15895438906727699, 51.323861913375211], [-0.15904785742806399, 51.323969605960592], [-0.16062305054546, 51.323230383151646], [-0.16419585825729599, 51.325995853657837], [-0.16359010899606, 51.32620302801385], [-0.164365301955015, 51.327705619846974], [-0.164335343355207, 51.32807372127612], [-0.164004666909982, 51.328177154400478], [-0.16402757870991799, 51.328479339780685], [-0.163696016722222, 51.328649364818396], [-0.162343118078943, 51.32885169276787], [-0.163136692725525, 51.330230934585821], [-0.1700880565547, 51.329463382752145], [-0.16997918926944, 51.330259803129181], [-0.17299902230481601, 51.330012996332563], [-0.173746863563392, 51.331513272769989], [-0.17429008333627599, 51.333151146386442], [-0.17468909274528399, 51.333157780767351], [-0.174891135410563, 51.333695874585274], [-0.179830701128909, 51.336453056711164], [-0.182018104839443, 51.337841177160648], [-0.18784817663908099, 51.340840164739689], [-0.191296223771805, 51.342017436939997], [-0.19611771380798501, 51.343257641421239], [-0.19628915142995601, 51.343028572734354], [-0.196712541682419, 51.343147503150249], [-0.196574755663738, 51.343388334625409], [-0.19739547075031999, 51.34358251014212], [-0.19751506229788099, 51.343416301195518], [-0.197675226884441, 51.34347440520591], [-0.198579660953624, 51.342288621190441], [-0.199143206825937, 51.341877426940933], [-0.19957951870170601, 51.341872900779777], [-0.20122196672579101, 51.339873479305815], [-0.20171316702626901, 51.339841674137077], [-0.20190104152959401, 51.340177296687706], [-0.20232130226963899, 51.340077940857562], [-0.21305474815816, 51.335530521930572], [-0.21192946717278199, 51.333296601857995], [-0.21411788055224501, 51.330339445903029], [-0.216107497771031, 51.329815731018279], [-0.22096378643308401, 51.329851669915065], [-0.22311767745152, 51.331736192640669], [-0.22872577828691901, 51.33551468797144], [-0.229804547378611, 51.336532718857924], [-0.22829984521326399, 51.33710166731835], [-0.228578410132002, 51.337207609503658], [-0.22684990982904399, 51.337877543339928], [-0.226979383402065, 51.33801060765748], [-0.22583961646886999, 51.339014320564281], [-0.22435134559936101, 51.340048284444066], [-0.223305716791525, 51.339833030758811], [-0.222301041620248, 51.340449959826039], [-0.22272469827654801, 51.340818493105317], [-0.21920326389297401, 51.342615979321359], [-0.21728740716841999, 51.343376088593381], [-0.217741491630697, 51.34440579781748], [-0.21817311596335201, 51.346107515565699], [-0.22020949625059799, 51.350068211976044], [-0.220443450863266, 51.351408182776943], [-0.22131005529356701, 51.351327059179624], [-0.22128604156701201, 51.351159207651186], [-0.222114833727802, 51.351313144202983], [-0.221961367551298, 51.351892258161705], [-0.22199752621789401, 51.353519948818033], [-0.222608581637777, 51.355728810772163], [-0.22277304468092099, 51.357080649578783], [-0.22408048582468601, 51.359263535961269], [-0.22689685870474, 51.362583235632016], [-0.23000693254594001, 51.364047766953341], [-0.23321381591436899, 51.365999705360792], [-0.23384227582928699, 51.365312523156234], [-0.23680332999387099, 51.366786705844987], [-0.23784714474181401, 51.366996595122465], [-0.23858899069991299, 51.367061715388026], [-0.238940188053439, 51.366824330433715], [-0.24091317352966901, 51.36702652699816], [-0.241172739131125, 51.366251283944912], [-0.245427455432328, 51.366834420761961], [-0.24476962404372399, 51.368681011463821]]]]}, "type": "Feature", "id": 6, "properties": {"pk": 6, "name": "Sutton"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Sutton, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Sutton, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../index.html'><img src="../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../index.html">Map</a></li>
+                    <li><a href="../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+ <h1 class="bombtitle">Bombs dropped in the borough of: Sutton</h1>
+
+     
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../index.html"> Location Index </a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <span class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority">
+                                    Sutton
+                                </span>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Sutton, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Sutton: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>518</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>1</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Sutton</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-785"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-785" id="name-785">
+                    My War Years: Evacuation from Sutton to Wales <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-785" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by jill_murch (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/58/a2279658.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>(Jill Constance Murch — nee Mayersbach )  d.o.b.  29 January 1931</p>
+<p>I remember the 3 September 1939, the beginning of World War II, very well — I was 8 years old, my sister, Jacqueline just 4, and we were both suffering with Mumps.   My father had boarded the windows of the living room downstairs, in which our beds had been moved for safety — and there we suffered with painful, stiff necks in semi-darkness.   I remember hearing the siren warning us of the start of the war and the bustle and coming and going of friends and neighbours.</p>
+<p>Earlier that summer of 1939, while on our last holiday beside the sea for many years to come, I recall being given a ride in a REAL tank by the Army along the beach and bumping my head — the first of many frightening, dangerous — but strangely exciting episodes over the next 5 years, until the war ended when I was 14.</p>
+<p>I also recall in those first days of war that there was some pact or understanding between my parents, that should my father be taken away or killed if occupied by the Germans, that my mother, sister and I would be prepared to take our own lives — how, I have no idea - I think tablets — but I have no recollection of fear — just it being a fact of life/death/war, etc.</p>
+<p>The next few months were strangely quiet, but busy, with an Anderson shelter being built in the back garden (later covered forever, it seemed, with bright orange marigolds) and kitted out with bunk beds for Mum, Dad, Gran (of course), my sister, myself, plus our Manchester terrier, Nippy, and my pet canary!   At school we practised getting into the air-raid shelters, built on the school playing fields, without panic and having our gas-masks continually updated with extra filters being taped on to the ends.</p>
+<p>During 1940, however, it got noisy — very noisy!   The air-raid sirens whined continually the throb of bombers flying overhead, ack-ack guns firing throughout the night and the sickening thud and vibrations of bombs dropping.   There were other silent dangers — land mines descending by parachute and devastating whole streets and always incendiary bombs to fire buildings and light the way for the enemy bombers.</p>
+<p>There were the searchlights too, criss-crossing across the night skies and the barrage balloons to try and stop the bombers — which were often fired and flared into flames.   Flames from the burning London  Docks also lit the night sky all the way to the suburbs where we lived and during the daytime fighters — Spitfires and Hurricanes — could be seen attaching enemy aircraft — dogfights we called them.   The images are still strong in my memory — I can visualise them clearly — but they still, strangely, held no fear — just a perverse excitement.   Of course, when the ‘all clear’ sounded, and each morning on the way to school, we all — as children — searched for trophies and souvenirs of the bombardment  - the priceless pieces of shrapnel, which we hoarded and gloated over; pieces of aircraft and stray spent bullets were even found.   I have often wondered since how these happenings shaped the adults we became — I know I still find life extremely exciting and have no fear of  ‘taking chances’.</p>
+<p>With regard to EVACUATION — at the beginning of the war there had been meetings at our schools to organise being shipped across the Atlantic to the Americas, but because ships with evacuees were being torpedoed and sunk, it was decided to keep together as a family and accept the consequences … so we continued to sleep in our cosy Anderson shelter most nights.   On one occasion we emerged from our cave to find what looked like a cannon-ball on top of our shelter — we quickly called the local air-raid warden — who laughed and told us that the local bowling green pavilion had sustained a direct hit the previous night and all the ‘woods’ had been sent flying across the town — with one coming to thud on the roof of our shelter- it was used for many years thereafter as a souvenir door stop.</p>
+<p>Britain became filled with soldiers, sailor and airmen from all over the world — Free-French, Polish, Norwegian, West Indians, South Africans, Australians, New Zealanders, Canadians, etc., and, of course, after 1941, the Americans.  These young men — and women — in all manner of smart uniforms, brought even more excitement to our young eyes — they were so full of life and enjoying themselves — aware, now I realise, that they could have been close to death — as we all were.</p>
+<p>I watched avidly each day the newspapers and the thick rows showing how the armies fought back and forth across the continents — especially the progress across North Africa and then across to Sicily and Italy.   The place names are still imprinted in my memory.</p>
+<p>As D-Day, 6 June 1944, approached, huge waves of Allied bombers throbbed overhead towards Europe, and the surrounding roads and lanes in Southern England were packed with tanks and trucks full of servicemen.</p>
+<p>The Germans then began a further blitzkrieg with thousands of unmanned flying-bombs — the Doodlebugs or V1s, followed later by the devastating V2 rockets.  The sound of the throbbing engines of the flying-bombs cutting out followed by a terrifying thud and shudder, still echo in my head.</p>
+<p>My family, having resisted being separated, now had to accept the inevitable evacuation and in late June 1944, my sister, Jacqueline (now aged 9) and myself (13) along with our fellow pupils and schoolteachers, were put into coaches to be driven to Paddington Station.   I remember seeing tears in the eyes of my parents and wondering why they were upset — I have understood very well since and will never forget their sadness.</p>
+<p>We journeyed westwards from Paddington, complete with our Evacuee luggage labels attached to our jackets and were excited by where we might arrive.   Single railway coaches full of children were left at various stations long the way, but we continued westwards and I hoped that we would cross the’ border’ into Wales  - we did and reached the little market town of Builth Wells in mid-Wales.   At the local school we were lined up and picked or chosen by local people — my sister and I were almost the last, as most families only wanted one child, but I had promised my parents that I would look after my sister and refused to be separated.</p>
+<p>A family of mother, father and small son, took us initially, and we slept in the attic on camp beds with just blankets — which felt itchy, not having sheets — and I was expected to do housework and look after their small boy.</p>
+<p>However, it was fun with our fellow evacuees and the local children, although we had our lessons separately in the local church crypt with our own schoolteachers.   We discovered the local Monday market with all the sheep and cattle, the new smells and noises; the beautiful River Wye nearby, the fish shimmering below the bridge and the hills, mountains and quarries in the surrounding countryside.</p>
+<p>There was also a large Italian prisoner-of-war camp nearby and these strangers with curious accents talked to us children over the fences and hedges from their camp and excited our imaginations as to who these aliens were and from where they had come.  Their camp was close by another river — River Irfon — across which was strung a ‘swing bridge’, which swayed alarmingly and below which we paddled and tried to catch minnows in glass jars on string.</p>
+<p>In early August 1944 our parents arranged to visit us, but that very weekend our original foster family had moved us to a new family with a motherly lady originally from East Anglia and a married daughter working in a local war munitions factory, whose husband was a prisoner in a Japanese camp in Burma — I never knew whether he survived.   As our parents arrived, a message was received that our home near London had been hit by a Doodlebug/flying bomb, so my poor father had to return immediately.   However, I feel had they not been travelling to see us, they may have been killed as the raid took place about midday on a Saturday and they would have both been t home in the house.</p>
+<p>As there was now no home to return to my mother obtained work as a housekeeper/cook in a large house/farm in a nearby village, and when we visited her there — by walking along the local railway line — we got to know the local Land Army girls, who came indoors to see my mother for meals and to warm their frozen fingers after harvesting potatoes, etc.  I was intrigued by the tales they told my sister and I about their adventures!</p>
+<p>At school we were taught a poem remembering the slaughter of the Allied parachutists at Arnhem in Holland and the local recreation ground  - or Groe —alongside the River Wye became a parking area for a huge convoy of American servicemen, awaiting their turn to be sent over to the battles in Europe.  (I wonder how many survived?)   As with the Italian Prisoners-of-war, these servicemen were kind and gentle, appeared relaxed and patient to talk to us all, and answer our incessant questions and curiosity about their homelands.</p>
+<p>Around Christmas 1944, my father, weary after long journeys to visit us and having been blown off his bike by bomb blast on his way to war work in a munitions factory, arranged for us all to move nearer home at a relative’s                                               farm in Hampshire and where my grandmother had been living.   This gave us yet more new experiences — collecting cows from the surrounding fields for milking, finding hens’ eggs, watching the butchering of rabbits for food (I still cannot face eating rabbit) and bathing weekly in a tin bath in the kitchen by gaslight, with candles only to climb old strange stairs to bed.  We also watched Dakota aircraft flying in and out of nearby Hurn airport with supplies for the European front.</p>
+<p>I started attending a commercial college in Bournemouth and being curious — yet again — the Canadian servicemen housed in all — it seemed — the hotels along the cliff tops.   It seemed to our young yes that all the young men in the world were wearing uniforms, even the local village boys in their sea cadet and air ranger uniforms.</p>
+<p>May 8th, 1945 — the end of hostilities in Europe and everyone in the village of Throop celebrated around a huge bonfire.   Within a month or two, my mother, sister and myself returned to our home to rejoin our father — at least, living initially with a kind neighbour, until our poor old war-damaged home had been patched up and we could return to some sort of safe and peaceful life again.</p>
+<p>I only realise now, as I’ve grown older, how anguished my dear parents must have been — worried about the welfare of my sister and myself and distraught the loss of their home together — although at the time we were not along — a huge number of families had similar, often worse, sadness.   Accepting the love and care which we did not question, my sister (I believe) and I (for sure) recall the War Years and especially our evacuation, as a huge adventure and jolted my innate curiosity and fascination with other peoples and their ways of life which has never left me.<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/58/a2279658.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-785">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-655"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-655" id="name-655">
+                    The Story of Bevin&#39;s Babes: Chapter 8 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-655" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by heather noble (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/60/a3188360.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>10)  THE SUMMARY OF FRANCES’S  STORY  — starts with her nostalgic recollections of the family’s suburban homes and those who shared them, in the 1940’s. The spacious Victorian Villa on Wandsworth Common, South West London, where she lived as a small child, her paternal family’s comfortable home in leafy Cheam, Surrey, which was a world apart from her maternal grandmother’s cramped council house in Lower Tooting. She also recalls visits to her parent’s hairdressing salon, the neighbouring undertakers, the cinema, The Locarno, the corner shop and the freedom to roam the streets of 1940’s London unaccompanied. She carries on her story with recollections of the Black Market and the impact of the “Doodlebugs”, which in 1944 prompted the 2nd mass evacuation of London’s children of which she was one — travelling with her mother to Wallasey, Liverpool, to stay with an elderly aunt. And on her post-war return, of being unhappily fostered whilst her mother was admitted to hospital... <br/>
+FRANCES’S STORY — This is a nostalgic account of one of the most memorable periods of my life — living as a small child in the suburban surroundings of South West London during the 1940’s.<br/>
+My Father Jack, was a successful businessman and although he suffered ill-health as a schoolboy- resulting in a disrupted education — by the time he was 21, he owned his own business as a Master Hairdresser and Beautician. <br/>
+My Mother Janet, who had also trained as a Hair- Stylist, worked first for him then later married him in London on September 3rd, 1936, exactly 3 years before the outbreak of World War 2.  <br/>
+After a fairytale honeymoon on a cruise ship to Madeira, they returned to set up home on Wandsworth Common. The house of their choice was a spacious 3 storey Villa, I imagine built in late Victorian times. There was a small front garden and a larger one at the back, where in 1939, an Anderson shelter was erected.<br/>
+Unlike most women of the 1930’s, my Mother - after her marriage — worked, alongside of my Father at their hairdressing salon, but more of this anon. <br/>
+It was not until later in the war when I made my first appearance — in a private nursing home in Wimbledon. My Father was then 32 years old and had earlier served in the Army. But he had been invalided out, which meant that he returned to the salon and I believe, combined the business with working in the “A.R.P” (Air Raid Precaution) <br/>
+At what stage my parents decided to employ a Housekeeper, I do not know, but from my earliest memory she was always there, running the home, whilst my Mother was absent. <br/>
+We all enjoyed a comfortable lifestyle in that spacious house on Wandsworth Common and I now see as I look back, just what a privileged childhood I had, although of course, I did not appreciate it at the time! It was not until much later, that I realised that not everyone had shared my good fortune, especially during those long years of 1940’s austerity.<br/>
+Outside of our house, on the tree lined road, stood our black “Austin” car and it seemed to be the only one in sight! I remember sitting in solitary splendour behind the wheel and frightening myself into quaking terror, as I pressed the ignition, starting the engine into life! <br/>
+As well as being the proud owners of a black car, we had a black telephone and a big brown wireless set, which my parents crowded around to listen to the 9 o’clock news on the Home Service and Churchill’s stirring broadcasts, whilst I looked forward to “Children’s Hour” and the familiar voice of “Uncle Mac” (Derek McCulloch) and his much-loved character of “Larry the Lamb”.<br/>
+We were also the proud owners of one of the earliest black and white television sets. I do not know exactly when my parents acquired this prized possession, but we certainly had one during the1940’s. And my Father generously bought a set apiece for both of my Grandparents too. One of my favourite early post- war programmes was singing along with Annette Mills and “Muffin the Mule”!</p>
+<p>My paternal family consisted of my Grandfather Charles, my Grandmother Evelyn, my Aunt Alice, her cousin, my Uncle Gordon  and a lodger, known to me as “my Uncle Jack”. They all lived together in a pleasant house in Cheam, Surrey, which my Father had helped them to buy. <br/>
+Unfortunately, my maternal Grandmother Isabel, a proud lady, was not so lucky, and lived alone in very, straightened circumstances, in a cramped council house in Lower Tooting — a world apart from leafy Cheam - and within quite a long walking distance away from our own comfortable home. <br/>
+Her husband, my Grandfather, Thomas Bell, had served in France in the Scots Guards as a Sergeant in the London Regiment during the First World War and was one of many young men who had shared the fate of thousands of others. They tragically died from gas poisoning, leaving their young wives to bring up their Fatherless children on their own. <br/>
+The atmosphere surrounding the house in Cheam and the house in Lower Tooting was very different. And it is the latter- where my Mother and my Aunt Kit grew up - that I remember most vividly. <br/>
+One of hundreds of identical dwellings, they had been built at the turn of the 20th century on land bordering the lavender fields of Mitcham. It was then very rural. But by the middle of the century, the estate had become a very depressing place indeed. Up until my Granny’s death in 1958, the black-out blinds were still in full use, making the atmosphere even more depressing! <br/>
+The only redeeming feature in that gloomy home was a wonderful old dolls house that an Uncle had made for my Mother when she herself, was just a little girl.<br/>
+ I think it was made in the “Queen Anne” style and came complete with furniture, little figures and a toilet. I adored playing with it! <br/>
+Outside of my Grandmother’s back door was a small scullery and a lavatory. Both had the fresh and unforgettable smell of coal tar which came from the big blocks of “Lifebuoy” soap, with which during my visits I washed my hands in the old stone sink.<br/>
+Absurd as it may seem today, then, I felt quite sure that my Grandmother’s house was haunted! </p>
+<p>My parent’s hairdressing business was called “Maurice Loader” the Permanent Waving House,” in Upper Tooting, and daily my Father left the house early, to work there. Sometimes my Mother accompanied him on the days when she helped in the salon. <br/>
+Upstairs was a Barber’s shop, which my Father ran and downstairs was the Ladies Department. “Marcell Waving” was then a popular style amongst their female clientele. And in the privacy of separate cubicles, the lengthy process of creating continuous waves — tram lines —  was achieved by special irons! <br/>
+There were several local, theatrical residents and many of “The Stars” of the day, regularly frequented the shop. One name which comes to mind is Betty Box, the famous film producer, who with her brother Sydney, produced wartime documentaries. <br/>
+When I was older I was occasionally taken along to the salon to watch my Mother at work — I suspect when there was no one available to look after me at home. But I cannot remember being particularly interested! I much preferred the busy atmosphere of the neighbouring Undertakers! This business was owned by a good friend of my parents and I often found my way into the back of these premises. Here, I was fascinated to see the coffins being made and stacked. I just loved the smell of all that wood! <br/>
+One day I was given the most bizarre toy — a small, wooden coffin with a tiny “body” inside. It had some sort of magnet and when the lid was lifted, the body popped up! I do not know if it had been made especially for me. But I have never seen another! </p>
+<p>Despite heavy penalties, being imposed, the Black-Market was rife and I believe a certain amount of this “unofficial trading” was carried out behind the scenes of both businesses. At this distance in time, I cannot say with any certainty, from whence this dubious merchandise came, but I suspect that much of it had” fallen off the back of lorries”, before finally finding its way under our counters and no doubt under the coffins too! </p>
+<p>Across the road from our home lived a family of four children — two boys, two girls and their Mother. There was no sign of their Father. When anyone asked after his whereabouts, it was said “that he was serving in the British Army”. Years later I suspected that he was probably serving time in “H.M Prison” as that feckless family had a reputation for being light-fingered! <br/>
+The youngest boy was called Christopher and despite my parent’s understandable disapproval — that he might lead me astray — Christopher soon became my special little friend. Tagging along behind him, together we’d climb over the locked railings of the deserted recreation ground to play on the slides, swings and roundabouts. For then it seemed perfectly safe for we children to venture out alone and it was quite taken for granted that help to cross the roads would be willingly given by a kindly passer-by.<br/>
+Sometimes Christopher and I wandered down our road, hand-in-hand to the corner shop to buy iced lollies. Those brightly coloured lollies came in a variety of colours and tasted absolutely delicious. But alas, they were eventually banned, once it was discovered that they contained traces of lead! <br/>
+Another memory I have, is going into Christopher’s bathroom. Here we licked the pink “Euythymol” toothpaste from the tin, pretending it was sweets! <br/>
+It appeared that Christopher knew his way around the capital very well indeed — hopping on and off the red London buses — presumably” forgetting” to pay his fare! One of his scams was to “lift” produce displayed outside of Greengrocer’s shops, with the irate shopkeeper invariably giving chase! <br/>
+And another was to ask Servicemen — of which then, there were very many — for money! He soon realised that he was more likely to be looked upon favourably, if he had a little female accomplice — ME!<br/>
+So one memorable morning I was “persuaded” to accompany him! Fortunately, a concerned neighbour saw us setting off on our spree and alerted my parents. Needless to say, they were absolutely livid! </p>
+<p>In common with millions of others, one of my Mother’s greatest pleasures, when not working, were regular visits to the cinema. These “Picture-Goers” queued for hours, in all weathers, for a seat in one of the many “Big Picture Houses”, which had been created as escapism away from the bombed-out and darkened streets of Wartime Britain .As well as the main picture, such as Hollywood’s offerings of  <br/>
+“Mrs. Miniver” and “Gone with the Wind”, there was a B- Movie, the ever important newsreel and an organ recital. <br/>
+Film shows were even given to “tube- dwellers” in the London Undergrounds. I do not know if these unfortunates were enjoying such a show on that fateful night - when Balham Underground received a direct hit, killing hundreds- but in a local cinema, my Mother and my Aunt Alice certainly were. So engrossed in the films, they sat on until the end of the evening — completely oblivious to the tragedy that was unfolding nearby. <br/>
+As soon as I was old enough, my Mother took me along with her to “The Matinees”, to see films which she thought would appeal, such as the spectacular musical comedies with their ravishing costumes, and Walt Disney’s “Dumbo the Elephant” and “The Wizard of Oz,” with which I was enchanted. <br/>
+Sometimes we went to the glamorous “Granada” in Tooting Broadway. There, the   usherettes wore gold blouses, blue slacks, cloaks and pill box hats! <br/>
+Occasionally, as an extra treat, my Mother would take me upstairs to the gilded restaurant, and here, in their frilly white caps and aprons waitresses served us afternoon tea.  <br/>
+Later, there were the occasional outings to the “Locarno Ballroom” in nearby Streatham. Here, the popular “Tea Dances” of the 1940’s were then in full swing. From the Spectator’s Gallery, we watched a sea of young couples take to the floor. Suspended high above them was a huge glitter ball, which as it revolved, sprinkled the dancers with a rainbow of reflective lights. And to the accompaniment of the music of one of the big bands, the girls in the arms of their partners swayed to the evocative strains of such wartime songs as “In the Mood” and “Moonlight Seranade”. </p>
+<p>In June, 1944, just a week after the D-day invasion of Europe, the first V1’S and V2’S arrived — nicknamed “Doodlebugs”. My Mother told me that the V1 engines emitted a buzzing noise, but once the engines stopped, there followed a sudden silence — when if time permitted — we took refuge in our Anderson Shelter. There, we waited for the ear splitting explosion!  <br/>
+On other occasions my Mother huddled in our sitting room under our “Baby Grand Piano” with my Father- when he was at home — shielding her with his body on top! <br/>
+One day a bomb eventually hit but luckily missed the house, landing in our back garden. <br/>
+In contrast, the V2’s rockets arrived without any warning whatsoever and their missiles fell with a supersonic bang! These last of Hitler’s revenge weapons — which killed and injured thousands - prompted a 2nd mass evacuation of children from London. And it was then, that my Mother and I evacuated to Wallasey, on the Mersey, Liverpool to stay for a brief respite, with an elderly Aunt. We travelled on a crowded train packed with other evacuees, whilst my Father stayed behind to look after the business.<br/>
+Later in London, my Mother told me that one night, she was so afraid she purposely became a little tipsy. And on another, as a distraction from the exploding “Doodlebugs” we sat in bed together and one-by-one she took out the curlers from her hair, saying, “There, goes another one Bang!” — pretending they were bombs!<br/>
+Even after the war officially ended, I distinctly remember the spine chilling sound of the Air Raid warning, followed by one long sustained note, which heralded the “All Clear”. <br/>
+It transpired that these post-war wailing sirens were being tested. For what I wondered!? </p>
+<p>It must have been about this time when my Mother was admitted to hospital to undergo surgery. As she stayed there for quite a while, and there was no one to look after me, it was arranged for me to be sent away to be fostered. <br/>
+When I first arrived at my foster home, I was shown a special chair which I was told would be mine during my stay. But the reality was a little different. There were several other children in the family and so my chair was seldom vacant! Being an only child, I was not used to this and I became withdrawn and fretted that my parents had deserted me! <br/>
+One day my Father came to visit and although he did not take me home with him, as I had hoped, he must have seen my distress. As shortly after, he came and collected me. <br/>
+Just before we reached our house, he stopped the car, crossed over to the other side of the street and went into a toy shop. When he emerged, he was carrying the most beautiful large red trike! I assumed that this wonderful gift was my compensation for being so unhappily fostered. Oh, how I loved that trike!<br/>
+Home at last and our housekeeper kindly agreed to care for me until my Mother’s return. <br/>
+Although at that time, children were rarely allowed to visit patients in hospital, somehow it was arranged to make an exception in my case. <br/>
+I can see my Mother now, propped up in bed against her pillows, in her frilly nightgown with such a loving expression upon her face. Everyday after that, I was taken for a walk to the hospital. There, in the grounds I waited expectantly for a glimpse of her at the ward window, through which we delightedly waved.<br/>
+My Mother’s re-appearance had re-assured me. And it was not very long before I was back to my old self once again.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/60/a3188360.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-655">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-883"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-883" id="name-883">
+                    Wartime Diary of a Customs Officer: Ch 6 - Oct 1940 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-883" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bryan Boniface (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/78/a3750978.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>OCTOBER 1940<br/>
+1	Tue	Third occasion of sudden gunfire at planes over city area, but no general “alert”. Long delayed issue of steel helmets (Staff association has been asking for personal issue for a year). Air raids took up hours of time, barely time to write letter before night raids (7.40). <br/>
+2	Wed	In and out of the Customs House basement shelter a ridiculous number of times. At home, poor Kay was in despair, house in a pickle, time for meals only. Helped her with the shelter bed — damp!<br/>
+3	Thu	In the grey drizzle and cold, did not expect many raids. Nevertheless, had three, the last one keeping me at Customs House till nearly 5 pm. There was thus only time to have my tea and prepare for bed. Wretched night, was irritable and cramped. Short night raids.<br/>
+4	Fri	Took my turn as Elm Walk (Upper end) fire picket, from 4 am till 6, but except for a short alarm, there was no raid in progress. Replaced the upper Customs APO, and noted on our journey up river, damage to riverside buildings. Damaged room (see 27/8) being redecorated.<br/>
+5	Sat	Low lying cloud gave lone raiders much advantage and raids continued for long periods throughout day. The only way we found (Kay in particular) was to ignore them. Half day, called Worcester Park ?? as cleaners in Raynes Park branch have closed. Marvelled at development of it and of North Cheam. Called at Mum’s to, as clothes left for treatment had been left there. Happy sight as kiddies danced and sang to radiogram. Beryl toddles now.<br/>
+6	Sun	There were long drawn out raids all day as yesterday, and when I left for 4/11 “Harpy” a plane passed and re-passed in clouds ahead. Was kindly allowed home before night raids developed. Attended demonstration of putting out and incendiary bomb. Dug small patch of garden.<br/>
+8	Tue	Beryl bad again. Took her from shelter to the house at 3.30 am. The night raid then worsened from then onwards while I took my turn as fire picket (4am — 6) and caused anxiety lest house was struck. Room damaged by incendiary bomb now redecorated.<br/>
+9	Wed	Very busy afternoon and evening (up to siren time) for Kay and I returning and cleaning furniture to both upstairs and downstairs front rooms. The redecorated rooms look well and give Kay something to delight in. She herself is far from well though.<br/>
+10	Thu	Beryl’s cold a little better, but Kay bad. Andersons have their disadvantages in spite of all precautions. Night raid came at dusk = 7.30. In night time, bomb fell in playing field back of Betty’s school (Hillcross). Day off for her. <br/>
+11	Fri	In and out the Custom House basement shelter till at 12.30, I decided to ask for a half day. At home, many raids, Kay and Betty braved them, Beryl and I went to sleep in the Anderson. At 9, a time bomb fell nearby, searched garden but “not in our section” — warden.<br/>
+12	Sat	Foggy but raiders still came over. In the afternoon, at home, ignored them, but Kay and Betty were caught out shopping for two hours. They saw the effects of the high explosives which fell after the time bomb. They demolished three houses in Cannon Hill Lane about 150 yards distant: Kay knew the young mother in one of them and was most upset. In the evening again , there fell another bomb, which set me searching gardens in the moonlight again. The raids are confined to evenings now.<br/>
+13	Sun	After yesterdays tragedy and the night’s alarms, another fall of bombs at St Holier at 1 pm so upset Kay that we spoke of sending her home. I continued to bale out the shelter during the raid: it was 1” over the floorboards. 4/11 duty, but home to be of comfort to Kay before night raids.<br/>
+14	Mon	8/4 upper coast: Up river by launch surveying all the damage done by bombs. Home: pleasant time playing with Beryl:  gave Kay chance of shopping with Betty. Beryl’s cold (or cough rather) still bad. Kay similar, rather queer. More bombs in night.<br/>
+15	Tue	This time, passing up river, saw that the very place the PO had landed yesterday was in ruins. Had difficulty in getting to work too: bus to Clapham North, tube to Borough, bus to Monument. Visited Aunt Emma at Kew. Very pleased to see me again. Upset by raids though.<br/>
+16	Wed	Raids very intense at night. One bomb locally. Route still disorganised to work, but direct Clapham North to Bank this time. Up at 3.30 am for the 4 — 6 am fire patrol. Very tired by afternoon. Spent some time in Anderson shelter asleep.<br/>
+17	Thu	Misty on the river and chilly. Travel conditions to and from work improved. At work by 8.40 am. Few air raids by day, but terrific raids by night. Kay says she had five lots (salvoes) of bombs drop in the locality this (Thursday) evening and early Friday morning. <br/>
+18	Fri	Foggy morning. For a time it “wasn’t prudent” to go afloat. Patrolling the river and wharves up about London Bridge was a chilly job. Mr Hersey retuned home from Slough (his new workplace) to collect some gear. He and wife definitely removing from next door.<br/>
+19	Sat	On fire picket from 4 till 6 am with a new neighbour, Mr Jones. Things were quiet and time passed quickly. Last day up — river, Proper APO retiring Monday. Home by the devious route, but after dinner with Beryl whilst Kay and Betty shopped, and slept from 3 till 6 pm. (was up at 3.30 this morning). Little time left then but for tea  and prepare shelter for raid, which commence regularly at 7 pm. <br/>
+20	Sun	8/4 “Harpy”. A bomb near the diversion route caused yet a bigger detour and I revisited old scenes in Northcote Road. 5 “alerts” in all. Kay reported bombs having fallen locally and there were definitely some overnight.<br/>
+21	Mon	Grey and miserable morning. A tremendous rush to work, arrive “Harpy” 8.45 am. There were isolated raiders in the sky all day. One hovering about when Mr Haxman and I were visiting ships in London Dock. In the short time between arrival home and night raid, tried to fix baby a bunk in shelter. NG.<br/>
+22	Tue	Cold and foggy. Night bombing raids finish early in consequence, but there were a couple of day raids which we passed (miserably) in the Customs House shelter. Kay helped me put sandbags (be quested by Mr Hersey) on shelter. Kay queer and baby coughing. 6 bombs in evening.<br/>
+23	Wed	Quiet morning. Night bombing finished early. I was fire picket with Mr Walker (146) at usual time 4 — 6 am. Foggy on river. No improvement in travelling facilities. Kay and I working on fire claim damage done on 26/9. In shelter at 6.35 pm for night raid.<br/>
+24	Thu	Travel facilities worsened, no buses, the whole way from Morden to Kennington now. Arrived office 9 for 8 am! Went almost all round the London Dock. And saw the damage done thereto. (Comment on extent of damage unwise). Ordered for 3/11 Surrey Dock tomorrow. Means “lie in”)<br/>
+25	Fri	Had the morning at my disposal and by 1 pm, we were all ready to walk into Morden, I en route to work, Kay and kiddies to do shopping. Alas, “alert” stopped us and I left 1.30 pm alone. Arrived Surrey Dock 3.45 pm = 2¼ hours. <br/>
+26	Sat	Did a spell of fire picketing with Mr Morris. Things were very quiet (fortunately). Had until 1 pm at home with Kay and kiddies, which is a happiness I haven’t had for a while. (I usually get from 5.30 pm — 7 only on weekdays owing to time travelling, and early to bed because of night raiders). Travelling to Surrey Dock took 2 hours today, slight improvement on yesterday.<br/>
+27	Sun	Volunteered for another spell of fire picket again this morning (4 - 6) as they are short of men. Moved over some sandbags Mr Hersey gave me, but found very few which were not rotten. Air raids all day, Kay and children to Mum’s for tea. I on 4/11 duty.<br/>
+29	Tue	Had a grumble about the “blackout” in the house. Kay soon got busy and when I got home, found new pelmet and rearranged curtains in front (living) room. Neighbour “borrowed” me for a tap washer job, often am only man available.<br/>
+31	Thu	Miserable day. Rain. Travelling was difficult. (1¾ hours Surrey Dock to home) and shelter full of water. Betty bailed out. She is small and can get between seats. Often she is most obliging with small jobs and is a great help to Kay and I.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/78/a3750978.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-883">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Sutton: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>518</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>1</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Sutton </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

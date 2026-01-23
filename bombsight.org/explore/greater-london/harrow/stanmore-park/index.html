@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Stanmore Park - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.34332173869709498, 51.624293473223361], [-0.34323462685820599, 51.624342408854062], [-0.34313242885664802, 51.624446480456548], [-0.34000133561049201, 51.627061109927268], [-0.33955635465244699, 51.627464101446513], [-0.33930100733848001, 51.627743044829103], [-0.33906543545685802, 51.628086050815327], [-0.33912438755675101, 51.628104020738689], [-0.33954115249385902, 51.628573010411827], [-0.33966328594128897, 51.628690509011335], [-0.33975667153473799, 51.628741994413176], [-0.34003928641048198, 51.629039916963173], [-0.34036632777046, 51.629443851621616], [-0.34080901642154299, 51.630044848847334], [-0.34056137463907199, 51.630161899368829], [-0.34064815846264701, 51.630270748238495], [-0.33980119905982398, 51.630589800668986], [-0.3399078680407, 51.630722540401962], [-0.33987755171402001, 51.630736724750832], [-0.33983522611310701, 51.630807920565502], [-0.33963726512496101, 51.630565843901515], [-0.33900431584965002, 51.630081154221081], [-0.33885732167035099, 51.630088070798919], [-0.33879442667423498, 51.63005443751981], [-0.33883731858512101, 51.63000502685184], [-0.33884815002563001, 51.629931277188902], [-0.338307403195934, 51.629468965037958], [-0.33748361608880301, 51.630129878821961], [-0.33746977976724402, 51.630187011530396], [-0.33740882147912099, 51.630211718804517], [-0.336450839979964, 51.630960797159148], [-0.33615503117343498, 51.631233672535927], [-0.335367915724256, 51.631766539247401], [-0.33494222823679598, 51.632108950111345], [-0.33311336996250801, 51.633380675583325], [-0.33303264364944102, 51.633451609266835], [-0.33308440272050799, 51.633542406938105], [-0.33309252600773898, 51.633641295818663], [-0.33307236435777299, 51.633723061527569], [-0.33299568020907699, 51.63383184195002], [-0.332607152795456, 51.633738509082619], [-0.33248771711921699, 51.633818312405978], [-0.33241334577687998, 51.633765544389121], [-0.332325127246967, 51.63364654951797], [-0.33228221483155101, 51.633548575264598], [-0.33230124372844499, 51.633460615065694], [-0.332837357844814, 51.633223610397927], [-0.33300220730728403, 51.633185629398518], [-0.33303994107233598, 51.632439677446364], [-0.333014051117063, 51.632049694288305], [-0.33292916420744501, 51.631618699207337], [-0.33282914051996598, 51.631304798281356], [-0.33238201098708697, 51.630568820341082], [-0.33195444015589698, 51.6298050157557], [-0.33076215374190598, 51.629505101668002], [-0.32904060367840099, 51.628925208619499], [-0.32691481809563699, 51.628166153840318], [-0.32462790588155099, 51.62730935735005], [-0.32319699007879699, 51.626737456205191], [-0.32293705098206898, 51.626611507846469], [-0.32273820703496098, 51.626494571546367], [-0.32259107938391401, 51.626382600240234], [-0.32239902716553698, 51.626142548663154], [-0.32215207088627201, 51.626154479881613], [-0.32187434220128802, 51.626364494391545], [-0.32094647960087502, 51.626500581773733], [-0.32065830557033798, 51.626528494727467], [-0.32056743853549102, 51.626580582739415], [-0.32037940446367202, 51.626598546356966], [-0.32007359035640298, 51.626590524666426], [-0.318539814174293, 51.62671455169167], [-0.31711191543120598, 51.626856512592845], [-0.31739889275451, 51.626653520132997], [-0.31749783332657699, 51.626517665687601], [-0.31769880632617897, 51.625612759811482], [-0.31723556976058798, 51.625527724620945], [-0.31690383083468499, 51.625427712978727], [-0.31663650916670999, 51.62530683796453], [-0.316429887433886, 51.625180792339187], [-0.31409016278097102, 51.623042072904475], [-0.31347717718346502, 51.622443157373333], [-0.31303684546125998, 51.622070261548274], [-0.31258325103719098, 51.621775146542717], [-0.31226817269809998, 51.621604266195995], [-0.31110437564448001, 51.621093236561087], [-0.31050319921573599, 51.62085838347879], [-0.30893923985147098, 51.619552512967658], [-0.30857165297651901, 51.619203686063578], [-0.30815546813032901, 51.618547725028392], [-0.30807256408858502, 51.618276763859811], [-0.30807732746340999, 51.618002710712574], [-0.30804927468847998, 51.617822750650774], [-0.30752248023165502, 51.616912847986235], [-0.30682454176396401, 51.615811075288185], [-0.30554774160065901, 51.613710256055953], [-0.30494339838661699, 51.612776459168813], [-0.30513370497348102, 51.612720340135915], [-0.30571855076500298, 51.612674409155304], [-0.30643344694715202, 51.61263948583305], [-0.30709726753163202, 51.612654391940659], [-0.30736337499958799, 51.612647409715315], [-0.30799098416787801, 51.61255628342839], [-0.30795330597984899, 51.612428439815453], [-0.30785029029181499, 51.612225336665375], [-0.31022811882491202, 51.612586259509868], [-0.31045780527385702, 51.612174376983489], [-0.31094975727921798, 51.612223324954641], [-0.31122190294720897, 51.612211365683429], [-0.31135759986161798, 51.612191402670895], [-0.31185657548219298, 51.612063415004265], [-0.31168598132740999, 51.611734427848695], [-0.31231638358597302, 51.61162842016283], [-0.31234146407430802, 51.611475357153466], [-0.31228154821662102, 51.610632461607722], [-0.31262344274785098, 51.610638499837052], [-0.31275473899607498, 51.610980401361807], [-0.31312873904090599, 51.610923530138123], [-0.31306556842027999, 51.610728591560679], [-0.31297268991140997, 51.610713490899329], [-0.31296061453157098, 51.610479517204936], [-0.31289700854929903, 51.610417627769706], [-0.31271645245020901, 51.610369646550772], [-0.312699535746501, 51.610095566864743], [-0.31283263119874599, 51.61008455178753], [-0.31278241508516502, 51.609637592226555], [-0.31308858155714903, 51.609620638913469], [-0.31305132798243501, 51.609237649501374], [-0.31243176393209299, 51.608845737871739], [-0.312542549260033, 51.60847471044184], [-0.312801656422729, 51.607876802670219], [-0.31295036370993501, 51.607614799285827], [-0.31315633461207498, 51.607317928389058], [-0.31350353438648298, 51.606911945690328], [-0.31430396976110297, 51.60611203391619], [-0.315591054150828, 51.604953092050124], [-0.31684189350729403, 51.604882103177175], [-0.31766080085953902, 51.604862083938045], [-0.318566695986578, 51.604869022956635], [-0.319182519991623, 51.604922105182474], [-0.32061956197743902, 51.605125037197602], [-0.321598418564424, 51.60522193656233], [-0.32232831501738701, 51.605265951914319], [-0.32315098151571803, 51.605290910672231], [-0.32370506127399401, 51.605293069279796], [-0.32429415518495502, 51.605263966750357], [-0.32451019452329499, 51.605634882033826], [-0.32503903933768502, 51.605194930124043], [-0.325726761923474, 51.604986962900341], [-0.32581606576576699, 51.604926975852543], [-0.32598987819629999, 51.605010945344603], [-0.32638054476550599, 51.604781316223324], [-0.32649181490691398, 51.605019925378457], [-0.327389599626012, 51.604817898747683], [-0.32750284094290399, 51.605003008979416], [-0.32779786048453202, 51.605263902970492], [-0.32770463874905598, 51.605307823012993], [-0.32801667181206701, 51.605891836763888], [-0.328632661381414, 51.60648229552497], [-0.32869943609049501, 51.606568668690599], [-0.32890550512101202, 51.607519573273287], [-0.32912587245893399, 51.608708412421436], [-0.32880164671201401, 51.608799477234228], [-0.32892864590699999, 51.609077515301422], [-0.32916253620470698, 51.609037428898546], [-0.32931483067545397, 51.609302474981007], [-0.32920160731501003, 51.609325458066976], [-0.32926345501411303, 51.609472459708336], [-0.32918478206457502, 51.609476395173992], [-0.32921065799409899, 51.60980441091553], [-0.32946076522337098, 51.609765401846076], [-0.32946883310844699, 51.60979137265447], [-0.32978759720744399, 51.60976345024239], [-0.32981636419821603, 51.610012410430393], [-0.32985946060356702, 51.610166308748127], [-0.32911364116859698, 51.61024632049579], [-0.329296795684624, 51.610531335885753], [-0.32932948895546099, 51.610661200848085], [-0.330391786914147, 51.61210410247822], [-0.33073161415754598, 51.612055970838504], [-0.33073252737557901, 51.612166138794088], [-0.33084859741619799, 51.612803977130199], [-0.33092554069772601, 51.613388865641227], [-0.33167646848218302, 51.613293878142244], [-0.33175756135092999, 51.613531914751491], [-0.332762305291813, 51.613937775538155], [-0.333919468581235, 51.61448375376721], [-0.33652308900672501, 51.615912495388152], [-0.33769911186912599, 51.616599483373534], [-0.33799279250889402, 51.616814393092497], [-0.33834400493515299, 51.617122288014421], [-0.33899878359681601, 51.617857251228969], [-0.33974987227768599, 51.618625183524927], [-0.34030190105937003, 51.619084141680602], [-0.34131984270550197, 51.619802024458842], [-0.342557547339367, 51.620894900652829], [-0.342551723447935, 51.622603610556261], [-0.34262447487907, 51.622849670191655], [-0.34271242071883701, 51.623037639554354], [-0.34333268711937998, 51.624005465189832], [-0.34335683292098901, 51.624061440279583], [-0.34336161532764398, 51.624190492602068], [-0.34332173869709498, 51.624293473223361]]]]}, "type": "Feature", "id": 1304, "properties": {"pk": 1304, "name": "Stanmore Park"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Stanmore Park, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Stanmore Park, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Stanmore Park</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Harrow</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Stanmore Park
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Stanmore Park, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Stanmore Park: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>8</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Stanmore Park</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-787"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-787" id="name-787">
+                    I Knew Hitler&#39;s Sidekick <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-787" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Michael McEnhill (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/81/a3277181.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>When I got up on to my  props to answer a question from the bleak, fat-faced  schoolteacher, in the  blackboard-fronted,inkwell desk and wooden pen-knibbed classroom era of London Colney Primary School, there was much hilarity.</p>
+<p>Someone had shouted out 'Colney Hatch' and that was enough for the class to break into great shrieks of laughter, and for my face to shrivel to the size of a dried up cherry.</p>
+<p>Of course, these kids with their spud holed  socks and dirty snot nosed hankies for pimply war disturbed faces had got it wrong.They identified loose talk of the raving mad lunatic assylum of 'Colney Hatch' with the newly built one at Shenley where my father worked, with equal prejudice and unholy vehemence.</p>
+<p>However,in truth, they were not far off the mark  for my home backyard was literally in Shenley Hospital, and that housed some pretty seriously deranged patients.</p>
+<p>And since the start of the Second World War it had taken on the dual role of serving as a military hospital.</p>
+<p>It was to be here that Field Marshall Rundstedht was to be brought as a prisoner- of- war after being captured in the planned German breakout, Battle of the Bulge.</p>
+<p>He was one of Hitler's top generals.Having seen action in the first World War he was brought back by the fuehrer to galvanize his forces to fight the immensely fierce, cruel battles along the Eastern Front, during the Second World War.<br/>
+However, after defying Hitlers authority during this period he was redirected to another theatre of war, only to fall into the hands of the American forces.<br/>
+By way of Wales, he came as a prisoner- of- war to serve out his time in our local hospital. <br/>
+Of course, he could not have reckoned on  taking on the North Avenue kids,(An English version of the Hollywood Dead End Kids) who lived in the mean hospital staff houses  a cinder track away down rook caw croaking Cow Bank Woods.</p>
+<p>Being a top commander in Hitler's highest echelon, part of his inner circle, he shared responsibility, in my eyes, for all the deadly incendiary that came out way. Less than twenty miles out of London, we came not alone within the orbit of De Havilland and Handley Page aerodrome, but within the compass of fighter command which was hunched down in a large bunker in Bentley Priory,Stanmore Hill a small bus ride to the west.<br/>
+ It was an invidious position for any wayward bombs directed to the capital and important airfields and military back-up would most likely descend on us. It was a terrifying prospect.</p>
+<p>In fact, I remember many fear filled nights when we tumbled out of bed hearing the sharp drag, like barbed wire across glass, shrill scream of the air raid siren as it told of impending bombers in the night sky.<br/>
+   It was the signal for the adrenaline rush of panic as we fumbled for the bedroom door knob to quickly open it and scramble down the stairs.It was difficult to find the way for there were no street lights to cut through the dark and besides the windows were covered with sheets of black paper curtains.  <br/>
+   At the very start of the war, I was just a small mite of a child, and was scooped up in my mother's arms and carried to the nearest hidey hole under the stairs, or if we thought there was more time, a dash would be made to the Anderson Shelter, a lawns length away from the back door.<br/>
+Petrified we would hunch together and say some prayers. It was hard to believe we would survive. <br/>
+I can remember the night we made a frantic run for the shelter and I was swaddled in my mother's arms. I felt a sliver of hot metal glance my bare arm and instantly my mother break in tears. She was besides herself with worry, maybe thinking I had been mortally hit. She tenderly kissed my arm,and stroked it until content in herself that some miracle had deflected the shrapnell that few millimetres away from causing permanent damage.<br/>
+And when we were inside the shelter we were hardly less afraid. We felt little real safety there, it was always back to the prayers. The shelter was composed of a few sheets of corrugated iron holding up a bank of clay, sunk a few feet in the ground.<br/>
+When bombs dropped close,the shelter would appear to take off, rising from the ground with cement and dust powdering the air, smothering the atmosphere and making its  way into our nose and lungs leaving us brokenly tearful, gasping and cleaving for deliverance.</p>
+<p>After the war the shelter served a more peaceful purpose as a concrete base for a small pond. </p>
+<p>A number of incendiary bombs dropped in the hospital during the early part of the war drifting from the cricket pitch end to the front gates so that the whole place was covered in smoke.<br/>
+Later on a huge landmine was dropped in the vicinity of the two hundred feet tower which having large water tanks at its topmost reaches supplied the wards with their precious supply.<br/>
+Fortunately some of its parachute cord, its filigree of lace caught up in the branches of a large oak right next to the boiler house and within the shadow of the tower.<br/>
+ With great urgency it was tackled by a naval bomb disposal squad who managed to extricate the fuse safely. Had it exploded it could have sent a large part of the hospital and all the staff houses to smithereens, killing many people.<br/>
+As it was apart from some structural damage to door jambs and a numbers of windows during the various bombing raids the hospital came through largely unscathed.<br/>
+ However, a large number of trenches were dug in the hospital grounds along with numerous air raid shelters for the protection of the patients.<br/>
+ As a family we of course would come across all sorts of military apparatus including anti-aircraft guns and searchlights, confounding our progress to get to the shanty sort of chapel as it were tacked on as a sort of afterthought to the long low built sanatorium blocks,almost alongside the domestic block, above the rookery wood and below the dense smoking, high chimney stack of the tower.<br/>
+It would have been here that we would have witnessed the parephernalia of war in all its extremes.<br/>
+Patients lay out under the glass roof of the sanatorium both day and night.Heavily bandaged war wounded and patients who sufffered from respiratory illnesses were treated in this part. <br/>
+There would be a  large red fire engine ready to roll  housed in between the two sanatoriums. What looked like heavily built men with thick black  brass buttoned jackets and strong looking headgear would alway be running back and forward priming the vehicle.<br/>
+In the seemingly ramshackle put together chapel, Father Foley, a tall ascetic looking  priest conducted the service with his  back to the mixed congregation of nursing staff and their families, the war wounded and recovering, some soldiers, sailors and airmen, on leave and perhaps visiting patients, against a background of helmets,green camouflage scrim covered and loosely  laid down with crutches and army packs, brass glinting.Through this  would  the waves of thurifer incense would waft into the solemn air while the stinky cloud of war tried to percolate through closed doors. <br/>
+Fatty Johnson with his three pips as a captain in his territorial army uniform would sweat most profusely swiping his forhead, as he intoned the latin while kneeling on the bottom step of the altar.<br/>
+It would have been at this point that I saw the chapel doors  opened  and an old man in striped pyjamas and dressing gown  with some  remnant of military poise was brought halteringly between two military policeman there contrasting fine blancoed bright dress absurdly contrasting with this down and out looking old gentleman, so obviously an enemy prisoner, allowed out for the small concession of fulfilling his habitual Sunday duty.<br/>
+My father must have got wind of the arrival of our notorious prisoner by way of the Black Lion Pub which he frequented of a night after his stint of duty and where he got most information rather sooner than he would, from the higher ups in the administration.The Pub was located by the main gate of the hospital,at the top of a ridge, something like four hundred feet above sea level, looking north over St.Albans City, six miles distant. As a Charge Nurse he would have been in his uniform, sombre, dark grey and covered with a black mackintosh which reached below the knees.<br/>
+I think they kept Von Rundstedht in the quarters by the male nurses home, The Jubilee, as it came to be called.<br/>
+ When you have a hospital designed to take two thousand patients and the many numbers of different grades of staff to manage them along with ancillary staff it would have been a miracle if his presence had remained a secret.</p>
+<p>There is no doubting the fact that the eagle, even if wounded in flight, had  landed in the very heart of Shenley, it would have excited such curiosity and emotion impossible to contain, that from the very first rumoured whisper of his arrival, the news would have gathered strength and redounded round the long dull corridors of the hospital.<br/>
+It would have been from this period that the North Avenue kids went on an orgy of vandalism through the hospital grounds.<br/>
+ The rose garden alongside Jubilee was trampled and broken by vengeful hordes. Bamboo bushes served as cushions for desperate kids to jump on from tall brick built bomb shelters screaming and whining like stukas and spitfires diving into the morass. Stones were fast flung with a vengeance to break with a splintering crash the many panes of glass around wards.<br/>
+We made up mud balls to fit onto long arrows of branches we got from the many bushes and trees within the grounds, made into primitive weapons we would launch the missiles high into the blocks breaking  windows like ice.<br/>
+A large fire was started into an immense oak tree, it was stuffed with dry grass and dry twigs, set afire and burnt out its guts while the fire engine had to be summoned to Cow Bank woods.<br/>
+Reconnaisance missions were carried out at the tennis lawns by the nursing home, anyone suspicious was reported on.<br/>
+We commandeered a neglected a mortuary trolley and when the lids were fastened down on one of our number we pushed it around the corridors at high speed rattling past  mentally disturbed patients who were amazed to see this metal box like rocket ship bearing down on them.When there was any dangere of being caught we parked our deadly vehicle by the mortuary and climbed up, using any convenient object, to look above the glazed glass to see if there were any stiffs laid out, no doubt expecting to see some German opened up on the mortuary table.<br/>
+It came to me, that it was like some poison gas was in the air, or sharp hot stink of fox contaminated those lads from the avenue, sending them half crazy in wanton damage in and around the hospital grounds.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/81/a3277181.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-787">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Stanmore Park: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>8</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Stanmore Park </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

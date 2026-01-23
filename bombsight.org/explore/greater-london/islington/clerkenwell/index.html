@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Clerkenwell - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922579200000, 3], [-922233600000, 1]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.119364759468701, 51.530991808289272], [-0.117002550974263, 51.531132785124981], [-0.114762857288531, 51.531339745848008], [-0.11140223804862, 51.531609839915461], [-0.109757289949691, 51.531771913112237], [-0.108325994964691, 51.531844947963755], [-0.10654469099451599, 51.531882950871037], [-0.10630073614834, 51.531898819995249], [-0.10621156332707, 51.531419937111778], [-0.10610246819387301, 51.531095985118547], [-0.10599114740714601, 51.530847035848645], [-0.105499941178562, 51.530220164862897], [-0.10520627452287799, 51.529914170630981], [-0.10491510137204001, 51.529548223536274], [-0.104635188607494, 51.529627165500393], [-0.104576438091299, 51.529501157646308], [-0.104473090164349, 51.529516210013554], [-0.104439365432813, 51.529482220324205], [-0.104376783854815, 51.529492176152438], [-0.104364879112038, 51.529518255182097], [-0.104233477815727, 51.529536224240182], [-0.10418960889519099, 51.529399222506484], [-0.104142706181759, 51.529400287718254], [-0.103770553451511, 51.529140241638125], [-0.103646908649008, 51.529210316545438], [-0.10372580087033099, 51.52926330600647], [-0.103489491567826, 51.529377223585691], [-0.103428803514182, 51.529341259866044], [-0.10299485792722, 51.529614277988223], [-0.102928893022603, 51.529575272793721], [-0.10278497833844299, 51.529569289528133], [-0.1025104201358, 51.529779264969562], [-0.101748917170543, 51.529283312638185], [-0.101365971005676, 51.529001297207728], [-0.101202721960841, 51.528810371597544], [-0.10100677372436, 51.528430356957074], [-0.10057142091191899, 51.527516138050835], [-0.100130294574582, 51.526519731291152], [-0.101392465526874, 51.526263640739522], [-0.10352097307954899, 51.525868844639177], [-0.10376445076513501, 51.52629470762048], [-0.103911577513865, 51.526331506771875], [-0.104163174293043, 51.525545634985278], [-0.104142164704751, 51.525400715071399], [-0.104041839982202, 51.525169787102122], [-0.10375628880278399, 51.5248428420037], [-0.103254696077687, 51.524359811235129], [-0.102839276601776, 51.523927915563817], [-0.10238082802689299, 51.523295942868707], [-0.102241270482038, 51.522947045584154], [-0.102095939525855, 51.522455168575661], [-0.10157344720240601, 51.521154310533674], [-0.101558809837172, 51.520986306478783], [-0.10161928405510801, 51.520810245290519], [-0.101717374172233, 51.520661349769313], [-0.101727270734389, 51.520423354057669], [-0.10179053270871199, 51.520115253134328], [-0.10182049027607901, 51.519611313016497], [-0.103234795688044, 51.519157733527535], [-0.10534585648195401, 51.518542562380489], [-0.10549060592750099, 51.519135451044825], [-0.105884379579979, 51.520284291686615], [-0.10616501670274001, 51.520920092935839], [-0.106649532394061, 51.521689077612201], [-0.107042790429593, 51.522156017516032], [-0.10808885050788, 51.52206694327645], [-0.10827091982011, 51.522087025771484], [-0.10833093175606499, 51.522117082809359], [-0.108602318657924, 51.522459939856944], [-0.108956142151756, 51.522987914771711], [-0.10925035131649601, 51.522910463899095], [-0.109371552969128, 51.522920843182106], [-0.109786118314495, 51.523069858045524], [-0.111228855549852, 51.523388870799828], [-0.111936120160844, 51.523562821547401], [-0.112381637296362, 51.52370474687438], [-0.112629790178311, 51.523825778109412], [-0.113389039740712, 51.524333705114323], [-0.113613205746517, 51.524532729826603], [-0.113880803559054, 51.524904630048027], [-0.11420660482011299, 51.525458556583295], [-0.113602059774164, 51.525937522507974], [-0.112933992161074, 51.526405481607043], [-0.11345082819187099, 51.526518447887597], [-0.113824628964089, 51.526678348951826], [-0.114706700118594, 51.527202431780147], [-0.115303509938728, 51.527595862690028], [-0.11543309123177301, 51.527722183495833], [-0.115569361055533, 51.527957187086528], [-0.115680216763601, 51.528318617859746], [-0.115808444585513, 51.5295430102694], [-0.11588076786825401, 51.529690022731273], [-0.116017716249188, 51.529842981132475], [-0.11653359861857, 51.530093923433022], [-0.117102570897965, 51.53028094420872], [-0.11814181932835199, 51.530557977377335], [-0.119895923984033, 51.530937798231676], [-0.119364759468701, 51.530991808289272]]]]}, "type": "Feature", "id": 1371, "properties": {"pk": 1371, "name": "Clerkenwell"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Clerkenwell, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Clerkenwell, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Clerkenwell</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Islington</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Clerkenwell
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Clerkenwell, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Clerkenwell: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>70</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>3</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Clerkenwell</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-844"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-844" id="name-844">
+                    Germ Warfare: Clare Hall Hospital <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-844" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Michael McEnhill (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/56/a2081756.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Germ Warfare.</p>
+<p>"And some are sung and that was yesterday<br/>
+ And some unsung,and that may tomorrow be".<br/>
+Francis Thompson (1859-1907)</p>
+<p>"Stop there!" A harsh voice came out of the darkening night.Susan McGinley brought her bicycle to an abrupt stop at the very top of the steep Black Lion Hill, Shenley.<br/>
+Preventing her from going any further and shining his torch directly into her dazzled eyes, the village policeman surveyed his "catch!" Close up, he took in the firm set face with blue rebellious eyes. Perched on her head was a navy blue cap which matched her coat,of such length it draped her knees, outlining the sheen of fine, strong legs.<br/>
+   He pressed her with questions. "What was she about at this time of night with a war on? Where to? Where from?"<br/>
+   After giving her name, she told him that she lodged at the base of the hill with her married sister, but that she was originally from Altaneerin, in Donegal, if he would know where that was. She was going to her place of work until he had stopped her. She had still three more miles to travel to Clare Hall Hospital in South Mimms. She was a qualified State-Enrolled nurse in an urgent hurry to get to her work in time, war or no war, and attend to desparately ill patients.<br/>
+  The policeman showed no inclination to be rid of her or to listen to her entreaties as to the plight of her patients or her own personal position. Rather, on this cold night in the latter part of January 1941, the policeman officiously pounced on the fact that her rear light was not functioning, to which Susan McGinley weakly exclaimed that she had tried reviving her battery on the kitchen range, but it must be "whacked" and that she would have to purchase a new one.That was not good enough for the policeman who summoned her to appear before the Magistrates Court at Barnet.She would have to push her bicycle the remainder of the way to the hospital where she worked.<br/>
+   She struggled along the lane,fearful, solitary and weary.At times a rake of searchlights sent up pillars of light into the black sky to laser back and forth.At ground level anti-aircraft emplacements were ready to puncture the night air, the banter of the crews reaching her across the leafless hedges.<br/>
+   The Matron,Mrs Spaley, gave her a severe talking to when she arrived late. However,it was not until a few weeks later when Susan McGinley was fined ten shillings by the Court and her case had made the columns of the Daily Express that the indignant Matron gave full vent to her feelings."I admire your fine words which have found their ways into the paper, - 'as a nurse it was my duty to relieve the sick and suffering'. However,I take grave exception to the fact that you made the location of this hospital thoroughly well known to Mr Hitler and his cronies, and I, myself, and all my staff, will be forever up and down to the air-raid shelter from this time on.I've a good mind to sack you!"<br/>
+   She discussed this proposal with the Medical Superintendant, Dr Simmonds, who opined that it was for her only to decide. Fortunately Dr.Laird the surgeon of the hospital came to her support declaring that she was an excellent nurse and should continue to be employed by the hospital.<br/>
+   Thereafter, she lost herself in her work, putting her patients before herself.'Self' in those days was a luxury one could not afford, one's patients were always at the forefront of one's thoughts. The hospital at Clare Hall had moved from Clerkenwell and was originally devoted to the treatment of small-pox diseases and has a history of over two hundred years, being situated here in 1896. The incidence of small-pox was high in 1901, and the surrounding village suffered for which the hospital was blamed for the contagiousness of disease.<br/>
+   At that time nurses were recruited from the old Nurses' Co-operative Society at three guineas a week, a sum regarded as a high reward, for only the best nurses were to have charge of such a serious disease.<br/>
+   It was in May 1911, that Clare Hall Hospital treated patients with tuberculosis. It was used for treating advanced tuberculosis patients so there was an air of gloom and despondency about the place in 1935: 39% of the patients were discharged by death; with better investigation and treatment results were more cheerful and patients were happier. Although the known causation of the disease at this time had been isolated as Koch's Bacillus, it was still maintained by medical practitioners that one could not cure a fool of tuberculosis owing to the treatment being long and troublesome.<br/>
+   With the diminution of small-pox cases medical forces were directed against this more prevalent scourge and it took all the resources of the medical and nursing staff, both mental and physical, to forestall its ravages of the population.<br/>
+    USA Army Surgeon-General Bushnell's famous remark lies at the base of all treatment: "For tuberculosis we prescribe not medicine but a mode of life".<br/>
+     This is where Clare Hall Hospital and its nursing staff came into their own. As the disease was highly infectious the patients had to be isolated. Endless steadfastness, courage, self-discipline and self-denial were required of them. They were housed in a hutted sanatorium which was part of the Emergency Medical Service. The 'huts' were of brick construction with asbestos sheeted roofs.At the onset of the war it was adapted as a general hospital to meet the needs of the civilian casualties, acting as a base hospital receiving local and transferred air-raid casualties from London.<br/>
+      However, very soon the need for a special effort to combat tubercullosis under war conditions meant that all the beds were occupied with tubercullosis patients by December 1942, a total of 540 beds.<br/>
+   Surgical methods of radical character only began just before the war.<br/>
+Susan McGinley worked throughout the war.There were several hundred nursing staff employed at the hospital during this time.Nurse McGinley tells me that at least half the nursing staff were from Ireland, 'from the four corners, as they say'; she herself enthuses that they indeed were a credit to their country.While others were fighting a mighty battle in Europe and in the desert sands of Africa and even further afield, she and her colleagues were fighting the furious tuberculosis disease, with no let up,in the sanatorium in South Mimms.<br/>
+   The nursing regime was arduous for the disease requires very skilled treatment, the esentials of which are: rest, both of mind and body, fresh air and sunlight, routine and discipline, and correct feeding. By its very nature of confinement, owing to the disease being highly infectious, the disease was doubly trying and the barrier nursing required scrupulous attention to the rules of hygiene. Patients were confined to to bed at night for ten to twelve hours, necessitating more blanket baths, more bed linen changes, and all this with very difficult and demanding patients.<br/>
+   Along with the tremendous bouts of coughing, pain and all round debilitating ill-health, the patients exhibited what was known as a TB temperament when they would be very irritable and show extremes of temper to the nurses or for that matter anyone else who happened unfortuantely to cross their firing line.<br/>
+   Nurses would suffer and be expected to take many a 'tongue-lashing!'At such times the patients could also 'act-up' when smuggled cigarretes would be secretly smoked under the sheets in their beds. They would also abscond by donning a flying jacket or army greatcoat or such like over their pyjamas and make haste for the 'Old Guinea Pub' a few hundred yards from the main gate with, invariably some nurses in hot pursuit. They would be read the riot act and threatened with immediate expulsion from the hospital.No doubt within a few days they would be welcomed back into the folds of tender and loving care again.<br/>
+    Dr. Simmonds, in a Medical History of Clare Hall Hospital says: 'With the decline in the incidence and mortality of tuberculosis the hospital should be used for pulmonary, cardiac and other chest conditions. Tuberculosis had been largely beaten at that time and the nursing staff deserve to be honoured for relieving the suffering of many thousands of patients and making known to people not only the essential cure of the disease but also the socio-economic origins in poor housing, environment, diet and life styles".<br/>
+   Now, there is nothing left to tell the tale, just the sycamore tree with fresh new branches, where the nurses used to sit many years ago.<br/>
+  There is a worthy adendum or supplementary history to this story surrounding Susan McGinley's exploits during World War 11.<br/>
+   The people of America alerted by 'The Philadelphia Inquirer' as to her predicament in being dragged before the courts at Barnet were outraged that this should happen to a valuable night-nurse during the blitzkrieg, of London.<br/>
+ About to enter the war themselves it was a subject of contention throughout America as to the conduct of the War. They went so far as to invite Susan to their country and promised to provide her with a new bicycle.She would be paraded in the great cities as the 'Florence Nightingale Flyer' who defied Hitler during the height of the Blitz determined to see to the wounded and dying serviceman injured during the war. A medal would be cast in her honour.<br/>
+  Years later we were invited to contribute to Guy Michelmore and Louise Bachelor's programme retrospective film 'Memories of War' but I am sad to say nothing came of it. There was talk of the film being too expensive.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/56/a2081756.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-844">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Clerkenwell: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>70</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>3</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Clerkenwell </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_23.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Miss Patience Brand (known as &#39;Boo&#39;) is 18 years old and is part of London&#39;s &#39;Society&#39;. She is now a member of the Women&#39;s Voluntary Service and runs a mobile canteen in London. Here we see her raising her cup in front of the canteen vehicle. - Miss Patience Brand ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205125659">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_331.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                The anodised nature of the badge suggests post War or very late WW2. - badge An eight-point star badge in anodised silver metal, the rays patterned, a central circle on which the letters AFS in red, pillars and split pin fixing. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/30073059">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#223-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_23.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="223-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_23.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Miss Patience Brand (known as &#39;Boo&#39;) is 18 years old and is part of London&#39;s &#39;Society&#39;. She is now a member of the Women&#39;s Voluntary Service and runs a mobile canteen in London. Here we see her raising her cup in front of the canteen vehicle. - Miss Patience Brand ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205125659">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#531-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_331.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="531-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_331.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            The anodised nature of the badge suggests post War or very late WW2. - badge An eight-point star badge in anodised silver metal, the rays patterned, a central circle on which the letters AFS in red, pillars and split pin fixing. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/30073059">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

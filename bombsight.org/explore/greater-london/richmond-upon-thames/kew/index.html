@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Kew - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922406400000, 4]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.31016843163125102, 51.474045435087938], [-0.30851737085962799, 51.474741296470647], [-0.30699962570286299, 51.475578305973741], [-0.30663079405015098, 51.475841205757888], [-0.30624268876479599, 51.476150198469149], [-0.30580899614832502, 51.476536082688988], [-0.30553121082071499, 51.47683106822722], [-0.30535108777394998, 51.477077022056591], [-0.305165901484443, 51.477399054193725], [-0.30482302149166401, 51.477895981346947], [-0.30427513990551402, 51.478544926294724], [-0.30306824344454297, 51.479706871291349], [-0.30091456705700398, 51.481239660717442], [-0.29982310653761901, 51.482173519139728], [-0.29907785200470699, 51.48294644874921], [-0.29839901409076602, 51.483760531162218], [-0.29783724523859001, 51.484475424037804], [-0.297389353161779, 51.485214306708777], [-0.29713220072548702, 51.485520244359741], [-0.296926252948919, 51.485708203885252], [-0.29673952822264898, 51.485815226011297], [-0.29637664611198999, 51.4859751866504], [-0.29610146936941401, 51.486076291046935], [-0.29339801956374401, 51.486936215055586], [-0.29211784451132999, 51.48729919336251], [-0.29168902386816398, 51.487356032792768], [-0.29016437913815901, 51.48738313226125], [-0.28982912126617, 51.487369109143387], [-0.28939917564018802, 51.487311272554706], [-0.28836355955569098, 51.487056315847063], [-0.28821142577889702, 51.487032179760561], [-0.287449685154958, 51.487012209190709], [-0.28711052897328199, 51.487006270604802], [-0.28679943249196799, 51.486972213958978], [-0.285710764120368, 51.486764239986528], [-0.28470072325745499, 51.486548262197523], [-0.28399083793681601, 51.486322340226785], [-0.28281189218035901, 51.485786476708796], [-0.282618111546734, 51.485625423606301], [-0.28232920611617102, 51.485204456485128], [-0.28212821284480499, 51.485067468434799], [-0.28081802649283399, 51.484444651647159], [-0.28055616057162203, 51.484358619849445], [-0.28026536518831602, 51.484311638812699], [-0.28010915191218899, 51.484300636875695], [-0.279998321891264, 51.484279766193801], [-0.27990027866796702, 51.484241651821634], [-0.27979808659491601, 51.484170741315701], [-0.279431061152914, 51.483996754488629], [-0.27867432030566702, 51.483498792386889], [-0.27783617370932501, 51.482832850590448], [-0.27698761540348898, 51.4820849806488], [-0.27656342982809301, 51.481577976695291], [-0.27624244975323098, 51.48105507550828], [-0.2746853338752, 51.4779524211663], [-0.27394358813716002, 51.476870560766649], [-0.27284773330356799, 51.475502896042187], [-0.27225889695656902, 51.474889903511276], [-0.271589749168551, 51.474270945023108], [-0.270842587139144, 51.473692987437026], [-0.26992406171928202, 51.473101106073145], [-0.27054895073942797, 51.47266422210577], [-0.27369940077044003, 51.470715314054409], [-0.27441120173629002, 51.470179356292192], [-0.27535114282102902, 51.469618379534694], [-0.27564006864354801, 51.469473409417724], [-0.27614396251533302, 51.469271460247796], [-0.27652915176660797, 51.469150527816204], [-0.27684217546376899, 51.469070541576471], [-0.27902149886463501, 51.468799478079575], [-0.280096758656247, 51.468574423086373], [-0.28175124884583203, 51.468152439835691], [-0.28278419901530799, 51.467950488319552], [-0.28376915437976802, 51.467828618263766], [-0.284590078393677, 51.467773466463676], [-0.28538276282805902, 51.467751478381977], [-0.28661794882828601, 51.46784343958138], [-0.287135765234379, 51.467856484044191], [-0.28760281841051599, 51.467831417882749], [-0.28820548836979598, 51.467741441282556], [-0.28775758233972398, 51.468348353376612], [-0.28823665158440598, 51.468507376012731], [-0.28854783535662298, 51.468680382985639], [-0.29090843176014303, 51.469853199565392], [-0.29083933235368398, 51.470197132276795], [-0.29059547235396899, 51.471135955777576], [-0.29025130329702498, 51.4722299755039], [-0.29001050179392002, 51.472845817973692], [-0.289765556005944, 51.473848685245507], [-0.29223337489613199, 51.474206691590403], [-0.292450338431128, 51.47373466145396], [-0.29269526840799498, 51.473007878512554], [-0.29291713013906101, 51.47252481369194], [-0.29314934221458699, 51.471812881598282], [-0.29333029548110001, 51.471364911509632], [-0.29357192238686203, 51.470448113031495], [-0.29420819720213298, 51.47049502345007], [-0.29419886807985002, 51.470539989572828], [-0.29618695688171598, 51.47064294729315], [-0.29805255801605601, 51.470809002097965], [-0.29849237476627599, 51.470911905581396], [-0.29955460579212101, 51.471277880548122], [-0.30012818853149598, 51.47152281130252], [-0.30047640740903803, 51.471596846799677], [-0.300736433317631, 51.471670726616622], [-0.30185811055838802, 51.472120719653518], [-0.30216298687606402, 51.47219876332737], [-0.30257900298226298, 51.472252696598012], [-0.30316809381084397, 51.472286655845465], [-0.30525095652316703, 51.472238655961078], [-0.305406766371974, 51.472247648209098], [-0.30555781587082498, 51.472275687685112], [-0.306974455732544, 51.472660481966422], [-0.30798380812797999, 51.472901545113629], [-0.30850369680343698, 51.473018503675938], [-0.30937032671903197, 51.473152531661313], [-0.30975232787381102, 51.473238407827715], [-0.309955268678483, 51.473323534527559], [-0.310085359122037, 51.473468440322115], [-0.31029955234940998, 51.473480523437743], [-0.31159110549963598, 51.473477350159754], [-0.31016843163125102, 51.474045435087938]]]]}, "type": "Feature", "id": 1525, "properties": {"pk": 1525, "name": "Kew"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Kew, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Kew, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Kew</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Richmond upon Thames</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Kew
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Kew, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Kew: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>127</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Kew</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-492"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-492" id="name-492">
+                    A Boy in an Air Raid
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-492" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by redard (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a2038088.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>February 24, 1944 was my mother's 40th Birthday. As this was only a week or so after my Grandmother's Birthday, the family had arranged to meet at the "Boathouse" for a quiet drink. Despite a sudden spate of short sharp air raids (the first for over two years) it was decided that the arrangements should stand.</p>
+<p>This suited me as my uncle was a friend of the publican and on these rare occasions I was allowed to sit in the hotel's kitchen. Added to this was the prospect of a fizzy grapefruit drink and, if available, a bag of Smith's crisps. The plan therefore was for me to go onto the "Boathouse" at 21:30. </p>
+<p>As I left my friend's place in Bushwood Road, around 100 German bombers were over England and as I walked past Kew Pond and onto the Green, the air-raid sirens began in the far distance. By the time I reached the Bridge the local siren was growling as it slowly died away. Already in the distance I could hear gunfire so I started to trot. When I eventually reached the doors of the Boathouse the gunfire was still far away and, passing through the heavy blackout curtains, I poked my head into the bar. I waved to the family and my uncle signalled that I should go into the kitchen.</p>
+<p>Passing through the swing doors I was greeted by two female members of staff, one of whom I knew from previous visits. There were also two American servicemen, who appeared to be well acquainted with the girls. My father brought my grapefruit drink and I settled back to enjoy it. For a time everything was fine.</p>
+<p>Suddenly it was as though a gun battery was in the car park. The windows rattled as the barrage increased and a cluster of bombs fell. One hit the centre of the bridge, two exploded in the river and the last fell near a surface shelter to the rear of the Pier House Laundry.</p>
+<p>The crash of the explosions rocked the kitchen and, at that moment, I saw a flash to my right. Assuming that I was caught in the explosion I fled, in sheer panic, through the nearest exit at the rear of the kitchen. Rushing through I found myself in a dark passage but the door at the end was firmly locked. As I rattled it there was a thud on the outside and a flickering blue light glowed beneath the door. </p>
+<p>With no chance of an exit I quickly returned to the kitchen. In the far corner of the kitchen an incendiary bomb was crackling away showering whitish blue pieces over the hard tiled floor. One of the American serviceman was lying flat on the tiles and yelling at the others to do likewise in case the device contained an explosive charge.</p>
+<p>In the doorway my mother shouted at me to get out. Water was coming through the ceiling just above the door but she appeared oblivious to the fact that she was getting wet. Back into the lounge it was almost empty of customers. There was a commotion behind the bar, where possibly another device was burning. Together with my family we reached the car park where the noise of the guns and aircraft passing overhead accompanied the explosions of bombs. The sky was full of orange lights floating downwards. My father and uncle practically lifted my grandmother from the ground and we all hurried across the car park. One or two unexploded incendiaries were lying around and we were careful to avoid them. Plenty of activity on the far side of the Bridge indicated that Brentford was having a hectic time.</p>
+<p>A firebomb had struck a solitary vehicle by the car park entrance and lodged between the bonnet and wing. The motorist was tackling the fire with what appeared to be a quart bottle of beer! </p>
+<p>Up on the Green a number of twinkling lights marked the spots where bombs were burning on the grass and away to the right, closer to Ferry Lane, flames were shooting from the top floor of a building. We dashed below ground into the shelter which was the first time I had taken cover on Kew Green since September, 1940.</p>
+<p>Eventually the all-clear sounded and we emerged and made a way to Priory Road. There was now nothing to be seen around the green. All the incendiaries and the fire further over had been extinguished. There was still a glow in the sky from a fire much further east, but apart from this, complete darkness. </p>
+<p>The Boathouse was still there (which surprised me) with the only evidence being a number of different coloured patches on the roof where the bombs had pierced through. A number of lads had managed to obtain Thermite from some of the unexploded devices but this proved difficult to ignite! </p>
+<p>I recall that the events left me feeling a little light-headed and this took a day or two to calm down. These days we would probably call it traumatic stress. </p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a2038088.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-492">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-493"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-493" id="name-493">
+                    A Boy in an Air Raid
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-493" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by redard (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a2038088.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>February 24, 1944 was my mother's 40th Birthday. As this was only a week or so after my Grandmother's Birthday, the family had arranged to meet at the "Boathouse" for a quiet drink. Despite a sudden spate of short sharp air raids (the first for over two years) it was decided that the arrangements should stand.</p>
+<p>This suited me as my uncle was a friend of the publican and on these rare occasions I was allowed to sit in the hotel's kitchen. Added to this was the prospect of a fizzy grapefruit drink and, if available, a bag of Smith's crisps. The plan therefore was for me to go onto the "Boathouse" at 21:30. </p>
+<p>As I left my friend's place in Bushwood Road, around 100 German bombers were over England and as I walked past Kew Pond and onto the Green, the air-raid sirens began in the far distance. By the time I reached the Bridge the local siren was growling as it slowly died away. Already in the distance I could hear gunfire so I started to trot. When I eventually reached the doors of the Boathouse the gunfire was still far away and, passing through the heavy blackout curtains, I poked my head into the bar. I waved to the family and my uncle signalled that I should go into the kitchen.</p>
+<p>Passing through the swing doors I was greeted by two female members of staff, one of whom I knew from previous visits. There were also two American servicemen, who appeared to be well acquainted with the girls. My father brought my grapefruit drink and I settled back to enjoy it. For a time everything was fine.</p>
+<p>Suddenly it was as though a gun battery was in the car park. The windows rattled as the barrage increased and a cluster of bombs fell. One hit the centre of the bridge, two exploded in the river and the last fell near a surface shelter to the rear of the Pier House Laundry.</p>
+<p>The crash of the explosions rocked the kitchen and, at that moment, I saw a flash to my right. Assuming that I was caught in the explosion I fled, in sheer panic, through the nearest exit at the rear of the kitchen. Rushing through I found myself in a dark passage but the door at the end was firmly locked. As I rattled it there was a thud on the outside and a flickering blue light glowed beneath the door. </p>
+<p>With no chance of an exit I quickly returned to the kitchen. In the far corner of the kitchen an incendiary bomb was crackling away showering whitish blue pieces over the hard tiled floor. One of the American serviceman was lying flat on the tiles and yelling at the others to do likewise in case the device contained an explosive charge.</p>
+<p>In the doorway my mother shouted at me to get out. Water was coming through the ceiling just above the door but she appeared oblivious to the fact that she was getting wet. Back into the lounge it was almost empty of customers. There was a commotion behind the bar, where possibly another device was burning. Together with my family we reached the car park where the noise of the guns and aircraft passing overhead accompanied the explosions of bombs. The sky was full of orange lights floating downwards. My father and uncle practically lifted my grandmother from the ground and we all hurried across the car park. One or two unexploded incendiaries were lying around and we were careful to avoid them. Plenty of activity on the far side of the Bridge indicated that Brentford was having a hectic time.</p>
+<p>A firebomb had struck a solitary vehicle by the car park entrance and lodged between the bonnet and wing. The motorist was tackling the fire with what appeared to be a quart bottle of beer! </p>
+<p>Up on the Green a number of twinkling lights marked the spots where bombs were burning on the grass and away to the right, closer to Ferry Lane, flames were shooting from the top floor of a building. We dashed below ground into the shelter which was the first time I had taken cover on Kew Green since September, 1940.</p>
+<p>Eventually the all-clear sounded and we emerged and made a way to Priory Road. There was now nothing to be seen around the green. All the incendiaries and the fire further over had been extinguished. There was still a glow in the sky from a fire much further east, but apart from this, complete darkness. </p>
+<p>The Boathouse was still there (which surprised me) with the only evidence being a number of different coloured patches on the roof where the bombs had pierced through. A number of lads had managed to obtain Thermite from some of the unexploded devices but this proved difficult to ignite! </p>
+<p>I recall that the events left me feeling a little light-headed and this took a day or two to calm down. These days we would probably call it traumatic stress. </p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a2038088.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-493">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Kew: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>127</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Kew </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

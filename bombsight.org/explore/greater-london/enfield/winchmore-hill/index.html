@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Winchmore Hill - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.119153755515273, 51.629856359071219], [-0.118926733658236, 51.630170266129461], [-0.11855189668772199, 51.630608250811754], [-0.118414780577487, 51.630757380682311], [-0.11807093345248799, 51.631057332549396], [-0.117939798246442, 51.631127312086896], [-0.117236446961847, 51.631429214252663], [-0.116821657727523, 51.631697251029685], [-0.116729784971897, 51.631800179748424], [-0.116663070370914, 51.631950151449438], [-0.116624449610815, 51.632163097389622], [-0.116640631419607, 51.632470081687579], [-0.116970510544306, 51.632813009660687], [-0.117151893929826, 51.632904013441014], [-0.11745256063538199, 51.632970944189964], [-0.11795614005197801, 51.63356899550277], [-0.117620566830225, 51.633733911770769], [-0.117390839775514, 51.633872982731347], [-0.117217617386251, 51.634042886009276], [-0.117152919530059, 51.634165910310813], [-0.117026243040028, 51.634716774871933], [-0.116893201563816, 51.634897856262413], [-0.11663542265443699, 51.635124855972059], [-0.116134692148786, 51.635264770295542], [-0.11485580659535199, 51.635569659833195], [-0.11443515913104101, 51.635650861468761], [-0.112790132220332, 51.636050723415401], [-0.11203593571793299, 51.636203829592233], [-0.111312312250629, 51.636381732388983], [-0.11063934990922999, 51.636622693378548], [-0.11038514279495799, 51.636762765682455], [-0.10994762405138001, 51.636945688105655], [-0.10947420465081401, 51.637209661429132], [-0.11002324095774201, 51.637516652818221], [-0.11039789176673501, 51.637803551319031], [-0.110675012784428, 51.638046595186538], [-0.110855418593545, 51.638246424394474], [-0.110694588159213, 51.638314426410098], [-0.10911254384319501, 51.638890464272421], [-0.10865230962900201, 51.639032555346731], [-0.108242462279561, 51.639135539008748], [-0.10786930950961, 51.639203440094214], [-0.10566371572972399, 51.639481477941032], [-0.103588015526903, 51.639698496493857], [-0.10096294160001699, 51.64007055499988], [-0.100677125491296, 51.640209386198606], [-0.099966390981713005, 51.640465412278132], [-0.099465967665737995, 51.640249502314006], [-0.098355191095169006, 51.639919598152126], [-0.100035145350265, 51.635903033588782], [-0.099179217547850002, 51.635745015387997], [-0.096860311051123998, 51.635561047444718], [-0.095873865522096993, 51.635414093810603], [-0.095277452508211999, 51.635357070759333], [-0.093836977946911995, 51.635161148786842], [-0.094696774880770995, 51.632230521667672], [-0.094789262964276005, 51.63204950661045], [-0.094795103707887005, 51.631888577355262], [-0.094842588909525002, 51.631703461722275], [-0.094604189519997994, 51.631638468653847], [-0.094139987521399002, 51.631552535066213], [-0.092902766217862004, 51.631508557613905], [-0.090794169664926996, 51.631483696655906], [-0.088182395643390005, 51.631827589454268], [-0.087885463220987003, 51.631887662426628], [-0.087839713595971994, 51.631665625277357], [-0.087848220983023001, 51.631570642896556], [-0.087947881257722002, 51.631326655127509], [-0.088041055805945997, 51.631215767807177], [-0.088136736458288997, 51.631130777917186], [-0.088954533372998995, 51.630581783590145], [-0.089815950082203999, 51.63006890820207], [-0.089862958171184004, 51.630024847426455], [-0.089890876028191999, 51.629940714924523], [-0.089904996715701999, 51.629840906536117], [-0.089447466173679005, 51.629123903428592], [-0.089202770131661002, 51.628628993632354], [-0.089179788737244997, 51.628401986724242], [-0.089210885874343004, 51.62779114951632], [-0.089189866984341004, 51.627668144613175], [-0.088620751691522004, 51.626405280975284], [-0.088596526056091002, 51.626208318463597], [-0.088629378311420995, 51.625985305155474], [-0.088733718256016003, 51.625694329537907], [-0.088864120991335005, 51.625427378812873], [-0.088900894437111994, 51.625261336115223], [-0.089029916943032, 51.625027530780244], [-0.089436343732539003, 51.625068428237135], [-0.090103244917101005, 51.625013385923928], [-0.090482768066468003, 51.625028408920848], [-0.091649656117111997, 51.625108360447122], [-0.092491524578112994, 51.625144381920656], [-0.092932346272930996, 51.625183303054961], [-0.093363093472208003, 51.62529033789621], [-0.093483557426685002, 51.625346254521517], [-0.093982874584221998, 51.625713216192651], [-0.094179124825313001, 51.625792268888794], [-0.096693538861372996, 51.626449183559387], [-0.097134213009144002, 51.626535149614568], [-0.098156461010248997, 51.626685058930725], [-0.098843897715115994, 51.626823533968334], [-0.099239562799230005, 51.626100926344343], [-0.099513301119588005, 51.62574316213955], [-0.099709182212712993, 51.625572104378953], [-0.10070213405028899, 51.624866249056943], [-0.101663627417486, 51.624286333178944], [-0.101911901267394, 51.624157288938726], [-0.102106880027378, 51.624072346294973], [-0.10261476627458201, 51.623910406727376], [-0.10325680225, 51.623762234881887], [-0.10382767307106, 51.623601353776827], [-0.103783272897507, 51.623583352784721], [-0.10407875264513999, 51.623426410532488], [-0.10420818154066901, 51.623332394622921], [-0.104565143561649, 51.623000373752831], [-0.10544779619438099, 51.621969544721821], [-0.105716093123379, 51.621619514635498], [-0.105951017117457, 51.621268669244436], [-0.106280941250582, 51.620652667594406], [-0.107167597804966, 51.621042543029326], [-0.107910374170565, 51.621288461184669], [-0.1081752802851, 51.620932615789719], [-0.110608887661412, 51.618185846485375], [-0.11206254696183, 51.618705787244473], [-0.111750883554341, 51.618950768177086], [-0.112137919946771, 51.619173616324339], [-0.113135880407219, 51.619514655852967], [-0.11420874225880701, 51.61985660459171], [-0.114123324871038, 51.620000519490091], [-0.114906365950186, 51.62019054776686], [-0.11497654109196601, 51.620065641920057], [-0.116368622351027, 51.620374482152435], [-0.116298389238044, 51.620500511276703], [-0.116126900014661, 51.62069545030554], [-0.11525284396311, 51.621612415868931], [-0.113223308069165, 51.623806136718883], [-0.113722319388965, 51.624249160525501], [-0.113433786925281, 51.624348079519017], [-0.113134719324075, 51.62450513481707], [-0.113450068301581, 51.624652110536772], [-0.11365308028427, 51.624664424447417], [-0.112420862087712, 51.62691078420535], [-0.113320542435908, 51.627273693771592], [-0.11394534948485199, 51.627558708478482], [-0.114447835081237, 51.627766717646914], [-0.115381944043323, 51.628062585178483], [-0.11667918607720899, 51.628399547744948], [-0.116983836931264, 51.62852245597886], [-0.117417649182323, 51.628666550885292], [-0.11771130167862499, 51.62881541368067], [-0.11796181743398999, 51.628915535869751], [-0.118057983009989, 51.628948551061356], [-0.118502608590304, 51.629180486411784], [-0.11884463262465, 51.629295425075213], [-0.119519767029218, 51.629478360588799], [-0.119153755515273, 51.629856359071219]]]]}, "type": "Feature", "id": 1214, "properties": {"pk": 1214, "name": "Winchmore Hill"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Winchmore Hill, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Winchmore Hill, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Winchmore Hill</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Enfield</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Winchmore Hill
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Winchmore Hill, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Winchmore Hill: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>32</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Winchmore Hill</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-576"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-576" id="name-576">
+                    Wartime in London <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-576" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Rosalie (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/16/a2115316.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Wartime in London</p>
+<p>When I remember the day war broke out I automatically think of that far distant holiday with my family at Pevensey. We had booked a bungalow on the beach against advice, as everybody had been warned to keep away from the coast, but it was our only chance to take my invalid sister back to visit her beloved sea once again. So we set off in a very large hired car together with my beloved black cocker spaniel dog, my mother’s “home help”, lots of luggage and the rest of us.</p>
+<p>War had not actually been declared yet but everyone was on the alert and we were stopped and questioned many times during our journey, as of course there were many rumours going round about “spies” probaby disguised as nuns or in other innocent-looking garb.</p>
+<p>We arrived OK and nothing untoward occurred until the next morning when my father, who was very elderly but extremely energetic with auburn hair and the temperament which goes with it, summoned us all to get up and get in the sea for our early morning dip before breakfast. Almost at the very moment we started to run down the beach to the sea, all the world seemed to go quiet except for the radio which in solemn tones announced that the Prime Minister, Mr Chamberlain, was about to make an important announcement to the country. This announcement was to tell us that the promise we had all been hoping for from Hitler to state that he would not invade Poland had not been received by 11 am which was the stipulated time. Thus, this country was now at war with Germany.</p>
+<p>Naturally, war not being exactly an everyday occurrence, we did halt in our trek to the sea to listen to the awful news, but my father turned back to us, beckoning furiously to get into the water and start swimming now and let the war look after itself until the more important business of physical recreation had been dealt with. Our country was of course bound by a promise we had made to come to Poland’s aid if Hitler invaded their country.</p>
+<p>Unfortunately, soon after the announcement of us being at war, it was decided to try out the air-raid siren ( I presume it was in order to make sure that it was in working order) and of course many people panicked, wondering where to run for shelter in case bombs started to rain down upon them. In actual fact, we had no air raids for quite a time, which almost lulled us into a sense of false security and made it even harder when the big raids really did start night after night.</p>
+<p>We were instructed to cover the glass parts of all our windows with strong adhesive paper, to avoid splintering of the glass as much as possible in the event of a window being shattered by a bomb. Also, we were told to buy yards and yards of black material with which to cover all our windows in order to avoid any single chink of light being visible to an enemy ‘plane. In the case where anyone was careless, an Air Raid Warden would soon rap on the front door and tell us off for not obscuring all light efficiently.</p>
+<p>Then we were all issued with gas masks!!! I have an idea they were all handed out to us at the local Church hall, where we received instructions as to how to use them and, it was rather like looking at a scene from a horror movie, to view all our old neighbours and friends wearing those awful but necessary monstrosities. Even babies had them of course. Ration books came next, but although I still have vivid memories of furiously trying to cope with making dried egg into scrambled egg (although my mother steadfastly refused to touch it) and also beating up margarine with milk to make it spread further, I cannot recall exact quantities, but I will visit the library before I close this stock of wartime memories and see if I can find a book giving these details  as I am sure someone has noted them down.</p>
+<p>I believe we were allotted about 4oz per week of margarine and about 2oz of butter. I remember the tea ration was an embarrassment , as the ration I believe was about 2oz per week and one simply couldn’t afford to be hospitable if a friend came to visit in the afternoon , as it just didn’t go far enough. I remember the meat ration varying from time to time according to the lack of shipments I suppose, and also the bread ration was cut severely at one time, which was a real hardship, as one could always “fill up” with bread when meat and cheese were in such short supply. Very occasionally, if one was lucky, one could spot a long long queue outside a butcher’s shop, which might mean that he had a small supply of offal which was off the ration and one would hopefully join the end of the queue and wait hours in the hope of getting a small portion of something off the ration to make an extra meal.  Also, I remember on a few occasions, if you were on good terms with your butcher, he would tip you the wink that he had put a couple of sausages into your shopping bag on the quiet if you were a good customer.</p>
+<p>I can’t exactly remember what the milk ration was, but I do remember being issued with a tin of frightful powdered milk which we had to use to make up any deficiency in this direction. I did taste it once and can still recall that awful tinny condensed flavour. I don’t remember any particular feeling of hardship about the milk ration though, and I know that there were thousands of landgirls taking the place of all the farming lads who were then in the Army and they must have helped the country enormously. I seem to remember the lack of butter and margarine most of all and I recall, when on one occasion having some distant relations visiting us and having no margarine left at all, I risked trying out a wartime recipe for sponge cake made with liquid paraffin of all things! It was so exciting when it rose up and looked just like a real normal sponge cake and, with a spot of home-made plum jam in the middle, nobody was any the wiser as to the ingredients. Talking of jam, we were so grateful for the plentiful fruit which we had in the garden at that time as the plum and greengage trees produced such bountiful crops. I can remember one year when we gathered over 90lbs of lovely fruit which we distributed around to all our neighbours and friends, and also bottled lots as well as making pounds and pounds of jam. We were of course encouraged to grow as many of our vegetables as possible as well and most able-bodied people took on allotments, as well as using all the spare room they might have in their home gardens. Of course there were hardly any foreign fruits because they had to be transported by ships. Occasionally, one might be lucky enough to find a shop with a very limited supply, but many youngsters had never seen oranges or bananas until after the war.</p>
+<p>Oh, and the sweet rationing!!! That was indeed hard to bear, especially to those like my family who were all chocoholics! Once our tiny ration was finished we had to suffer until the following month. And perhaps not even a cigarette to fill the gap!! <br/>
+Fish was not rationed, but of course it was limited and one could very rarely get anything more exciting than herrings or fish that could be caught by our local fishermen around our own coasts. Indeed I do remember having to deal with the most unusual and extraordinary-looking fish whose like I had never seen before and we usually got over the problem by stuffing them with onions and herbs etc. and baking them in the oven. This seemed to get over the problem and indeed, some of these fish were quite palatable. However, I do sometimes wonder if this experience in some way accounts for my now avoiding fish as often as I do.</p>
+<p>Tobacco wasn’t exactly rationed, but you just couldn’t get any! Naturally, anything which had to be carried over the dangerous seas was very scarce indeed and after all, in wartime was considered a luxury, although at times I reckon it saved our sanity in times of stress and worry. Occasionally one could find a stray packet of cigs perhaps in a country pub or corner shop, although loose pipe tobacco was a bit more accessible and, I remember spending hours on my honeymoon sitting on the bedroom floor in a country hotel, rolling the most revolting-looking fags from filter papers and pipe tobacco.</p>
+<p>After that very first seaside holiday when the war started, we were no longer allowed to visit the coasts on account of mines - also the Army settled in at many coastal places, building defences. But I can recall a delightful holiday when Edward and I had some leave, on a tiny farm at Ledbury away from the coast. The young farmer and his wife had only recently started up on their own and were quite poor and, to help financially they started to take in a few visitors. They were such a nice couple and we arrived just as it was time for lifting the potatoes so, being mugs, we helped in this somewhat backbreaking job, as the only other help they had was from an extremely lazy Italian prisoner-of-war who kept on falling asleep. But we really enjoyed it and the farmer and his dear little wife were so grateful that they gave us loads of apples and a small chicken to take home. A free meal! I shall never forget those apple dumplings which the farmer’s wife cooked in a huge pot for our evening meals.<br/>
+Edward actually was over the joining-up age when the war started, but he had joined the “Terriers” City branch before the war actually started, so he was in it from the first. Strictly speaking, he was in a reserved occupation, in a key position, and it took us a long time to get him back into shipping, which was considered as vital as joining the Forces, as everyone relied completely on tramp ships to bring over most of the necessities of life. However, after many moons had passed, when he had been sent to France and only returned after Dunkirk, he was discharged from the services and then asked to return to shipping, which was needing all the help it could get with the number of our ships which were lost while carrying foodstuffs etc. to our shores.<br/>
+I too went to join the services, but by that time they would not accept anyone who was in shipping, so I was told to continue in my job.</p>
+<p>Now that France had fallen we were on our own and of course then the air raids really began in full swing. Many little children were sent to the country for safety because life in London was so very dangerous. It must have been heart-rending for the parents to watch the pathetic lines of children with their name labels attached to their coats, all clutching gas masks, waiting to be put on trains to be looked after by complete strangers in Wales or elsewhere far from their homes. Some were lucky and got on well with their new families and, in fact, kept in touch with them all their lives, but others were miserable and perhaps not really wanted, and many came back to their own parents and braved all the dangers in the big city.</p>
+<p>At this time business went on more or less as usual, except that of course we were constantly interrupted by the wailing of the air raid siren. In our case, we had a safe area under the Baltic Shipping Exchange until the raid was over, but nobody seemed to bother but rather went up on the flat roof to watch our boys in the fighter planes driving off the enemy! Often blobs of oil would fall from the planes as they got a hit somewhere. It seems so strange to think of all that went on in those days and yet it took the IRA to demolish that lovely building - (the Baltic Exchange).</p>
+<p>At home things went on surprisingly normally, although at night we had shifts taking turns to turn out with stirrup pumps and huge buckets, so that if firebombs descended we could quickly get started to damp the fires down until the proper fire brigade arrived. It was a bit creepy as there were no street lights at all and we had to grope our way around in the dark, although we sometimes got a fit of the giggles when one of our group got a bit humerous. It was not always funny though, as our house was fairly near a railway line, which was a target of course, and one night the house opposite ours received a direct hit and went down like a pack of cards, killing the owner of the house and injuring his poor wife.</p>
+<p>Nobody grumbled at having to turn out at night for this fire-watching, for in any case it was impossible to sleep properly while raids were so bad and it was more cheerful to be with a crowd outside. Also our anti-aircraft guns always made us feel better I think, as we felt they were fighting for us. I always think of my sister’s husband who was a Naval Officer. He was decorated for gallantry while on the HMS PENELOPE the famous “PEPPERPOT” ship which ran the gauntlet of the Germans at Malta and which succeeded in getting through at last. I went with him to Buckingham Palace where he was decorated by the Queen because sadly my sister could not make the journey. In spite of his medal for bravery, he confessed to me that he was shivering with fear when he was on leave at home simply because he could not fight back. While at sea he was in charge of a lot of men behind a huge gun and one forgot to be afraid I suppose.</p>
+<p>Air raids were very cruel to animals and I remember when my cousin at Southgate was bombed, we all rushed over to help clear up debris etc., but also to find their beloved dog Monty, who had been frantic with terror and couldn’t be found. We did find him eventually, much to our relief. My own dog was a black cocker spaniel and he became so terrified night after night that he nearly went mad trying to dig his way through the walls, and we had no alternative but to let him go and live in the country with a kind relation so that he could finish his life in comparative peace and quiet.<br/>
+Then the buzz bombs started coming over and they really were the most unholy invention, as they were an extremely outsize bomb which flew automatically over our cities (if they got through). While it was flying, it made a sort of chugging noise rather like “Jaws”, but the frightening part of it was that shortly before it was going to land, the noise cut out and one was left wondering how many minutes you had before it crashed somewhere and you couldn’t even guess where, because you didn’t know how long it was going to fly. I remember taking an elderly lady visitor home one night as a buzz bomb sailed over Palmers Green. We had to lie down on the pavement and hope for the best, and in fact were quite lucky as it crashed on to Palmers Green Station, which was only one road away from us, but we were unhurt. It was in fact strange that one could not predict which way the blast from a bomb was going. In a house at the back of ours a huge land mine dropped on the roof. It went completely through the roof, through the bedroom ceiling and floor, crashed through the ceiling of the lounge and landed up perched precariously on top of a valuable grand piano, where an elderly lady was sleeping because she had refused to go to the air raid shelter. Apparently it  was such a large landmine that everybody from all the roads nearby was evacuated to spend the rest of the night in a Church hall for safety while the mine was being made safe. </p>
+<p>By this time many people were managing to leave England and go to the USA. My office decided to do this and I was supposed to go, but I had my family over here, including my invalid sister, and I didn’t want to go to America. So it was arranged to take certain valuables and transfer the office to Beaconsfield in Buckinghamshire with a skeleton staff, many priceless valuables belonging to the Shipowners, and also the French Housekeeper. There was one Director, an Accountant, a junior and myself, but of course we were still carrying on the actual London office in St Mary Axe and we had to travel to the City almost every day. It entailed quite a long journey up to Marylebone and then on to the City, but it was better than being in America, as I could visit home sometime over the weekends.</p>
+<p>The worst journey I can remember was one day when the Director had gone to Bristol to visit one of our ships and I simply had to get to the City. It was the morning after the most horrific bombing all night and, when the train arrived at Marylebone, there was no means of transport to the City as all buses and tubes were out of action. So we had to walk there and I will never forget the horror of passing the half dead-looking firemen who had been working all night, and the screens set up in the road to hide the bodies of all the poor dead horses which had been burnt in the stables there, as well as many people who had been killed and there had been no time to get the bodies taken away. I wasn’t even sure of my way to the office, but a kind man walked with me all the way and offered to meet me in the evening and walk back to Marylebone again. It was typical of the kindness of simply everyone in those days - everyone helped everyone else, even if they were total strangers. Yes the war was vile and horrible but people were all wonderful. One never heard of muggings or rape or murder and no woman was scared to go out alone at night in those days. Because ships couldn’t be spared for anything except the most vital supplies, nobody was allowed to use a car except Doctors, ambulances, Government officials and anybody in a very important job like public helpers etc. There were taxis, but they were not very numerous as most young drivers were in the services. My cousin was expecting a baby and in the middle of the night her pains began. Her husband called for the Doctor, but he had been called out. Poor cousin Mary scrambled into a few clothes, but in the dim light couldn’t find her knickers. She grabbed a slip, skirt, sweater and odds and ends. No help arrived until the worst happened and her water broke! But suddenly as she stood there with water pouring down her legs in her skirt, sweater and a hat ( with a feather in the side) the bedroom door opened and two burly firemen entered the bedroom as they had come to her rescue and rushed her to Chase Bank Nursing Home, where my favourite nephew John was born. No wonder he’s bought a boat and is mad on sailing after that watery introduction to this world.</p>
+<p>At that time many people had air raid shelters built in their gardens. We did not go in for one as it would have been impossible to get my sister into one, so we had to take a chance all together in the house, but many other people spent every night down in the tube stations, which must have been comparatively safe as they were underground and quite strongly built I should think. They were allowed to stay there all night and they brought mattresses and blankets etc and had their own “places” on the platform, mostly resting against the platform at the back, away from the edge of the platform to allow passengers to pass in front of them to get to the trains. Many nights when I was going home I used to see them and although I felt a bit sorry for mothers of small children who must have suffered from lack of sleep with all the row, many brought down musical instruments and they used to sing and play to keep up their morale.</p>
+<p>Many people tried to avoid having babies at this time as it must have been absolutely traumatic to have to care for a little child, not knowing how long it might be before you were caught in an air raid with a helpless child, possibly suffering permanent damage through injury or even terror. Also of course, there was a risk of children losing one or both parents, because in the big towns like London it was as dangerous if not more so than in many of the services, which were sent to more lonely places on the coast or in the country.</p>
+<p>Being in the younger generation at that time, one of the things which hit us badly was the clothes rationing. We could only buy very limited numbers of garments with our coupons at any time. We got up to all kinds of tricks however, and as for a short time we were able to buy curtian material without coupons, I can remember making a smashing summer dress out of a nice flower printed curtain. I remember the Vicar of our church who was quite a love and he used to be sorry for the young brides who used to come to him for the usual pre-marital talk, and he would part with lots of his own clothing coupons to them to help get together a small trousseau.</p>
+<p>Many theatres were closed but I remember quite often going to the Leicester Square theatre and also many other cinemas kept open.</p>
+<p>The Windmill Theatre carried on right through the war until the bitter end and they were very proud of doing so. I went there once or twice, but I think it might have interested men more than women as it was slightly “near the bone” for those times and the girls often posed in the nude, but they were not allowed to move and had to stand perfectly still in very artistic poses!!</p>
+<p>There were also a lot of charity concerts which helped various war charities and I remember one I attended at Wigmore Hall where the Queen (now the Queen Mother) was attending. On the way there, my friend and I happened to pass a sweet shop and THERE WAS A QUEUE OUTSIDE! Of course, as everyone did in those days, we joined the queue to investigate and discovered that they had a limited supply of giant peardrops for anyone who was lucky enough to have a few sweet coupons left. My sister adored peardrops so we waited and eventually succeeded in getting about 2oz.. By that time it was getting rather late so we had to get a move on to get to the Wigmore Hall just in time for the Myra Hess grand pianoforte recital. We rushed in through the door just a second before the Queen arrived, but owing to the poor quality of the peardrop bag I spilt half of them on the red carpet just before the Queen tottered in on her very high unstable heels, which she always wore because she was not very tall and we were petrified in case she fell over them and had a bad accident. My friend warned me that I would probably end up in the Tower of London if she was seriously injured. Fortunately she survived without mishap and I escaped being beheaded and my sister was delighted with the remainder of the peardrops, although I grudged losing the few that were dropped on the carpet.</p>
+<p>Perhaps at this time we all lived too fast because here in London as well as many other places, we never knew from one minute to another if we would be wiped out with a bomb. So many young people met in the Forces, got married in haste and then regretted it as they found they were totally unsuited. I suppose we all lived trying to cram a lifetime into whatever time we had left. Wartime memories to me are a mixture of bitter and sweet. Yes, it all sounds exciting and people were all wonderful - it really did bring out the best in them, but when I remember a lovely young fresh Canadian Airforce boy whom my Canadian Auntie sent over to us on his way to serve, and he spent some time with us, and then was immediately killed almost as soon as he arrived at the Squadron, also my friend whose husband was killed so soon, war is sickening, but sadly we had no alternative when a maniac conquered half the world or we should have all been enslaved.</p>
+<p>Appendix</p>
+<p>Fuel Shortage - electricity cuts etc</p>
+<p>We suffered quite a lot of electricity cuts during some periods of the war and in these cases we were advised to take half-cooked casseroles out of the pot and transfer them to wide-necked thermos flasks which retained the heat until we could finish off the cooking in the oven. Another bright idea was to manage to cook about 4 meals at once in the oven so we only had to use gas or electricity about twice a week.</p>
+<p>Rationing</p>
+<p>I have been in the library trying to find out exactly what the rations consisted of but in fact they were not constant all through the war, as I suppose they varied according to how many ships we had to bring the various supplies.</p>
+<p>At one time the meat ration was based on price - viz: 1s.10d per week for an adult. This would be worth about nine pence in present day values but of course in those days meat cost only a fraction of present day prices.</p>
+<p>Tea ration was 2ozs per week.</p>
+<p>In 1940-41 many foreign foods were reduced owing to severe losses of ships. Meat particularly went down and at one time whalemeat was offered to the public to take its place. Apparently barracuda whales were caught and I think it was called “Snoek”. It was sold in tins but I should think it must have tasted vile and in fact I believe it finished up mostly as cats’ food. We did not risk trying it.</p>
+<p>Christmas</p>
+<p>I remember one Christmas particularly when we were thrilled to be told we were going to be allowed some extra dried fruit and also extra butter, margarine and sugar in order to celebrate by making a rather anaemic Christmas cake and pudding and it was so thrilling to find a recipe for making “ALMOND PASTE” (to put on top of the cake) made with parsnips, cornflour, icing sugar and almond essence!!!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/16/a2115316.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-576">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Winchmore Hill: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>32</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Winchmore Hill </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

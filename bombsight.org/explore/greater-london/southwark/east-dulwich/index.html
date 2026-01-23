@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in East Dulwich - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[[-925095600000, 1]] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.080230008127195995, 51.461765397336059], [-0.079765314695860998, 51.461518504802079], [-0.079502632380437005, 51.461431574344118], [-0.079241693204713998, 51.461410586096335], [-0.078753451712622005, 51.461424502019632], [-0.078570362817838996, 51.461456484421824], [-0.077858070467927004, 51.4617064393235], [-0.07762402198658, 51.461773424117112], [-0.077209510667474002, 51.461809482670581], [-0.076911651422617994, 51.46174656528077], [-0.076670406861355997, 51.461663497743309], [-0.076378356568364003, 51.4615266289318], [-0.076126720615268997, 51.46136962065107], [-0.075254250063506001, 51.460721600033409], [-0.074282324792286997, 51.460983569369844], [-0.073783938847365005, 51.461088636841517], [-0.073097484840827995, 51.461194681374138], [-0.071430411079969003, 51.461416745295971], [-0.071198486962018998, 51.45888184905607], [-0.071189921100191997, 51.457399040444606], [-0.068871160821473001, 51.457215151707594], [-0.068102874072725, 51.457108216776987], [-0.067817519025307998, 51.45704829061453], [-0.067574616903378001, 51.45698414621625], [-0.067017575293689, 51.456796234993519], [-0.066661014954264006, 51.456654345763084], [-0.066407499306443005, 51.456522295402436], [-0.065824530862888003, 51.45616027855656], [-0.066405409013948993, 51.455443421197479], [-0.067658233435239995, 51.453683533146538], [-0.067367135890972998, 51.453525578691405], [-0.066170812692392, 51.452713789861811], [-0.065370481102886999, 51.452068844384485], [-0.064786808007664995, 51.451554925049152], [-0.066804930595615999, 51.450352009987171], [-0.066978219956319002, 51.450231915712479], [-0.067925119868463002, 51.448896242877396], [-0.068100890169828995, 51.448717170556399], [-0.068412215111357005, 51.44839519648427], [-0.068586443809361006, 51.448252213793857], [-0.069168850172696, 51.447879204239818], [-0.069515270529465004, 51.447727251021604], [-0.069679450111176003, 51.447673193502062], [-0.070070729601322004, 51.447566242627808], [-0.070437705342520002, 51.447502308490243], [-0.070743204403386994, 51.447339281671169], [-0.072197144919679004, 51.446758949219699], [-0.072441322361553998, 51.447191298094346], [-0.073075603575038006, 51.447935192495379], [-0.073742053181267003, 51.448599101972292], [-0.075043221721348002, 51.44974188657114], [-0.075285245750477001, 51.449975879593339], [-0.075621299903309999, 51.450326908656443], [-0.076006299314726994, 51.45077584358738], [-0.076489289850808995, 51.451440648261745], [-0.076817012335659005, 51.452054577469397], [-0.077359168103879994, 51.453174483843164], [-0.077505132537067006, 51.453511440415632], [-0.077522265915276001, 51.453660373978941], [-0.077488077992999005, 51.453917374646963], [-0.077350501400348007, 51.454344371881071], [-0.077140122349979995, 51.454769336844073], [-0.076691116391448003, 51.455371232093832], [-0.077588839689722994, 51.455630304086675], [-0.077759242271104007, 51.455707143738266], [-0.078433230322361006, 51.456924053046045], [-0.078532354328063006, 51.457562886119511], [-0.078565000988359002, 51.457664033042562], [-0.079131652088706997, 51.459080742716282], [-0.079793801258186997, 51.458867824205299], [-0.081842856810486003, 51.458083877071282], [-0.082175834824905994, 51.457909897665076], [-0.082939935645369001, 51.458525881682327], [-0.080230008127195995, 51.461765397336059]]]]}, "type": "Feature", "id": 1540, "properties": {"pk": 1540, "name": "East Dulwich"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in East Dulwich, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in East Dulwich, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: East Dulwich</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Southwark</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    East Dulwich
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in East Dulwich, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in East Dulwich: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>19</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <div id="day_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in East Dulwich</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-623"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-623" id="name-623">
+                    Itinerary of one 14701281 Frank Wilkinson <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-623" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Brian Wilkinson (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3844622.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The following account was written by my father, Frank Wilkinson, recollecting his WW II experiences. It was written shortly before he died in 1992. Parts 2 &amp; 3 follow as separate stories.</p>
+<p>WW II itinerary of 14701281 (Wilkinson, Frank) — Part 1</p>
+<p>		In 1938 I was 27 years old and living in Normanton, West Riding of Yorkshire where I volunteered for work in assembling and fitting gas masks for civvies. Then did a bit of LDV preliminaries on the grammar school football pitch. Armour, one broomstick, marching etc.<br/>
+	This sort of feverish activity did not last long but gas masks continued. I qualified for 3 — an ordinary common one, then later a Civilian Service one and then a Services one.<br/>
+	As outbreak of war approached there was hectic preparation at Council Offices, packing and labelling of records and vacation of space to accommodate Civil Defence. I had to take charge of Financial Records, Files, etc.<br/>
+	I was due to marry on 6th September but War, declared on 3rd September, meant cancelled honeymoon but a special concession of 1 day off for wedding.<br/>
+	On 3rd we had to report to Council Offices for “sandbagging fatigue”. The sand was reclaimed ashes from council tips, the bags were fairly open hessian and it absolutely teemed down.<br/>
+Hoist soggy bag, thick juice flowed up arms, down armpits and everywhere else. My joy was complete as I saw, pipe in mouth, smirking, a Councillor who seemed highly amused.<br/>
+	Wedding Day, carrying gas mask, turned out lovely, although I had been handling a ton of coal delivered that morning to our new home. Decorators had to do a rush job, which they did and celebrated by spreading dried peas etc., under the bed sheet.<br/>
+	Life settled happily and by 1940 I had transferred my voluntary activity to the Auxiliary Fire Service. 1 boiler suit, 1 tin hat, 1 pair wellies and 1 hatchet. Turn out at every air raid warning and home on the ‘All Clear’. Fatigue seemed worse a full 24 hours after call out. 36 hours training was necessary and involved ‘Climax’ pump operating, hose running and coupling, ladder drill, roof work, fireman’s lifts etc. 1 chap came to the ‘station’ and didn’t leave for 36 hours and was most upset not to have qualified as a Fireman. Equipment, 1 Morris Fire Engine (full time brigade), 1 Climax Pump (large) and 1 Climax Pump (small) and 1 GUY M/V lorry known as ‘Spitfire’ and 1 Ford V8 Pilot Support Car. Highlight call was with the ‘Spitfire’ and Climax to a chimney fire on Pontefract Road and we had to door knock to find where it was. It had been choked out.<br/>
+	Before turning out, of course, I had to see wife and daughter safe down the cellar.<br/>
+	Stand-by time at the station was spent either playing the piano (honky-tonk quality) snooker or snacks. This until the onset of the NFS, which brought a promotion to Control Room Officer with shiny metal epaulettes.<br/>
+	All this time I served because I was first in a “Deferred” occupation at the Office followed by a “Reserved” occupation. When this showed signs of terminating my wife took up paid work first in the Food Office and then as a clerk in the Electricity Office, with the Council.<br/>
+	Eventually towards the end of l943 my Call-up notice came telling me to report to “Brancepeth” Castle, County Durham on Jan. 6th which I duly did and woke up to my 33rd birthday to Reveille. What an awakening. Stuffy barrack room, top bed on a 3-tier bunk. We recruits<br/>
+were received into the Main Hall of the Castle, big open fireplaces both ends fired with full size Pit props. Spam sandwich and mug of Cocoa. We never saw that Hall again.<br/>
+	Made a trio with a man of similar age and an 18 year old from Hull and when I sought to find the nearest Methodist Church they volunteered to walk 2 miles or so with me. We helped each other to settle.<br/>
+	My various items of kit, jabs and aptitude tests followed over the first two weeks, then followed square bashing, rifle drill, bayonet drill, trench digging and crawling with rifle.<br/>
+	This resulted in their conclusion that I was NOT a fighting man, my conclusion that you must be fully fit to be able to report ‘sick’ and wear “Full Battle Dress” and the reward ‘medicine and light duties’.<br/>
+	I was glad to get over the first 6 weeks and was then posted to ‘Signals’ at Catterick. Further tests of temperament and attitude made them put me to Cipher Training, my ability to concentrate being the key.<br/>
+	However, before I could be trusted to secrets of Cipher I must go on an NCO’s course for a number of weeks.<br/>
+	Catterick — we were housed much more comfortably in Hoare-Belisha “Spiders” designed by H-B, a politician, and all the prospective NCO’s were mature age some even older than me. It was now nearly March 1944 and mornings were not so dark and cold.<br/>
+	We had fun! We had to take square drill on our own, watched of course by Regular Instructors.<br/>
+	One chap with a weak voice let us get out of earshot and with Arms at the Trail (arms length and horizontal) left us heading straight for the corrugated cover at one end of the Square, and you can imagine the clatter as the muzzles hit the metal.<br/>
+	At firing practise I did very well and got 8 holes out of 5 shots on my target, and the grouping was good enough to pass me. The man on my left had aimed at my target and had to wait a week to retake his test. “Exercise ME” was interesting. We were each given an Ordnance map and a Compass, sent out in an enclosed lorry driven out into the countryside, dropped individually at wide intervals and then find our way to a rendezvous at say 3 p.m. Failure to get there meant find your own way back. I failed to rendezvous but eventually got to Reeth where I found there would be a bus to Richmond at 8 p.m. and then hopefully some transport to camp. Fish &amp; Chips and a cup of tea in Reeth helped but it was a long wait to 8 p.m.  Arrived in Richmond late but found another bus to camp but unfortunately the lad behind me had had too much drink, the bus shook a bit, he exploded and I got the benefit. It was horrible.  Just to put the finishing touch, I was called into the Guard Room to explain my late return, they smelt my uniform and suggested I’d been drinking but after a lot of sarcasm and a few dark threats I was sent to my billet. My pals greeted me to say that I was detailed for Church Parade in the morning but they all lent a hand, cleaned my uniform, ‘blancoed’ my belt and gaiters. Got to bed at last, got ready for Church Parade at the Methodist Church, my responsibility to report to the Signals Corporal outside the Church. Couldn’t find him, went into Service which I enjoyed only to find ‘I had been put on a charge for failing to attend Church Parade”. I was marched into the Orderly Room and when questioned claimed that I had been there. “You’re sure of that, Wilkinson?”, “Yes Sir”. “Right, ask Lt.?? to come in. He was at the Service and will question you”. It turned out alright in the end.<br/>
+	Finished at Catterick, passed my exams, was made a Lance Corporal and posted to Cipher School at East Dulwich.<br/>
+	While there my father-in-law died on a weekend when all leave had been cancelled and my address changed to BWEF (British Western Expeditionary Forces). I tried to get compassionate leave, was sent from Dulwich to Signals HQ, from Signals to the War Office and eventually was given a 72 hour Pass and travel warrant and was warned that, in view of the cancellation order, all the CMP’s will stop me to see my documentation. No one stopped me and off I went to my in-laws’ home at Sandal, Wakefield.<br/>
+	Reported back to Dulwich, completed the Cipher course and was ceremoniously sworn to secrecy and posted to 43 WESSEX DIV. at Tenterden (Kent) although officially just BWEF. Spring 1944 was glorious and the streets and lanes in Tenterden a mass of flowers — primroses, fruit blossom, wild flowers — bliss. After Signal Office night duty, a wash, shave, breakfast and then out into the fields. Feeling a Philistine treading on primroses, found a nice sunny spot laid down and slept. It was idyllic. Tudor Rose Café for coffee and scones and back to base for mid-day meal.<br/>
+	Too good to last and were uprooted and in a convoy moved into a marshalling area, which turned out to be London, West Ham Greyhound Stadium. The convoy journey there was fantastic with people lining the route cheering us and offering sweets, drinks, just anything and everything they had. It struck me that we were probably already better fed than them. As we neared London we became impressed by the number of captive balloons.<br/>
+	The stadium accommodation was rank upon rank of 3-tier bunks, some of which protected by corrugated iron roofing. On our first night in West Ham we were deafened by the box-barrage and the peppering of shrapnel on the iron roof. Add searchlights to this lot, and the drone of planes it was impressive we thought as we lay on our bunks fully clothed wearing our tin hats, we soon realised that tin hats wouldn’t protect us much. However, we began to crow about the box-barrage bringing down our planes, until after a few days, we realised it was most likely V1’s with fuel spent, coming down and exploding, not reassuring!<br/>
+	After a few days we got the whisper of D+11, our intended move. We were taken by bus to Tilbury Docks and embarked on the ‘Fort Esperance’, one of the American Liberty ships, welded not riveted. As expected we were assured the welding wouldn’t stand up to depth charges and mines.<br/>
+	In our hold there were 364 of us, some 80 to 100 in shallow hung hammocks, and the rest of us bedrolls edge to edge on the lower hatch covers. There were one or two blue lights to help us grope our way. Sea-sickness or nature made visits necessary and you can imagine the crawlings, groans,<br/>
+cursings etc., but we managed. One satisfaction, as we moved down the Thames Estuary, was a V1 passing fairly low over us, moving in the same direction as us. The clever ones of us, realised that the V1 had probably had its wings ‘tipped’ by one of our fighters and was now heading back to enemy occupied territory.<br/>
+	We moved out to sea and we were told that the captain would be firing our 4” gun (our main protection). A flash, an explosion, smell of cordite, a shell tearing the air apart and a poor seabird disappearing in a cloud of feathers. Next morning, on deck, we saw we were part of a huge convoy of ships of all kinds and sizes guarded by a cruiser, 2 destroyers and smaller but faster naval craft.<br/>
+	It seemed a very long trip but watching the convoy was interesting and an occasional one couldn’t keep up, so was told it could leave the convoy but it would have to make its own way.<br/>
+	Later in the voyage we could see what looked like a near wreck tethered to a line of fence posts. This didn’t make sense at all but eventually it transpired that it was part of the Mulberry Harbour, being towed into position by one of the ships already filled with concrete ready for scuttling when in position. As we neared land the sea got rougher and stayed so for 6 days during which time we had to ride at anchor; all the others doing the same. Behind us, further off shore, were two battleships, ‘Duke of York’ and another functioning as artillery against enemy shore emplacements. Add to this, spotter aircraft — small biplanes and Lysanders, exploding depth charges and German magnetic mines, life was never dull. Sea explosions brought up stunned fish, which were cleverly caught in empty dry-ration tins converted to colanders. Lucky anglers managed to get the ships galley to cook them. Our food in this period was ships biscuits, ration chocolate, self-heating soup, the latter quite welcome. The heating was achieved by a tube built-in, activated by removing the tip, having first pierced two air holes. Hot soup poured into enamel mug and enjoyed. Soup tin was holed at the bottom to ensure its sinking when pitched overboard.<br/>
+	Less enjoyable were the following facts:-<br/>
+1.	Our Reconnaissance Unit, housed amidships with transport on deck and transport below, was mined, set on fire and was a total loss of men and equipment. There were other losses too.<br/>
+2.	Spotter aircraft used bulldozed landing strips, which were very dusty and so disclosed their locations. Dust was kept down by spraying with heavy fuel oil, which also impregnated the air and fell at night filling our ships holds and our lungs. As the sun rose, so did the temperature and the fumes.</p>
+<p>Six days of this (now D+17) it was safe to land so far as the waves were concerned. Our vehicles, together with operational staff were transferred to LST’s  (Landing Ships Tanks) forced on to the beach, ramp doors were dropped, and vehicles driven off, but carefully because they were heavily plastered with water-proofing gunge which had to be stripped off as soon as possible. The area was fairly firm sand dunes, and we on foot had followed to help with the de-proofing. It was dusk and soon dark as we worked but I had time to notice in lulls between battle noises a bird singing beautifully (of course a Nightingale) and in the low dune grasses there were glow worms. That was the  “Peace of God that passed all understanding”. It was beautiful.<br/>
+	Now we were functional.<br/>
+	We had landed at Courseulles, moved a short way inland unhindered and located around Caen. We could see Caen being bombed by our aircraft, the Halifaxes and Lancasters flying low<br/>
+in line astern, through the flac, dropping their bombs and turning for home. Real bravery!<br/>
+	Our battalions were engaged in the battle for Mt. Pincon, the dominating high land. It proved very difficult for them but we were back a little way at H.Q.<br/>
+	Montgomery had boxed us in with 25 pounders to do a ‘stomp’. The blast from the guns shook everyone physically but it was a re-assuring noise. German aircraft came looking for the guns and sprayed the area and our signal office caught one or two rounds. Headway was soon made and we moved to Argentan. This was another heavy onslaught and we had a lovely fireworks display as arms dumps were set on fire. Whose? Tracer bullets are exciting in the dark. Every 5th bullet is a tracer.<br/>
+	We had an evening field concert in this area with George Formby in person. We all had our rifles and once or twice an enemy aircraft flew over. Everyone had a go without effect but I felt afterwards we were a bigger risk to ourselves.<br/>
+	Another memorable event was a field ‘Communion Service’ conducted by the duty Padre. Amid thistles, cowpats etc., we knelt and received the Bread and Wine. Another strengthening.<br/>
+	As we followed our advance we saw evidence of our ‘Typhoon’ raids. They attacked enemy convoys with their under-wing rockets, knocked out the first and last mobiles which stopped the rest to become sitting targets. Once saw a German midget submarine little damaged but totally out of its element.<br/>
+	Things were getting desperate for ‘Gerry’ as he tried to retreat back to Germany. We even came across a piece of horse-drawn artillery on its side with the animals dead.<br/>
+	It was a hot late summer, and our khaki shirts got hard and shiny with sweat and our battle dresses were smelly, but we had to manage. Our water, drinking and washing was from our water-cart and used carefully. To heat water for shaving etc., we had a ‘dehydrated potato’ tin filled with sand and soaked with petrol. Up to 10 or so used it in turn — it was thick at the end. Our mess tin mug etc., washing up was similar with the lazy ones just swilling there tins around without bothering to clear uneaten food, bacon rind etc., Foul!<br/>
+	One late evening we took some heated water behind the camouflage netting and stripped off for a much needed wash down. Three young girls arrived on bikes and we made haste to cover our modesty. The girls were quiet but reluctant to leave, we were filthy, so we hurriedly but thoroughly washed. We ourselves saw later what their interest was. One of our D.R.’s, an Australian, was a sun-bather and he too was having a wash-down. He was deeply tanned except for the ‘white’ critical part and in the fading light it must have seemed weird.<br/>
+	I can’t remember place sequences after this period as we cleared France, Belgium and much of Holland as we moved towards Germany. It was surprising to see mobile 88mm guns in emplacements on both sides of the main road being used as heavy artillery. Yet here they were obviously in good order but abandoned.</p>
+<p>(cont’d)</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3844622.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-623">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-624"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-624" id="name-624">
+                    Itinerary of one 14701281 Frank Wilkinson <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-624" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Brian Wilkinson (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3844622.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The following account was written by my father, Frank Wilkinson, recollecting his WW II experiences. It was written shortly before he died in 1992. Parts 2 &amp; 3 follow as separate stories.</p>
+<p>WW II itinerary of 14701281 (Wilkinson, Frank) — Part 1</p>
+<p>		In 1938 I was 27 years old and living in Normanton, West Riding of Yorkshire where I volunteered for work in assembling and fitting gas masks for civvies. Then did a bit of LDV preliminaries on the grammar school football pitch. Armour, one broomstick, marching etc.<br/>
+	This sort of feverish activity did not last long but gas masks continued. I qualified for 3 — an ordinary common one, then later a Civilian Service one and then a Services one.<br/>
+	As outbreak of war approached there was hectic preparation at Council Offices, packing and labelling of records and vacation of space to accommodate Civil Defence. I had to take charge of Financial Records, Files, etc.<br/>
+	I was due to marry on 6th September but War, declared on 3rd September, meant cancelled honeymoon but a special concession of 1 day off for wedding.<br/>
+	On 3rd we had to report to Council Offices for “sandbagging fatigue”. The sand was reclaimed ashes from council tips, the bags were fairly open hessian and it absolutely teemed down.<br/>
+Hoist soggy bag, thick juice flowed up arms, down armpits and everywhere else. My joy was complete as I saw, pipe in mouth, smirking, a Councillor who seemed highly amused.<br/>
+	Wedding Day, carrying gas mask, turned out lovely, although I had been handling a ton of coal delivered that morning to our new home. Decorators had to do a rush job, which they did and celebrated by spreading dried peas etc., under the bed sheet.<br/>
+	Life settled happily and by 1940 I had transferred my voluntary activity to the Auxiliary Fire Service. 1 boiler suit, 1 tin hat, 1 pair wellies and 1 hatchet. Turn out at every air raid warning and home on the ‘All Clear’. Fatigue seemed worse a full 24 hours after call out. 36 hours training was necessary and involved ‘Climax’ pump operating, hose running and coupling, ladder drill, roof work, fireman’s lifts etc. 1 chap came to the ‘station’ and didn’t leave for 36 hours and was most upset not to have qualified as a Fireman. Equipment, 1 Morris Fire Engine (full time brigade), 1 Climax Pump (large) and 1 Climax Pump (small) and 1 GUY M/V lorry known as ‘Spitfire’ and 1 Ford V8 Pilot Support Car. Highlight call was with the ‘Spitfire’ and Climax to a chimney fire on Pontefract Road and we had to door knock to find where it was. It had been choked out.<br/>
+	Before turning out, of course, I had to see wife and daughter safe down the cellar.<br/>
+	Stand-by time at the station was spent either playing the piano (honky-tonk quality) snooker or snacks. This until the onset of the NFS, which brought a promotion to Control Room Officer with shiny metal epaulettes.<br/>
+	All this time I served because I was first in a “Deferred” occupation at the Office followed by a “Reserved” occupation. When this showed signs of terminating my wife took up paid work first in the Food Office and then as a clerk in the Electricity Office, with the Council.<br/>
+	Eventually towards the end of l943 my Call-up notice came telling me to report to “Brancepeth” Castle, County Durham on Jan. 6th which I duly did and woke up to my 33rd birthday to Reveille. What an awakening. Stuffy barrack room, top bed on a 3-tier bunk. We recruits<br/>
+were received into the Main Hall of the Castle, big open fireplaces both ends fired with full size Pit props. Spam sandwich and mug of Cocoa. We never saw that Hall again.<br/>
+	Made a trio with a man of similar age and an 18 year old from Hull and when I sought to find the nearest Methodist Church they volunteered to walk 2 miles or so with me. We helped each other to settle.<br/>
+	My various items of kit, jabs and aptitude tests followed over the first two weeks, then followed square bashing, rifle drill, bayonet drill, trench digging and crawling with rifle.<br/>
+	This resulted in their conclusion that I was NOT a fighting man, my conclusion that you must be fully fit to be able to report ‘sick’ and wear “Full Battle Dress” and the reward ‘medicine and light duties’.<br/>
+	I was glad to get over the first 6 weeks and was then posted to ‘Signals’ at Catterick. Further tests of temperament and attitude made them put me to Cipher Training, my ability to concentrate being the key.<br/>
+	However, before I could be trusted to secrets of Cipher I must go on an NCO’s course for a number of weeks.<br/>
+	Catterick — we were housed much more comfortably in Hoare-Belisha “Spiders” designed by H-B, a politician, and all the prospective NCO’s were mature age some even older than me. It was now nearly March 1944 and mornings were not so dark and cold.<br/>
+	We had fun! We had to take square drill on our own, watched of course by Regular Instructors.<br/>
+	One chap with a weak voice let us get out of earshot and with Arms at the Trail (arms length and horizontal) left us heading straight for the corrugated cover at one end of the Square, and you can imagine the clatter as the muzzles hit the metal.<br/>
+	At firing practise I did very well and got 8 holes out of 5 shots on my target, and the grouping was good enough to pass me. The man on my left had aimed at my target and had to wait a week to retake his test. “Exercise ME” was interesting. We were each given an Ordnance map and a Compass, sent out in an enclosed lorry driven out into the countryside, dropped individually at wide intervals and then find our way to a rendezvous at say 3 p.m. Failure to get there meant find your own way back. I failed to rendezvous but eventually got to Reeth where I found there would be a bus to Richmond at 8 p.m. and then hopefully some transport to camp. Fish &amp; Chips and a cup of tea in Reeth helped but it was a long wait to 8 p.m.  Arrived in Richmond late but found another bus to camp but unfortunately the lad behind me had had too much drink, the bus shook a bit, he exploded and I got the benefit. It was horrible.  Just to put the finishing touch, I was called into the Guard Room to explain my late return, they smelt my uniform and suggested I’d been drinking but after a lot of sarcasm and a few dark threats I was sent to my billet. My pals greeted me to say that I was detailed for Church Parade in the morning but they all lent a hand, cleaned my uniform, ‘blancoed’ my belt and gaiters. Got to bed at last, got ready for Church Parade at the Methodist Church, my responsibility to report to the Signals Corporal outside the Church. Couldn’t find him, went into Service which I enjoyed only to find ‘I had been put on a charge for failing to attend Church Parade”. I was marched into the Orderly Room and when questioned claimed that I had been there. “You’re sure of that, Wilkinson?”, “Yes Sir”. “Right, ask Lt.?? to come in. He was at the Service and will question you”. It turned out alright in the end.<br/>
+	Finished at Catterick, passed my exams, was made a Lance Corporal and posted to Cipher School at East Dulwich.<br/>
+	While there my father-in-law died on a weekend when all leave had been cancelled and my address changed to BWEF (British Western Expeditionary Forces). I tried to get compassionate leave, was sent from Dulwich to Signals HQ, from Signals to the War Office and eventually was given a 72 hour Pass and travel warrant and was warned that, in view of the cancellation order, all the CMP’s will stop me to see my documentation. No one stopped me and off I went to my in-laws’ home at Sandal, Wakefield.<br/>
+	Reported back to Dulwich, completed the Cipher course and was ceremoniously sworn to secrecy and posted to 43 WESSEX DIV. at Tenterden (Kent) although officially just BWEF. Spring 1944 was glorious and the streets and lanes in Tenterden a mass of flowers — primroses, fruit blossom, wild flowers — bliss. After Signal Office night duty, a wash, shave, breakfast and then out into the fields. Feeling a Philistine treading on primroses, found a nice sunny spot laid down and slept. It was idyllic. Tudor Rose Café for coffee and scones and back to base for mid-day meal.<br/>
+	Too good to last and were uprooted and in a convoy moved into a marshalling area, which turned out to be London, West Ham Greyhound Stadium. The convoy journey there was fantastic with people lining the route cheering us and offering sweets, drinks, just anything and everything they had. It struck me that we were probably already better fed than them. As we neared London we became impressed by the number of captive balloons.<br/>
+	The stadium accommodation was rank upon rank of 3-tier bunks, some of which protected by corrugated iron roofing. On our first night in West Ham we were deafened by the box-barrage and the peppering of shrapnel on the iron roof. Add searchlights to this lot, and the drone of planes it was impressive we thought as we lay on our bunks fully clothed wearing our tin hats, we soon realised that tin hats wouldn’t protect us much. However, we began to crow about the box-barrage bringing down our planes, until after a few days, we realised it was most likely V1’s with fuel spent, coming down and exploding, not reassuring!<br/>
+	After a few days we got the whisper of D+11, our intended move. We were taken by bus to Tilbury Docks and embarked on the ‘Fort Esperance’, one of the American Liberty ships, welded not riveted. As expected we were assured the welding wouldn’t stand up to depth charges and mines.<br/>
+	In our hold there were 364 of us, some 80 to 100 in shallow hung hammocks, and the rest of us bedrolls edge to edge on the lower hatch covers. There were one or two blue lights to help us grope our way. Sea-sickness or nature made visits necessary and you can imagine the crawlings, groans,<br/>
+cursings etc., but we managed. One satisfaction, as we moved down the Thames Estuary, was a V1 passing fairly low over us, moving in the same direction as us. The clever ones of us, realised that the V1 had probably had its wings ‘tipped’ by one of our fighters and was now heading back to enemy occupied territory.<br/>
+	We moved out to sea and we were told that the captain would be firing our 4” gun (our main protection). A flash, an explosion, smell of cordite, a shell tearing the air apart and a poor seabird disappearing in a cloud of feathers. Next morning, on deck, we saw we were part of a huge convoy of ships of all kinds and sizes guarded by a cruiser, 2 destroyers and smaller but faster naval craft.<br/>
+	It seemed a very long trip but watching the convoy was interesting and an occasional one couldn’t keep up, so was told it could leave the convoy but it would have to make its own way.<br/>
+	Later in the voyage we could see what looked like a near wreck tethered to a line of fence posts. This didn’t make sense at all but eventually it transpired that it was part of the Mulberry Harbour, being towed into position by one of the ships already filled with concrete ready for scuttling when in position. As we neared land the sea got rougher and stayed so for 6 days during which time we had to ride at anchor; all the others doing the same. Behind us, further off shore, were two battleships, ‘Duke of York’ and another functioning as artillery against enemy shore emplacements. Add to this, spotter aircraft — small biplanes and Lysanders, exploding depth charges and German magnetic mines, life was never dull. Sea explosions brought up stunned fish, which were cleverly caught in empty dry-ration tins converted to colanders. Lucky anglers managed to get the ships galley to cook them. Our food in this period was ships biscuits, ration chocolate, self-heating soup, the latter quite welcome. The heating was achieved by a tube built-in, activated by removing the tip, having first pierced two air holes. Hot soup poured into enamel mug and enjoyed. Soup tin was holed at the bottom to ensure its sinking when pitched overboard.<br/>
+	Less enjoyable were the following facts:-<br/>
+1.	Our Reconnaissance Unit, housed amidships with transport on deck and transport below, was mined, set on fire and was a total loss of men and equipment. There were other losses too.<br/>
+2.	Spotter aircraft used bulldozed landing strips, which were very dusty and so disclosed their locations. Dust was kept down by spraying with heavy fuel oil, which also impregnated the air and fell at night filling our ships holds and our lungs. As the sun rose, so did the temperature and the fumes.</p>
+<p>Six days of this (now D+17) it was safe to land so far as the waves were concerned. Our vehicles, together with operational staff were transferred to LST’s  (Landing Ships Tanks) forced on to the beach, ramp doors were dropped, and vehicles driven off, but carefully because they were heavily plastered with water-proofing gunge which had to be stripped off as soon as possible. The area was fairly firm sand dunes, and we on foot had followed to help with the de-proofing. It was dusk and soon dark as we worked but I had time to notice in lulls between battle noises a bird singing beautifully (of course a Nightingale) and in the low dune grasses there were glow worms. That was the  “Peace of God that passed all understanding”. It was beautiful.<br/>
+	Now we were functional.<br/>
+	We had landed at Courseulles, moved a short way inland unhindered and located around Caen. We could see Caen being bombed by our aircraft, the Halifaxes and Lancasters flying low<br/>
+in line astern, through the flac, dropping their bombs and turning for home. Real bravery!<br/>
+	Our battalions were engaged in the battle for Mt. Pincon, the dominating high land. It proved very difficult for them but we were back a little way at H.Q.<br/>
+	Montgomery had boxed us in with 25 pounders to do a ‘stomp’. The blast from the guns shook everyone physically but it was a re-assuring noise. German aircraft came looking for the guns and sprayed the area and our signal office caught one or two rounds. Headway was soon made and we moved to Argentan. This was another heavy onslaught and we had a lovely fireworks display as arms dumps were set on fire. Whose? Tracer bullets are exciting in the dark. Every 5th bullet is a tracer.<br/>
+	We had an evening field concert in this area with George Formby in person. We all had our rifles and once or twice an enemy aircraft flew over. Everyone had a go without effect but I felt afterwards we were a bigger risk to ourselves.<br/>
+	Another memorable event was a field ‘Communion Service’ conducted by the duty Padre. Amid thistles, cowpats etc., we knelt and received the Bread and Wine. Another strengthening.<br/>
+	As we followed our advance we saw evidence of our ‘Typhoon’ raids. They attacked enemy convoys with their under-wing rockets, knocked out the first and last mobiles which stopped the rest to become sitting targets. Once saw a German midget submarine little damaged but totally out of its element.<br/>
+	Things were getting desperate for ‘Gerry’ as he tried to retreat back to Germany. We even came across a piece of horse-drawn artillery on its side with the animals dead.<br/>
+	It was a hot late summer, and our khaki shirts got hard and shiny with sweat and our battle dresses were smelly, but we had to manage. Our water, drinking and washing was from our water-cart and used carefully. To heat water for shaving etc., we had a ‘dehydrated potato’ tin filled with sand and soaked with petrol. Up to 10 or so used it in turn — it was thick at the end. Our mess tin mug etc., washing up was similar with the lazy ones just swilling there tins around without bothering to clear uneaten food, bacon rind etc., Foul!<br/>
+	One late evening we took some heated water behind the camouflage netting and stripped off for a much needed wash down. Three young girls arrived on bikes and we made haste to cover our modesty. The girls were quiet but reluctant to leave, we were filthy, so we hurriedly but thoroughly washed. We ourselves saw later what their interest was. One of our D.R.’s, an Australian, was a sun-bather and he too was having a wash-down. He was deeply tanned except for the ‘white’ critical part and in the fading light it must have seemed weird.<br/>
+	I can’t remember place sequences after this period as we cleared France, Belgium and much of Holland as we moved towards Germany. It was surprising to see mobile 88mm guns in emplacements on both sides of the main road being used as heavy artillery. Yet here they were obviously in good order but abandoned.</p>
+<p>(cont’d)</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/22/a3844622.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-624">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-529"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-529" id="name-529">
+                    Marie Tompkins (later Stevens) - Leading Fire Woman
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-529" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by West Sussex Library Service (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/52/a4436552.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the People’s War site by Penny Kingsmill from Crawley Library and has been added to the website on behalf of Marie Stevens with her permission and she fully understands the site’s terms and conditions.</p>
+<p>Just before the War my friend and I went to the Cinema. We lived in East Dulwich. They were showing all the things you could do should war break out. We decided to join the NFS National Fire Service as they paid more. </p>
+<p>The Fire Station was in Lordship Lane, East Dulwich.  My wages were £2.00 per week. We could not join the other services due to commitments at home. We had to attend about once a week. We were issued with a uniform. We felt very smart and important in our uniform. </p>
+<p>When the war was declared we had to go straight to the Fire Station and take a tin of Corned Beef, a blanket and a pillow. As there were no beds we slept on the floor with our shoes under the pillow. </p>
+<p>The Air Raid Siren was sounded but it was a false alarm. We noticed lights in the sky, which we thought was gun fire it turned out to be the Northern Lights, Aurora Borealis. </p>
+<p>Some time later we were issued with mattresses but no bunks.</p>
+<p>I married in 1941 and was transferred to Richmond Fire Station. I was given a promotion to the rank of Leading Fire Woman. I had about ten girls under my command. Our quarters were above a disused fish and chip shop, it used to smell of fish and chips. One night I woke up to see a Monk. He stood looking at me holding a lantern. I heard my name being called by my Husband. I found out later that his plane and gone into a spin. Luckily he was OK.</p>
+<p>My Husband was sadly shot down and killed in 1943. He was twenty one. He was in Bomber Command and bombing the V1 and V2 factory on Penemunder. Fourty Two planes were lost that night. He was stationed in Yorkshire near Ripon.</p>
+<p>At the end of the War I left the Fire Station. I was awarded the George Medal for long service.</p>
+<p>I would love to find out what happened to my friend Doris Giles, the girl I went the the pictures with that night.</p>
+<p>Marie Beatrice Stevens 7th July 2005</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/52/a4436552.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-529">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-507"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-507" id="name-507">
+                    Memories of the Blitz, V1&#39;s and V2&#39;s in London
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-507" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by DavidWallington (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a2713240.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Memories of  the blitz, V1’s and V2’s in London </p>
+<p>For most of the war (apart from being evacuated to Ashtead, Surrey, from September 1939 to July 1940) I lived with my parents in S.E. London (Overhill Road, East Dulwich, SE22). Being quite high on a hill, we could see most of London from the garden and back windows of our house. We normally took shelter in the cellar of our house when the air-raid sirens went, but as soon as it was safe we came up and could see the effects of the air-raid. We had a ‘grandstand view’. I remember in particular seeing the fires raging in the docks after the devastating air-raids in August 1940.<br/>
+	As our air-defences developed, the air-raids took place more often at night, usually at full moon. So they were fairly predictable. I remember walking home from school one afternoon and wondering who would get killed that night.</p>
+<p>The V1’s (‘doodlebugs’)<br/>
+	I had my 14th birthday on June 12th 1944, a few days after D-day and a few days before the first V1’s came over. By this time they had replaced the traditional anti-aircraft battery in Dulwich Woods with rockets. When the first V1 came over, they fired at it. We had never heard the rockets in action before. They sounded like an express train roaring over the house! But that happened only once or twice. They soon moved the rockets to the coast, as there was no point in shooting down a V1 over London.<br/>
+	One day after a V1 had passed overhead, and it was safe to come out, we watched it fly further over London. After a short while the engine cut out, and it dived to the ground. There was a huge golden ball of fire. At first we thought it was some new secret weapon. But it turned out that it had hit the gas-holder at the Oval, and all the gas had gone up in one sheet of flame! Very dramatic! But I do not know of any casualties from that one.<br/>
+	The V1’s became a regular part of life. I remember a cartoon in The Daily Mail. It depicted a school GCE examination in progress. All the windows in the examination room were shattered. But one boy had his hand up asking the invigilator to stop a man from playing his violin in the street, as it was disturbing his concentration!<br/>
+	Sadly I remember that a boy in our school who passed his GCE that summer was killed by a V1 during the summer holidays.</p>
+<p>The V2’s<br/>
+	A month or two later the V2’s started. Since they travelled faster than the speed of sound, you never saw them. The first you knew was the explosion. However, one day I was standing in the road opposite our house waiting for someone, and as I glanced up I saw the flash of an explosion high in the sky. For many years I had no idea what it was. But some time ago I heard that some V2’s burnt up on re-entry into the earth’s atmosphere. I must have glanced up at the precise moment that this had happened!<br/>
+	After the war I learned from friends in Holland that the V2’s sometimes failed shortly after lift-off and crashed back onto the launch-site with an explosion. It was said that the German soldiers working on the launch-sites were punishment squads.<br/>
+	How grateful we should be that D-Day was successful. If it had failed, the V1’s, V2’s, and possibly even the V3’s, which were never used, might have caused appalling casualties in London.</p>
+<p>Contribution by David Wallington   Orpington, Kent.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a2713240.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-507">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-513"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-513" id="name-513">
+                    Too Close for Comfort
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-513" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by BBC LONDON CSV ACTION DESK (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/00/a4429000.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p class="image-removed">The image attached to this story cannot be viewed for moderation or technical reasons</p>
+<p>This story was submitted to the People's War site by a volunteer CSV/BBC London on behalf of Audrey Waters and has been added to the site with her permission. Audrey Waters fully understands the site's terms and conditions</p>
+<p>My sister and I were in the Odeon Cinema at Goose Green, East Dulwich when the siren went. Half the cinema emptied, including my sister and I because we wanted to get back home to our mother because she was on her own. While running up East Dulwich Grove, the warden was shouting from the brick air raid shelter for us to come inside. We said no, because we wanted to get home to our mother. As we ran, we heard the noise of an airplane and looked back and there was this plane diving straight at us. We threw ourselves over a coping into a garden to get out of the way. We heard the sound of a machine gun, and then the airplane swooped back up again and flew off. When we got up and saw the pavement where we were running, there were bullets all over the pavement. The street was deserted apart from us because they were all in the air raid shelter so the pilot was obviously shooting at us, two young girls running home.</p>
+<p>Two years later I was working at a factory in Streatham Hill, South East London, in the “Radium Room” illuminating compass and gun dials for the war effort. The girls working there were aged between 16 and 20, some of whom were pregnant. We used to sing all the time to alleviate boredom.  We worked behind half inch glass panels about 12”x10” and wore white overalls, head scarves, gauze masks and rubber aprons. The radium was like a cream in a dish and we worked with a pen to illuminate the dials. On leaving the Radium Room we had to scrub our hands to try to get the radium off. We had to put our hands under a ultra-violet lamp to check if they were clear of radium (which they never were) On one occasion I decided to put my mask under the ultra-violet lamp and low and behold there was a very large area of radium right where my mouth would have been. So I decided then and there I would not wear a mask anymore, I would take a chance. At might, in the blackout, I used to be lit up like a Christmas tree, with all the fluorescence over my hairline, neck, throat and hands.</p>
+<p>Several years later I started to be very ill. My doctors could not find what was wrong with me and this went on for 20 years. I did not have any power in my muscles. I could open a draw but could not close it — I could not lift anything.  Eventually after seeking a private doctor’s opinion I went into hospital and had an operation to remove a growth from my throat. Had I not had the operation at that time it would have been a very different story and I would not be here now. I often wonder if this could have been caused by my working with radium as I did hear from one of the other girls who worked with me there, that the girls were all taken away to the country as they we so very ill</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/00/a4429000.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-513">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-839"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-839" id="name-839">
+                    Transport in Wartime <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-839" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Maggivee (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/24/a1941824.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Studies in Transport</p>
+<p>I was born in Dulwich, South London in October 1941. My father was disabled but ran a Haulage business based in Bermondsey, near to the Surrey Docks. My brother, Charles, was born in 1944, during the summer of the flying bombs and was commonly known as ‘the little Doodle-bug’. This is one of the accounts of my early childhood that I wrote a few years ago.</p>
+<p>A child born in wartime is different from other children.  The strains and stresses of being at war are the norm.  Practices and prejudices were part of my formation and may never be totally erased.  Comments like, 'When the war ends …' or the sarcastic, 'Don’t you know there’s a war on?' are meaningless. The concept of the end of the war has as much sense as that of the end of time, for life in wartime is the total experience.  And it was all totally meaningless to me for I was born in wartime.</p>
+<p>Hitler invading Poland, Churchill, the Battle of Britain and the V2 bombings are the war that is recorded in history books.  Anne Frank used a diary to escape from her horrific life as a prisoner in a couple of overcrowded rooms, dreading the sound of a knock on the door, and longing for the taste of the fresh air and the breeze in her face.  My war was normality, a life full of misconceptions. It was the arrival of peace that was extraordinary.</p>
+<p>Which ones were Birds?<br/>
+The earliest memory I have of war was of the air being full of flying things.  They appeared to be the same size but were not quite identical.  Some were aeroplanes; others were birds.  I recall noticing that the wings on the birds moved and the aeroplanes were further away and noting the difference.  At that time I did not realise that the Spitfires and Hurricanes were actually a lot bigger than the birds but that the distance made them appear to be the same size.  Daddy explained to me that a man could ride in one and they were very big when you got close to them, so big they would fill the garden.  Thus was my first discovery of the scientific world.  Planes are far larger today and we rarely gaze at them; certainly no child could mistake one for a blackbird.</p>
+<p>Daddy and Uncle Winter-next-door used to have aircraft spotting sessions from our garden.  Daddy would tilt back in his rocking chair, binoculars to his eyes watching a ‘dog-fight’ overhead.  ‘We’ve got one of theirs; have a look’, he would say, passing them to his friend while the wives tried in vain to get them into the comparative safety of the house.  In June 1943 we spent a week on a farm in Kent, where my parents lay in bed counting the bombers going past the window on their way to London.</p>
+<p>The Wrong Train, and nearly the Last One!<br/>
+Travelling by train was also interesting.  Trains were cold, always late and filled with soldiers.  Carriage after carriage of khaki figures, greeted with groans as we struggled from the gloomy platform into a smoke-filled carriage, with my baby bother Charles on Mummy’s hip and me clutching at her skirt.  As no information was published about where the trains were going (just in case we were Nazi spies), we tended to end up in the wrong place and have to complete a triangle to arrive safely.  For all of my childhood and beyond, I had a terror of being on the wrong train and it was not until comparatively recently that I came to accept that they were inevitably comfortable, warm, and reliable.  Sixty years later, we have returned to the indifferent service, but commuters have replaced the troops, and delays are now caused by lack of staff or the notorious ‘leaves on the line’.</p>
+<p>Mummy hated the crowded trains and trams; indeed, her dislike of crowds could have lead to her downfall.  In August 1939, the summer before she married, she decided to enjoy a holiday in the South of France with two friends.  Storm clouds were looming over Europe and concern was raised of the safety of these young ladies going abroad at such a time.  Daddy, being an adventurer, urged her to go, but the uncle of one of the group, Barbara, who worked for the Foreign Office, was more cautious.  Eventually a pact was struck.  If Barbara received a telegram from him concerning a family wedding, she was to return immediately.  The telegram arrived on 25th August and Barbara, keeping her word, left immediately.  Mummy and her other friend stayed on.  They waited for a couple of days so, as she put it, they could travel on a train with spare seats and a lavatory!  She arrived in England on 29th August.  Five days later, we were at war.  </p>
+<p>FH Wilson Transport: the Depot<br/>
+Our family business, which was owned by Uncle Fred and Daddy, was a small haulage company near Surrey Docks.  Every Friday, Mummy had the task of collecting the wages for the staff and taking them to the depot.  This involved taking a 78 bus from Dulwich Library, over Tower Bridge to the Westminster Bank in Mincing Lane.  There she would collect the wages (who would notice a young woman with a shopping bag or even dream that she was carrying large sums of money?) and make the second bus journey to Bermondsey.  This was sometimes an arduous trip with roads closed after bombing or delays caused by Tower Bridge being raised.  </p>
+<p>One Friday was different: a call from Daddy brought serious news.  There was an unexploded bomb down the road from the depot.  The whole area was cordoned off.  But, there were drivers to be paid, for their families needed to be fed.  Carefully, he gave instructions,  ‘ … and when you get to the barrier across the road, duck under when nobody is looking.  The whole area is flattened.  Walk across it until you get to the arches.’  Mummy set out.  Bermondsey was almost unrecognisable but she found the barrier and got through it without being challenged.  Steadily she walked across the barren waste.  ‘It was dead silent,’ she recalled.  ‘All I could hear were my footsteps and then I recognised another sound with them.  I could hear my heart beating.’  She arrived in the office triumphantly to be greeted by her loving Spouse with a cheerful, ‘It went off a few minutes ago!’</p>
+<p>The depot was an adventurous place.  I visited it a few times with Daddy.  We drove down to East Dulwich, past Goose Green (sadly, the geese had gone long ago), through down Nunhead<br/>
+Lane, (no nuns either), over the humped backed bridge to cross the Surrey Canal to Silwood Street, a row of arches under the Bermondsey railway line and close to the Surrey Docks.  It was a dreary journey at first but then became exciting as I saw the stacks of cranes, like grey lace against the sky, and the huge timber storehouses, piled high with creamy wood.  We parked outside one of the arches.  I waited for an interminable time while Daddy eased himself painfully from the car to greet Mr Gurdler, his most senior driver.  They stood for a moment beside the small door cut out of the large ones while Daddy fiddled with the keys and then they disappeared.  Mr Gurdler appeared briefly to pick up the half-pint of milk that stood outside.  Then, at last, the great green doors swung open, revealing six lorries neatly parked and the smell of oil and rubber.  We drove through the arch like kings and parked the car at the side by the slip of an office where Daddy, still clad in his tweed coat and brown hat for warmth, got on with his work and his secretary let me play with her typewriter.  Lorries drove in and out while trains rumbled overhead making Daddy’s inkbottles clink together and the room shake every few minutes.</p>
+<p>When Hitler finally capitulated, there was rejoicing at the depot as the news came through on the wireless.  Come to the pub!’ shouted Daddy’s staff.  ‘No, I want to be with my wife’.  And so he drove home.  </p>
+<p>VE Day and an unforgettable tram journey<br/>
+Two events heralded the end of the war for me.  First, we no longer had to draw the blind over the skylight in the bathroom before I had my bath.  A daily ritual had gone forever.  ‘We don’t need to now,’ said Mummy.  I remained puzzled by this sudden change from normality for some time.  Secondly, there were celebrations in St James’ Park.  The fountains, which had not played since 1939, were turned on again and lit with different colours.  One was orange and spurted sideways because it wasn’t working properly.  Writing this after the exuberance of the Millennium celebrations, that seems so small.  For the war-weary Londoners who had suffered power-cuts, blackout and even had dimmers on their torches, it was a joy to see a bit of brightness and a sign that life was beginning to return to normal.  For me, brought up with darkness equating safety, and only seeing empty fountain basins, it was sheer fairyland.  Mummy took me, braving the crowds she hated at Daddy’s insistence.  ‘She will remember it’ he assured her.  And I did. </p>
+<p>We went out into the dark summer night and she carried me along with the shuffling crowd around the lake.  The chestnut fencing sagged as we lurched forward, feasting on the colour and light.  Uncle and Auntie Winter-next-door were there too but we did not see them, in spite of my frequent demands. Then it was home on the tram to the big bedroom and Daddy sitting up in bed to welcome us, with my baby brother asleep in the crook of his arm.  </p>
+<p>And the hands on the little green clock on the mantelpiece pointed to Midnight.  </p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/24/a1941824.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-839">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in East Dulwich: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>19</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                        <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                        <div id="day_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in East Dulwich </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

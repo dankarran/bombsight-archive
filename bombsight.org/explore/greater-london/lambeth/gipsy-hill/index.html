@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Gipsy Hill - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.101832164890407, 51.43389037523432], [-0.099361635822609998, 51.434269335563854], [-0.096796914965270001, 51.43468536264453], [-0.095905468826310999, 51.434801276714595], [-0.095114098927346999, 51.435079360515893], [-0.093778937230553999, 51.435684246072611], [-0.093048264192138005, 51.435804300112402], [-0.091761636344023997, 51.435843363115261], [-0.091382291181856007, 51.435883275185525], [-0.091017884944555996, 51.435953218814873], [-0.090465093931662993, 51.43609820810002], [-0.090022922426156005, 51.434367504693917], [-0.089308921685868001, 51.431803768639234], [-0.088892266244835996, 51.4305409542362], [-0.088499080560044005, 51.429707075418783], [-0.088319453515484994, 51.429444060704675], [-0.088215036840674999, 51.429329801993823], [-0.087875476263046995, 51.42909509988322], [-0.087680694034609, 51.429001153721075], [-0.087257675714134994, 51.428865175331651], [-0.086615142928068004, 51.428724239934979], [-0.086122763142342004, 51.428587207927762], [-0.085996910381300001, 51.428565197924868], [-0.085889899680487006, 51.4285012100217], [-0.085858139270730993, 51.428422280856459], [-0.085888495873311002, 51.428298286763976], [-0.085945324521692998, 51.428186244825469], [-0.086068254875232994, 51.428041275278176], [-0.086098651932736997, 51.427959300227066], [-0.086075483169456998, 51.427825287968503], [-0.085992957444194995, 51.42773482953875], [-0.085904275386265994, 51.427688416113362], [-0.085794721110083003, 51.427659259197426], [-0.085244817867688005, 51.427350281802347], [-0.085119779493637998, 51.427244403785394], [-0.084482831597984004, 51.426265453144467], [-0.084071246578773004, 51.425680522861398], [-0.083761013813722002, 51.425166661977471], [-0.083542750134041999, 51.424323819545556], [-0.083479101377228998, 51.423158932266986], [-0.083428789091805997, 51.422964905529234], [-0.082344480612008997, 51.423182943730211], [-0.081788979191742994, 51.423309872215327], [-0.081680391584846995, 51.423305424434666], [-0.081160112628585995, 51.422333981166304], [-0.080842669997230998, 51.421843042858256], [-0.080076984200807, 51.422009092175379], [-0.079771591827395003, 51.422131949288243], [-0.079476798359365997, 51.421688553548947], [-0.07891073403196, 51.421566057216964], [-0.079274010710598003, 51.420856103554314], [-0.079096839821087006, 51.42077226602477], [-0.078292558254788994, 51.420572902706951], [-0.078467674981769001, 51.420041274024754], [-0.078612649443408997, 51.419992644857871], [-0.078662737452392995, 51.419955812335459], [-0.078704416294998997, 51.419862071336688], [-0.078675343292906999, 51.419826602294499], [-0.079324320972701007, 51.419720337599593], [-0.079715874659141997, 51.419686291666686], [-0.080093155499896998, 51.419671247230568], [-0.080595316505032003, 51.419679334432878], [-0.082346147240057996, 51.419771230916126], [-0.082877368063105999, 51.41972933030204], [-0.083335635709899006, 51.419669244476275], [-0.085011921413024993, 51.419351272065896], [-0.085538649006145995, 51.419287369714489], [-0.086079704841652005, 51.419268249834353], [-0.086425612274144997, 51.419306745118242], [-0.086619426621691004, 51.419349478577189], [-0.086826806153496999, 51.419416181938814], [-0.087764558213240002, 51.419756206633558], [-0.088190345919497995, 51.419927267466541], [-0.088452831790810996, 51.420065173888972], [-0.089367354606694996, 51.420812007342171], [-0.089721999210415002, 51.421037973303456], [-0.089908897390883993, 51.421126023335617], [-0.090842864408218996, 51.421472011258373], [-0.091396097622992001, 51.421721852370609], [-0.091770511687124995, 51.421926917530307], [-0.092308336667537003, 51.422352846381685], [-0.09273389902576, 51.422538786089326], [-0.093009126038854001, 51.422621804110094], [-0.093434597087808005, 51.422723712093493], [-0.093644184335058001, 51.42276379889671], [-0.094102507321966997, 51.422810739111831], [-0.094591429061758006, 51.422813624235154], [-0.096185876059595998, 51.422756778697142], [-0.096906099929946005, 51.422666740348376], [-0.097128816670166998, 51.422910634153595], [-0.097490504723454996, 51.423357713080478], [-0.098478099777233, 51.424948440386117], [-0.099795057732535997, 51.427183117401448], [-0.10077736934456399, 51.428688034331714], [-0.102243562163504, 51.431123643544062], [-0.10238690435705899, 51.431461641348783], [-0.102642554584203, 51.431758600731996], [-0.10300615797924199, 51.432314582637495], [-0.103527486120082, 51.433187299682352], [-0.103590480592129, 51.433642306340502], [-0.101832164890407, 51.43389037523432]]]]}, "type": "Feature", "id": 1423, "properties": {"pk": 1423, "name": "Gipsy Hill"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Gipsy Hill, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Gipsy Hill, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Gipsy Hill</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Lambeth</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Gipsy Hill
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Gipsy Hill, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Gipsy Hill: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>42</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Gipsy Hill</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-757"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-757" id="name-757">
+                    Bombs: V1s and V2s, London and Oxford <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-757" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Charles Nightingale (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/52/a2007352.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>I was only one at the outbreak of war, one of four children born between 1935 and 1941. Memory starts with seeing my brother brought home after he was born in 1941, when I was just three.  We lived in the road that led from Penge to Crystal Palace. At least four houses in it were flattened, and more than half including ours were damaged. I do not recall the collapse of our roof but was often told of my fathers dramatic trip up the stairs through a fog of powdered plaster, to rescue me: I was 'miraculously' lying  in my cot surrounded by debris, yet unharmed. My mother has told me that one night at the height of the night-time blitz, she and my father abandoned hope, when the bombs seemed to be setting fire to the whole neighbourhood. They lay in each others arms waiting for the end with the sound of Armageddon in their ears. The sky, all around, was flickering red she said. <br/>
+Mostly, though, we used to sit under the stairs wearing ghoulish Mickey Mouse gas-masks. My mother had Edward, my youngest brother inside a sort of capsule into which she used to pump air, whilst my father was fire watching. There were frequent air-raids which I enjoyed, because I was brought down stairs. I felt no fear, I didn't think we could be hit, since my mother showed no fear herself. I knew that people were hit though. At a nursery school I attended one child stopped appearing at school and I heard that she had been killed. I recall her name, Valerie, because I had sat next to her for a time. I kept her drawing book in which she had painted what she said was “A pea family”. I guess she had been told the flowers she drew were members of that botanical order. <br/>
+During the raids my mother used to look into a coal fire which we could see from the door of the “air raid shelter”, and make up stories which were inspired by shapes she showed us in the fire. After the war, I boasted about her apparent courage when my first 'girl' came to tea. My mother interrupted: “I was in a state of blue funk from start to finish” she said. My father was not afraid though - he had been in the trenches and fought in the Battle of the Somme. He had got used to being shelled all day every day. “But as long as you don't have to do anything” he said, “its OK”. Neither he nor we thought anything of his Somme medal. “We all got them” he told us – no heroics then – we believed him. <br/>
+Each morning after a raid we ran to school, hoping to see new bomb damage, and find shrapnel which boys collected. We backed onto the cricket field in the Crystal Palace Grounds (now a park, then being used by the army). One could trace the line of bomb craters, like a malevolent giant's footsteps stalking across the field culminating in a direct hit on a large nursing home (Parklands). This was largely destroyed leaving only a beautiful dome almost like the Hiroshima memorial. Like all the kids we played amongst the willow herb in the dangerous ruins.  We and our friends 'owned' bomb-craters which remained for years after the end of the war. The water filled ones were very educational - with dragonflies, water-boatmen, water-spiders and so on. One night an incendiary bomb fell in our tiny front garden, and my mother couldn't open the sack of sand you were supposed to empty on them. She says she tipped the cat's earth box on it - but I have no recollection of that. Another time the soldiers in the requisitioned house next door, who we children had befriended, pulled us into their practice trenches when a siren suddenly sounded in the day. I looked up and saw a plane screaming across the sky with tiny sparks on the leading edge of its wings. For us it was a Spitfire shooting down a Messerschmitt, but of course it might have been the other way round.<br/>
+ When the V1's began to arrive it was very terrifying, as they sometimes came with no siren. When their engine cut out, the residents below had a few uneasy seconds to wonder where they were going to land. It was said you could hear them coming through the air, if they had your house number on them. We were fortunate to survive a narrow escape, but it pushed my poor mother into a nervous breakdown. She had set out with us from Crystal Palace, to visit Horniman’s museum which was situated in nearby Forest Hill. As we came out of the house, I looked up and saw what appeared to me to be an odd-looking aircraft. I was familiar with the shapes of the more common planes that flew around, but this seemed quite unlike them, having very stubby wings. Whether this was the V1 that occurs later in the story I don't know. If it was, it must have circled around for at least fifteen minutes before it fulfilled its purpose. We took a bus near to the museum - and stopped off at a sweet shop. There my mother got into an argument with the shop assistant who was talking with another person instead of attending to her. We were all obliged to walk out as an ostentatious demonstration of my mother’s anger. We children were not pleased as we walked along toward the museum. A few minutes later there was the loudest bang I had ever heard, and some of us fell down. As we got up we saw that a bus had stopped at a rather acute angle to the kerb - I don't know if it was pushed there by the residual blast or if the driver reacted in surprise. He looked at us and asked us if we were hurt. My mother was very shocked, and he offered us a free ride back to our street which we accepted. As we went past the row of shops my mother shouted that the sweet shop, from which we had walked in a huff, had been 'bombed out'. I looked and saw a lot of bricks and glass lying at the side of the road and people running out of surrounding buildings. Later on she used to swear that the shop had been completely demolished, but I don't recall seeing any actual gap in the stand of shops. <br/>
+Shortly after that my mother told my father that she couldn't take any more and we left for Oxford to stay with relations. My mother just wrote them a letter and set out once she thought they had got it. On the way we saw the build up of war materiel at the side of the track. I watched a Bristol Beaufighter land amid huge clouds of smoke. My mother asked my father if it had crashed, but I think it was just dust on a hot summers day. All the aeroplanes and gliders had black and white stripes on their wings - all boys knew them to be 'invasion planes'. On the train a kind older couple agreed to take my two older sisters for the night. They later reported that they were terrified and thought the kindly woman was trying to poison them when she offered sweets. On arrival at Oxford I got lost, and was taken in hand by a WAAF who sat with me where she found me, until my father reappeared. As we approached the house of my aunt we saw her sitting in an upstairs window. I couldn’t follow the conversation between her and my mother, but in later years I heard that it went something like this. Mother – desperately:  “Did you get my letter? Aunt - frigidly: “yes – but didn’t you get my telegram?” We stayed in Oxford for 14 weeks with a nice old couple who couldn’t have been kinder, with five extra people to cope with – my father having returned to London. We took a trip down the river to Abingdon, our steamer staying close to another one full of young men in cobalt blue uniforms, some with manifest injuries. “Aren’t they quiet?” my mother said to two ladies we were befriended by. It turned out they were convalescent American aircrew. “They are on our side” my mother said. I have never forgotten their white uncertain faces. They had seen the horrific face of war. <br/>
+The V1 menace passed as the invading forces overran the launch sites, and we returned. On the way up the hill  from the station we heard – out of the blue – a sudden huge bang. It was the second loudest I ever heard, after the V1 in Forest Hill. We got home very shaken, to hear later that a new weapon had been launched at us – the first of the V2 rockets. Even aged six I could see how crestfallen my poor mother looked. And a week or so later her sister’s flat was badly damaged when one hit one end of Park Court, the stylish apartment block lower down the street in which she lived with her son. The boy, who was my age, told me he had looked at the wreckage and seen the V2’s nose “with German writing on it”. At the time I believed him but of course it was nonsense. His mother broke down and my elder sister later acted out the sudden collapse in tears which she had witnessed. “Uncle Jim hasn’t written since he was taken prisoner”, she told us. He had been captured at some point, which my mother rather callously told us “was not very glorious”. Other husbands, sons and fathers were not so lucky. I recall a discussion between my sympathetic mother and a friend who had lost a son, where the phrase “right through his helmet” in a rising tone of distress culminated in a hysterical outburst which I found frightening.<br/>
+I was in bed when news of the surrender came. All the electric trains whose tracks infested the area stopped and turned on their strange whistles. The next morning the world was exactly the same, but completely different. It was a sunny day and looking at the urban flower beds near the shops I got a picture of blue sky, green grass and scarlet flowers, and it was peace. There were lots of celebrations, and we walked up to Crystal Palace and looked out over the city where bonfire after bonfire into the distance were blazing like ever receding sparks. <br/>
+The park with its bomb-craters and its reel upon reel of barbed wire and other seemingly unused equipment was cleared by the German prisoners and we befriended them as we had the soldiers before them. One said to my mother “We give you tea, we demand coffee”, just like a real German was supposed to talk, but she understood it was a confusion in the simple English they were learning.  The trade was established. They used to sit in a circle at their breaks and sing snatches of English songs they were learning “Spring is coming, spring is coming, all the little bees are humming”. One man picked up my little brother who had long blond hair and danced with him in his arms saying “I am going to take him back to Germany”. I ran in, in a panic, thinking he was going to finally show his true Nazi qualities, but my mother was watching from the gate and just took my hand. Peace had arrived, and with it my little brother’s epilepsy, and a polio outbreak which raged around the area. That vision of blue sky, red flowers and green grass has stayed with me all my life – I always dream of peace. But I know now it’s the one thing you never get – that dream cannot be realised.<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/52/a2007352.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-757">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-796"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-796" id="name-796">
+                    The Tale <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-796" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by granger (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/59/a2298459.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>SHEILA GRANGER’S MEMORIES OF WORLD WAR II</p>
+<p>N.B.  Sheila Granger came to visit me, Rosalind Stew in my office at Age Concern Epsom &amp; Ewell.  She had heard about your web site but had no access to a computer so I edited her written memories for her down to less than 3,000 words.  She has approved this version and asked me to submit it on her behalf.  If you need to contact her, send me an e-mail and I will pass it on to her. </p>
+<p>THE TALE</p>
+<p>In 1939 I was nineteen and living at home with my parents in South London. I had met a young man called Don when I was on holiday in Jersey two years previously and I was there visiting him when suddenly our joy was shattered by the announcement of War.  Don enlisted at once and expected to be sent to England but this did not happen and I soon met another fellow, Ralph, who worked at the de Havilland factory.  He was a nice chap who took me out a lot and who very much wanted to marry me.  Who knows I may well have drifted into marriage with Ralph. In those days marriage was considered to be the ultimate aim for a woman giving her security for her future and in return she would keep house and bear children (to be honest, that part did not very much appeal to me).  Due to the war Ralph worked many late nights, which meant I found myself with a lot of free time on my hands.  I went with my friend, Milly, to the Lorcano (? sp ? Locarno) Dance Hall in Streatham; it is still there by the way but has since changed names many times.  Milly had a dancing partner who suggested that he bring along his friend to meet us for a foursome and that of course is how I met Matt (never dreaming that he would be my future husband!).</p>
+<p>A meeting was arranged, a blind date!  To my delight he was very tall, 6 fit 6 inches in fact, and I a mere cheeky 5 ft!  In those early war days we wore gas masks around our necks so we must have looked very silly.  We did not strike a rapport immediately but I would say we felt comfortable with each other.  It turned out that Matt also had a girl, Ivy, to whom he had been engaged for some years.  However, she worked for the Admiralty and had been evacuated to Bath because London was considered to be unsafe in the war. Matt eas therefore lonely and willing to make the date just for a bit of fun and company.  Now Matt was a very keen cyclist and loved riding out into the countryside.  He missed this form of recreation with Ivy so much that he bought a bicycle for me and coaxed me to go riding with him.  It did not take me long to become as keen on this way of life as Matt was. In 1940 Matt was thirty-one and had not yet been called up. We had glorious days out in the quiet countryside (there was no traffic around due to the war).  Mutual thinking and a love of the country made our friendship strong.  However those friendly feelings became more than just that.  We then knew that we had a problem knowing that we wanted to marry. It was easy for me to disentangle myself from Ralph but more difficult for Matt who had been engaged to Ivy for many years.  Ivy solved our problem by meeting and falling in love with a South African pilot. One day Matt came to my house with the news that he was a now a free man as Ivy had married her pilot.l  He had a few mixed feelings as I imagine it was a bit of a blow to his ego. I had to comfort him and remind him that this was what we had wanted and he soon consoled himself with me.  This made me wonder at the time if he was not rather fickle but I have to say that my thoughts could not have been more wrong because Matt was for the fifty years the most loyal, true and loving lover and husband that anyone could have wished for …</p>
+<p>Memories race through my mind of lovely days out in the country on our bikes.  I remember at one time we having a picnic and cooking sausages on a spirit stove with Spitfires flying overhead engaged in fighting with German aircrafts.  It was frightening but quick thinking Matt  threw me into a ditch near by and jumped in after me.  We could easily have been killed.  Despite the war the lovely summer of 1940 will remain in my thoughts for the rest of my life.  I was really in love with this nice gentle giant as he was so often called.</p>
+<p>Matt then decided that, although he was a printer exempt from war duty, he would volunteer for the Forces.  This upset me terribly and I tried to persuade him not to join but he felt he had enjoyed a fairly easy life up to that point and felt it was his duty.  The dreaded day came at Easter in 1941 when he was called and sent to Blackpool.  I remember thinking how stupid he was to go and that he need not have done so.  I did not understand at all.  However, having lived with him for fifty years I now realise that he was a man of high moral code and principles.  His good character remained with him for the rest of his life, which probably explains why he was so loved by all. He stayed in Blackpool for a year and I travelled up at weekends to visit him. Those were hard days and I do not know how I got through them.  I dreaded the thought that he would eventually be sent abroad and perhaps even be killed.  When the call for embarkation came we decided to get married at once thinking that if we did not we might never get the chance. He got forty-eight hours leave and a mad rush was on for the wedding with the help of my wonderful mother.  Thanks to dear Barbara Cartland who campaigned for brides to obtain the special privilege of having material for white weddings, I already had a wedding gown made and two blue ones for the bridesmaids because we had always planned to get married at some time. A dear vicar of St Luke’s Church at Norwood agreed to marry us at short notice, what seemed like thousands of telegrams were despatched and a photographer was arranged.  My husband wore his civilian clothes against the rules and on September 20 we had a lovely white wedding with the sun shining.  After the service we went back to my parents’ house where as if by magic many guest had gathered for a wonderful buffet spontaneously arranged by my mother, her neighbour and friends.  It was a miracle that they managed to obtain chocolate biscuits, jellies, sandwiches and even a homemade wedding cake with a Union Jack on the top. In the middle of the music and dancing an air raid came with guns going and bombs falling but no one cared and at midnight we were ordered to go off for our honeymoon.  Friends lent us their house overlooking Norwood Park but we only had until the next evening when my husband had to journey to Liverpool ready to sail to unknown destinations. After a tearful parting from me Matt was gone.  The next time I heard from him he was in North Africa; it might as well have been the moon as far as I was concerned.  The worst part of my life followed.  For the next four years all I had of Matt were his letters and what wonderful letters they were.  I received them four or five times a week.  They never stopped coming.  They meant so much to me in those dark days when bombs were falling, the terrible V1s and V2s.  The letters continued so bright, cheerful and optimistic.  The army soon realised that Matt was of officer material and tried to promote him but he turned them down.  He did not want the responsibility.  Instead he found himself in Italy and North Africa driving around in a lorry delivering water.</p>
+<p>Meanwhile I lived in my mother’s large house. She had given us three rooms on the top floor which I furnished and decorated myself.  I had help from some Irish workmen who had been sent here to clean up the damage caused by the bombing.  I hunted the shops for second hand furniture and soon I had a three room furnished flat ready for my warrior’s return.</p>
+<p>I  worked from 8 — 5.30 in an office of a perfume making company at the Elephant and Castle to which I travelled by bus from West Norwood. I  often had to dodge behind vans for cover from the bombs. I remember one occasion coming home at six o clock when a bomb fell en route and we all had to get off the bus at Herne Hill.  We had to go into an underground shelter and stay there all night.  We were only a quarter of a mile from home but we were not allowed through and our poor mother worried all night about us but there was no way of letting her know we were safe.  I still remember that night.  There were no lavatories — only buckets behind a curtain.  My sister and I were desperate to spend a penny but we did not want to use those buckets so did not go all night. After that and several other hair raising experiences, I left the job in Walworth and moved to the T.M.C. (Telephone Manufacturing Comapany) where I often worked night shifts but was walking distance of home. I remember one terrible night when the East India Docks were bombed. We could see them blazing from Norwood.  We spent many nights in my father’s makeshift shelter which he had made in the place where we stored our coal.  We literally slept on blankets on top of piles of coal. On one occasion some houses in our street were bombed — there was glass everywhere. The first thing my mother did was to check the gas so that she could make a cup of tea  and then she set to work sweeping up all the glass.  Despite the wartime shortages we did not go hungry — we always had bread, biscuits and soy sausages.  There was a Civic Restaurant at Norwood which provided a simple, basic cheap meal for the bombed out. We survived the war and eventually my husband returned and we enjoyed fifty very happy years together.  Sadl, just eight weeks after the big celebration we held for our Golden Wedding my Matt died leaving me desolate but with a lot of lovely memories and photos.<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/59/a2298459.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-796">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Gipsy Hill: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>42</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Gipsy Hill </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

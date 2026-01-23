@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Hampton - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.39277000668378398, 51.423466935192387], [-0.39190104512991403, 51.423290908792836], [-0.39113113736099497, 51.423161898921748], [-0.39075097886419702, 51.422966991753235], [-0.390437077353603, 51.422831032359547], [-0.389273352485069, 51.422346175014766], [-0.38820542388877, 51.421873166645675], [-0.38703146234875202, 51.421387169886934], [-0.386363403558937, 51.421085301716253], [-0.38573248345761502, 51.420852367241011], [-0.385518618660384, 51.420748398598754], [-0.38539263295735798, 51.420739351909937], [-0.385267818958199, 51.42086338882784], [-0.38511481417113702, 51.421085242602523], [-0.38492982546514498, 51.421271397308374], [-0.38457387203022803, 51.421258342877458], [-0.38392575704170601, 51.421347337958366], [-0.38366066941889299, 51.421408315092258], [-0.38331298560488303, 51.421517333402605], [-0.38306187925084501, 51.42165325414814], [-0.38280996082845198, 51.421723260108983], [-0.38201799790348301, 51.421825296915387], [-0.38146132374053399, 51.421870300737908], [-0.37963909143934799, 51.422140330000389], [-0.37906340962607299, 51.422201210873503], [-0.37829070290045702, 51.422254317069992], [-0.37662950909793302, 51.422329251131053], [-0.37589984211744398, 51.422334318359873], [-0.37421806742663, 51.422472294731243], [-0.37066558057295901, 51.422883276141761], [-0.37019066220845198, 51.42297938190972], [-0.36999950236650098, 51.423109367966525], [-0.36979641500522997, 51.423168054442051], [-0.369099450978779, 51.423178340893493], [-0.368581806735712, 51.423161302978713], [-0.36795767584866801, 51.42310540403561], [-0.36248116629021099, 51.422755456609266], [-0.361827385919544, 51.422699534297536], [-0.36015158893084698, 51.422088644867124], [-0.35975271703450701, 51.421943540929881], [-0.35896573327269898, 51.421741712729549], [-0.35891859244873597, 51.421903623821912], [-0.358712571157003, 51.421895536518463], [-0.35784488674492398, 51.421951671589397], [-0.35709286482478803, 51.422053676184341], [-0.35603180657410899, 51.422250680273905], [-0.35539715811026801, 51.422350673728175], [-0.35515510453217702, 51.422269716400301], [-0.355052191641621, 51.422206733635711], [-0.35489534303014703, 51.421755751209005], [-0.35480321539544502, 51.421379729503329], [-0.35474496484852303, 51.421324813567566], [-0.35465130480733797, 51.421316758444284], [-0.35436037141008198, 51.421370842491214], [-0.35331445736457101, 51.421683818805107], [-0.35317848708822502, 51.421702700684982], [-0.353031285550087, 51.421671829097903], [-0.35291729430055502, 51.421616828836562], [-0.35284053951685901, 51.421563769811883], [-0.35278749534838, 51.421476752518963], [-0.352511209540875, 51.420522902819052], [-0.35239050762308199, 51.420055002860202], [-0.35239435370810401, 51.419323021197634], [-0.35211550319431301, 51.41841606843095], [-0.352108395655085, 51.417776245083921], [-0.35213224387970299, 51.417313323452198], [-0.35216316081817201, 51.417278352468038], [-0.352246212679522, 51.41726828602819], [-0.35280137797731798, 51.417327231947084], [-0.352914155280528, 51.417315326763784], [-0.35336603497602498, 51.417084361479063], [-0.35340617939577201, 51.417030265395063], [-0.35355688447431499, 51.416075398594614], [-0.35355217404809502, 51.416006482472618], [-0.35349427240706699, 51.415954379238194], [-0.35209802292590597, 51.415440458576192], [-0.35206233662380199, 51.415395554719048], [-0.35264024683576001, 51.413945646830321], [-0.35280221816833601, 51.413427621091664], [-0.352834807660377, 51.413233757676501], [-0.35278508867382202, 51.413166741200712], [-0.352830211655839, 51.413061720046038], [-0.352678212145349, 51.413014758067149], [-0.352210238644803, 51.412956751678571], [-0.35169127572504899, 51.412929785545614], [-0.35106133085549002, 51.412577807133651], [-0.35172418863211802, 51.411714871288034], [-0.34862468814474601, 51.411371954236479], [-0.34702845040761698, 51.411225104280156], [-0.346563470673456, 51.411197053419272], [-0.34647958771135201, 51.411243080683924], [-0.34639284668696502, 51.411343018680903], [-0.34633592433510202, 51.411475974536309], [-0.34623056878076403, 51.411879991511782], [-0.34619874081548302, 51.412151986769366], [-0.34611591455324298, 51.412156020671929], [-0.34488583127611599, 51.411849065986296], [-0.34382499851959802, 51.411634141582375], [-0.34321526799129998, 51.411446101206685], [-0.34283512118475801, 51.411309205345958], [-0.34261534570881702, 51.411285029169505], [-0.34230836872961701, 51.411262133094759], [-0.34223014882755598, 51.411275225856798], [-0.342153424824581, 51.411384151576627], [-0.34209704982606598, 51.411576128854954], [-0.34195244401810998, 51.411735107897464], [-0.34187809614280101, 51.411790115911892], [-0.34178715944583199, 51.411807098517279], [-0.34131107621353901, 51.411763123618215], [-0.34023154185439902, 51.411606070429563], [-0.33958863089188701, 51.411466151574295], [-0.33948049179080197, 51.411288143327766], [-0.33925343456004398, 51.411180108595509], [-0.33732743314285402, 51.410450266594914], [-0.33716445107051402, 51.410570332070208], [-0.33698154774903699, 51.410645298063464], [-0.33676071087349702, 51.410725204364851], [-0.33624456209033299, 51.410844335391822], [-0.33593374872069598, 51.411026233438747], [-0.33573995449977301, 51.410831268540065], [-0.33516885495729098, 51.410521347616232], [-0.33503307210417499, 51.410424297429209], [-0.33483304381761098, 51.410166432874966], [-0.33478814161692899, 51.410054374953816], [-0.33479074292134198, 51.409772418144414], [-0.33486082603734002, 51.409599460628883], [-0.33495913139280498, 51.40947847949213], [-0.335176800136257, 51.409300454395989], [-0.335333817946391, 51.409208410556829], [-0.33550201834090498, 51.409142511039889], [-0.33606788154433098, 51.409002449757551], [-0.33622388558098898, 51.408950427858791], [-0.336493795961402, 51.408768510201597], [-0.33652055863456798, 51.408625434573665], [-0.33604084949318702, 51.408595585711076], [-0.33543991690328601, 51.408476608402623], [-0.33450504249783197, 51.408545528935832], [-0.33303429779274701, 51.408757579053464], [-0.33267810708991302, 51.408815598096268], [-0.33241203861318602, 51.408891482498952], [-0.33194639793084002, 51.40895651484098], [-0.33030761967694999, 51.409167538816142], [-0.32964066024006, 51.409195549484252], [-0.32899751525982701, 51.409285582086419], [-0.32803854927212101, 51.409484634842869], [-0.32772696772596899, 51.409514609929026], [-0.32687901585447998, 51.40963852311117], [-0.32600508801283801, 51.409809546204315], [-0.325024145135617, 51.409969475251053], [-0.32442916285046902, 51.410081525156023], [-0.32328148913589799, 51.41022964499021], [-0.32216727760790298, 51.410396640001018], [-0.321893592293784, 51.410397500702182], [-0.32161744767097, 51.410428528681884], [-0.320127667950383, 51.410641553573896], [-0.31959474766020601, 51.410702478637248], [-0.31889978388734402, 51.410721601191575], [-0.31866982275239802, 51.410755531500094], [-0.31765269854295403, 51.409353708526567], [-0.31610708198896598, 51.409900712186776], [-0.31297650462465398, 51.410729639783312], [-0.31264843139693699, 51.41084070184241], [-0.31251158308735699, 51.410688664150406], [-0.31246541303192898, 51.410697695688377], [-0.31227335566375197, 51.410348726320883], [-0.31218661663291303, 51.410336657473444], [-0.31307647494172203, 51.409270792411348], [-0.31343524838669601, 51.408996908117317], [-0.31381847084473302, 51.408741919980663], [-0.31405447812078402, 51.408543828827597], [-0.31426705495245599, 51.408335004037241], [-0.31550521623755201, 51.407289029048513], [-0.31642484060542198, 51.406583122473663], [-0.31664592453263302, 51.406387058587953], [-0.31698858200628, 51.406208053607877], [-0.31709187104713199, 51.406087158764628], [-0.31754862510342002, 51.404586357352478], [-0.31770275739402698, 51.403753387605967], [-0.31798059474510798, 51.402903518721885], [-0.31822654667629602, 51.401795635698214], [-0.318329447254666, 51.401219761781377], [-0.31847055180287398, 51.401022694077994], [-0.31852622377006001, 51.400888738760138], [-0.318366585580246, 51.400782753574831], [-0.31802054202381902, 51.400687730409523], [-0.317503316700881, 51.400507760813007], [-0.31512577728693097, 51.399836959369523], [-0.315280787808986, 51.399530912584709], [-0.31528172451853698, 51.399492997080429], [-0.31533383745287602, 51.399480955923224], [-0.31544089408174603, 51.399366995222536], [-0.31555975635536698, 51.399200937828226], [-0.31579482708400097, 51.398941005204989], [-0.31595327606202001, 51.398834532305408], [-0.31214809043090602, 51.398142021629027], [-0.31252383154806801, 51.397453191356377], [-0.31298081081374302, 51.397108216351448], [-0.31421174764299598, 51.396190293341107], [-0.31664648507556098, 51.394440429776886], [-0.31744425757856198, 51.393889572904371], [-0.31772100391042601, 51.393667749397473], [-0.318289538545596, 51.393316629534262], [-0.31879599296748701, 51.393041054413821], [-0.319070207429825, 51.39291248993603], [-0.31985624132691498, 51.392594556550897], [-0.32074906982840601, 51.392414716669499], [-0.32123270507653501, 51.392282969243375], [-0.322325514235906, 51.392062988610689], [-0.32371566923100697, 51.391695637074733], [-0.32461340436101099, 51.391503056949588], [-0.32486830251148902, 51.391472280402247], [-0.32569357185515502, 51.391431661168738], [-0.325989956861162, 51.391445730016983], [-0.32672410780151701, 51.391550637300988], [-0.32708493929832899, 51.391620569497199], [-0.32752597010224499, 51.391720439573362], [-0.32784013052716399, 51.391838452020274], [-0.32839170841346499, 51.392122275681814], [-0.32869435243655698, 51.392309671755307], [-0.32921267999185, 51.392742099477751], [-0.32999832639006998, 51.393345538837195], [-0.33015190812148498, 51.393482472335499], [-0.330281205149208, 51.393620192223302], [-0.33087600732510303, 51.39416118110195], [-0.33112702434498897, 51.394459826532866], [-0.33174158869994302, 51.395322433795265], [-0.33212100540009698, 51.395771563330982], [-0.332285494858788, 51.395917783767231], [-0.33402988112345, 51.397188752167551], [-0.33571433636139197, 51.398368353001615], [-0.337094599120349, 51.399489808983915], [-0.337724201233215, 51.400091118551373], [-0.33792818827783799, 51.400313767186375], [-0.338366783731818, 51.400855880475724], [-0.33897374213907999, 51.401735761983787], [-0.33980273146712697, 51.402490376399385], [-0.340529936512806, 51.403016615028918], [-0.34087800582023398, 51.403206307001199], [-0.34142816862141301, 51.403410663177013], [-0.34192892330471297, 51.403528045510981], [-0.34306410018469902, 51.403731543879516], [-0.343808989014799, 51.403980935240909], [-0.344646353724606, 51.404394752346967], [-0.346247395978733, 51.405447695055798], [-0.34710162215379797, 51.405881124775959], [-0.34883795312940002, 51.406462147114638], [-0.349220449105963, 51.406620686981967], [-0.34969764805157799, 51.406881868326238], [-0.34991247557469501, 51.406980437975776], [-0.35005436053074701, 51.407070530871579], [-0.35048121492491002, 51.407457733302572], [-0.350701835604524, 51.407607387492007], [-0.35131816150741701, 51.407873890114864], [-0.352642096773643, 51.408568198680449], [-0.35298072780513001, 51.40872273927085], [-0.35381087388917198, 51.40914215260559], [-0.35414388693649701, 51.409290993840706], [-0.35513100700936601, 51.409806599671725], [-0.35520881790755898, 51.409892131246657], [-0.35525547455462603, 51.410094556953361], [-0.35523994704227602, 51.410565036594505], [-0.35526960467697999, 51.41064005794118], [-0.35537837656973797, 51.410752027928957], [-0.35564537341410501, 51.410850195491612], [-0.35655970670761, 51.411116347881183], [-0.357667425533721, 51.411478786381601], [-0.35839321197688701, 51.411627492265637], [-0.35849472292307299, 51.4116789331622], [-0.35906582064550802, 51.411880975456086], [-0.35967442506836, 51.412002037805586], [-0.360012360938887, 51.412039502176683], [-0.36071207099896402, 51.412050699744768], [-0.36125975525262, 51.412040651319579], [-0.362440936926469, 51.411971174202471], [-0.36312362437311602, 51.411905682023509], [-0.36442010459639301, 51.411664689727026], [-0.36513685522963701, 51.411500599091902], [-0.36650271619511599, 51.411128054445612], [-0.36676558649605401, 51.41102703874882], [-0.367332192082925, 51.410763189135885], [-0.36784859913408902, 51.410558785885108], [-0.36832723683949298, 51.410392344944142], [-0.36932872331161998, 51.410080026589334], [-0.370265859273336, 51.409719032657762], [-0.37263987759343697, 51.408766372018668], [-0.37317195997395902, 51.408599806339019], [-0.37421882268618001, 51.408437433665526], [-0.37490328899082598, 51.408357569831715], [-0.37614824869270402, 51.40828574540167], [-0.37639014484371103, 51.408255790562272], [-0.37708663703470902, 51.408064375681697], [-0.377725110712608, 51.407938333086648], [-0.37811914680004499, 51.407888279476516], [-0.37944971661750498, 51.407834050605778], [-0.38022978434325, 51.407896538269178], [-0.38120614660980101, 51.408012036624875], [-0.38240836152797297, 51.408284356946176], [-0.38337220695810398, 51.408538478228955], [-0.38344720064853699, 51.409482737444662], [-0.38383355747640902, 51.409535837967127], [-0.383799973920814, 51.41011875184288], [-0.38510122110151501, 51.410235603084125], [-0.38626228163099702, 51.410377627900473], [-0.38665830400217599, 51.410411606973966], [-0.38735926405732701, 51.41034861028006], [-0.38787782763018602, 51.410322585479342], [-0.38919768560486001, 51.410319231429412], [-0.38931812537306398, 51.410702787711323], [-0.38967256583497201, 51.410692482983364], [-0.38992947458794203, 51.412218395378837], [-0.39005992938276501, 51.412803002026727], [-0.390315186538993, 51.414338024789515], [-0.38854516190584798, 51.414372994076103], [-0.38758828530295703, 51.414350985202894], [-0.38614420592612803, 51.414279829696042], [-0.38623145781979801, 51.414367155370719], [-0.38635396378645198, 51.414640161686826], [-0.38661689797090898, 51.415021879251711], [-0.38645610804608199, 51.415299981874313], [-0.38644189974049098, 51.415371858856496], [-0.38650902769193002, 51.415750190233695], [-0.38657057859307298, 51.416491082047365], [-0.38653359750245903, 51.416533004359529], [-0.38678309447811898, 51.417654442645805], [-0.387248290910367, 51.418789391608549], [-0.38741214823317799, 51.419024456831572], [-0.38771655257924698, 51.419327220074884], [-0.38704724976538202, 51.419751330861494], [-0.38666307473810102, 51.420080448353481], [-0.389717222098311, 51.421559402733564], [-0.39137287986024699, 51.422331590629163], [-0.391413766958422, 51.422409150588017], [-0.39177276057731097, 51.422784024655172], [-0.392375793477863, 51.423109003135522], [-0.39290770674294401, 51.423282937646064], [-0.39277000668378398, 51.423466935192387]]]]}, "type": "Feature", "id": 1521, "properties": {"pk": 1521, "name": "Hampton"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Hampton, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Hampton, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Hampton</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Richmond upon Thames</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Hampton
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Hampton, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hampton: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>69</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Hampton</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <p>Sorry, no stories available.</p>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hampton: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>69</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Hampton </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

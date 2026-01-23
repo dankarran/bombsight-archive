@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in West Thornton - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.13437916931011801, 51.390885820239674], [-0.13407165510921401, 51.391113751461916], [-0.13380032447356199, 51.391268774300045], [-0.13331521063656299, 51.391467731843605], [-0.13294183708615301, 51.391657657161282], [-0.132260585253267, 51.391951712048119], [-0.12991737586590099, 51.39292769739798], [-0.128947878064261, 51.393437593375872], [-0.12890462516921, 51.393484676447109], [-0.129119927575713, 51.393470544474887], [-0.12975763442117, 51.393672519620239], [-0.12839376205479, 51.394489453655375], [-0.127411089022646, 51.395166472868411], [-0.12482236059490701, 51.397218260151398], [-0.12422180192025099, 51.39760123431094], [-0.124588363372311, 51.3978210981847], [-0.1244218531243, 51.39793815291857], [-0.124638218373228, 51.398096180723819], [-0.12495598496358699, 51.398213112481891], [-0.125226190822157, 51.398285017142612], [-0.12569551972322801, 51.398365032929121], [-0.12549673884808801, 51.398721979470871], [-0.12525140762010201, 51.398832995237306], [-0.12449957912444599, 51.399222961659355], [-0.12388117401316, 51.399645972533143], [-0.12343683014019299, 51.399921006118475], [-0.123375680915321, 51.399921997454832], [-0.121963034206845, 51.400693811124306], [-0.118617825234894, 51.401896734185705], [-0.11847248772827999, 51.401562792997723], [-0.118188026216167, 51.401032050845195], [-0.117121866965145, 51.399399014426074], [-0.11702919117499699, 51.399227084828134], [-0.11690829573452401, 51.399064112757287], [-0.116747046373473, 51.398899092310145], [-0.116226227324154, 51.398060305829461], [-0.116043069970556, 51.397729270903874], [-0.115279538420623, 51.396194556970464], [-0.11318083830362199, 51.397044311708456], [-0.11226402370427099, 51.395678534898231], [-0.11171943230687199, 51.395790594342067], [-0.110471907433229, 51.395911558455417], [-0.10978678149110201, 51.395945611716733], [-0.10903608504180901, 51.395957671835404], [-0.10866219267320799, 51.39589556665657], [-0.108563740402988, 51.395864611483319], [-0.10844618713010699, 51.395795694200842], [-0.108430447106474, 51.395763679887935], [-0.110818056666444, 51.394727711079462], [-0.108651833996755, 51.392683039848407], [-0.107342346989785, 51.39139013187539], [-0.10722216851421799, 51.391298121863692], [-0.107173280615718, 51.391220192193501], [-0.107157432836327, 51.391125226363997], [-0.107223109969692, 51.390840205667459], [-0.107333431535443, 51.390670285345038], [-0.10737235046264899, 51.390554287857277], [-0.107288070573751, 51.390354252236015], [-0.10714742896544199, 51.390214275786263], [-0.106864434404809, 51.390040386298345], [-0.106240365953417, 51.389794387799292], [-0.10426669080359501, 51.389078460783679], [-0.104095677805273, 51.388999529870823], [-0.103998702788779, 51.388911547688508], [-0.103766182022911, 51.388647560547632], [-0.105694675181595, 51.38778159432816], [-0.11072551685684601, 51.386462765248901], [-0.111180115448561, 51.387202578721201], [-0.11445266259657, 51.385997577755241], [-0.115148080157406, 51.385796731240809], [-0.115695301870858, 51.385682728093379], [-0.11605228720149501, 51.385629736675718], [-0.11646349019106, 51.385590682691209], [-0.11740999916376001, 51.385552779938763], [-0.118629972701773, 51.38561467057864], [-0.11898657016138101, 51.385658611437592], [-0.119435032945064, 51.385652605277677], [-0.12002338898359, 51.385608656097205], [-0.120584355947156, 51.385531657225556], [-0.120940276761557, 51.38546064960893], [-0.121093395653495, 51.385384703740591], [-0.12148589490990599, 51.385582645231949], [-0.122284319297731, 51.385936610339499], [-0.127030729977087, 51.387827275920571], [-0.129760172041406, 51.38896208405837], [-0.131768744497021, 51.389822994635551], [-0.13234684547435699, 51.390053942485544], [-0.13264416915619201, 51.390186965071628], [-0.13338340535042301, 51.390608752805576], [-0.13347173904871401, 51.390513065470273], [-0.13440729444331001, 51.390834847744074], [-0.13437916931011801, 51.390885820239674]]]]}, "type": "Feature", "id": 1169, "properties": {"pk": 1169, "name": "West Thornton"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in West Thornton, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in West Thornton, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: West Thornton</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Croydon</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    West Thornton
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in West Thornton, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in West Thornton: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>40</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in West Thornton</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-540"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-540" id="name-540">
+                    The Honour of Meeting Winston Churchill&#39;s Wife Clementine
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-540" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by gloinf (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/86/a3188586.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>We lived in Thornton Heath near Croydon after our marriage. Before our wedding we went to church to finalize the arrangements: my future husband was in the Fire Service and while we were there the sirens went and he had to report for duty and left me at the church.</p>
+<p>My wedding dress and the bridesmaids’ dresses were at home and had to be moved for safety because a bomb had been dropped and was embedded in the next-door neighbour’s settee!</p>
+<p>On our wedding day the Chief Fire Officer and fire service friends attended and, halfway through the service, the Air Raid sirens went the fire service crews had to leave, but my future husband was allowed to stay!</p>
+<p>Due to the severity of the bombing we spent our wedding night in an air raid shelter with about eight other guests.</p>
+<p>My husband and I later had the great honour of meeting the Prime Minister Winston Churchill’s wife Clementine who kindly autographed a photograph of us.<br/>
+(See photograph above.)</p>
+<p>My job to help towards the war effort was working in a factory with a large group of ladies making hypodermic needles for the hospitals and other medical organizations.<br/>
+Due to the heavy bombing where we lived we spent a lot of our time in the air raid shelters, which were most of the time under water, and our furnished fiat was badly hit.</p>
+<p>Then when 1 went to live near Upperton Rd a landmine was dropped across the road a direct hit killed nine people.</p>
+<p>When my husband was in the front line with the Fire Service in Coventry he attended a fire at the Cathedral, and he fell when the roof collapsed.<br/>
+ <br/>
+After the war I visited Bertesgarten, Hitler’s retreat, with my second husband.<br/>
+During the war my second husband designed underwater missiles for the Americans.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/86/a3188586.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-540">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-594"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-594" id="name-594">
+                    WW2 in Somerset and Croydon <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-594" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Neville Matthews (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/77/a2040977.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>My memories of the war start when as an eight year old boy we went on holiday in late August 1939.  This was in the days when annual leave was not a common privilege.  In those days private cars were few and far between, father did own one however, a bull-nosed Morris that took us on day trips and holidays.  We could not afford a hotel, but with one of his colleagues from work jointly rented a beach-house. <br/>
+It was a long journey from Croydon, South London where we lived, particularly for a young boy and cars were much slower than today especially as there were few trunk roads and no motorways then. <br/>
+Night fell when we were still some distance away.  Petrol filling stations were not as common then, nor did they open the hours that they do today either.  I remember the atmosphere in the car becoming more and more tense as, with the fuel gauge bumping on zero we made our way in the dark to the depths of the West Country.  Our destination was the beach at Dunster in Somerset.  We must have<br/>
+found an open filling station somewhere because we arrived without mishap.<br/>
+You can imagine our disappointment, disbelief even horror on arriving late at night, in the dark and rain to discover our beach-house which was advertised as having three bedrooms, a kitchen and a large dining area, was no more than a large single-roomed wooden hut with no running water, indeed apart from electricity, no facilities at all!  <br/>
+It had also claimed it was right on the sea front.  That last at least, was truthful,  there was nothing but sand between us and the waves!  What about the advertised bedrooms, living room, kitchen etc.?  Well at night curtains pulled across the single room divided the large dining area into the three bedrooms.  The kitchen was an alcove off the main room and there were no toilets or washing facilities, these were situated in a communal block with showers and the tap which supplied our kettles<br/>
+and cooking pots!  <br/>
+I seem to remember that I had a bunk bed, but privacy was almost non-existent.  It was far from the standard we had been led to expect.  After some discussion it was agreed than rather than pack up and go home then and then (It was very late at night), we would stay until the morning.<br/>
+However next morning was bright and sunny, the ocean lapped at the front door and the prospects<br/>
+seemed much brighter.  After some discussion (in which I took no part!) it was decided we would stay after all.  It was a memorably time, apparently I and the children of the other couple spent all our time on the beach, coming in only to eat and sleep.  It was memorable for another reason too, it was during our holiday that the second world war was declared.  <br/>
+I vaguely remember adults clustering round a radio with long faces shushing any children making any noise, but the importance of the announcement was lost on me.  The news must have thrown a shadow over our holiday, but I can not say it had much impression on me or the other children.  When our holiday was up father and the other family returned home but mother and I stayed on in rented rooms in Dunster village, some two miles from the sea.  Being away from Croydon meant I missed the general evacuation of children from Croydon.<br/>
+Mother and I had our bicycles there (this seems odd to me now, I can not believe we had taken<br/>
+them down on holiday with us.  Perhaps father sent them on by rail, much used for nuaccompanied parcels in those days).  We used them to go all over the county, in particular down to the sea, reached by a shallow, but very long hill.  Marvellous when going to the sea, murder when returning, too long to walk, too steep to ride, at least all the way back.  <br/>
+Dunster was, and from what I remember the last time we went back many years later, probably<br/>
+still is, a picture-postcard village with pink and cream washed cottages and blessed with a church with a clock that possessed a peal of bells that not only chimed the hours and quarters but also played a selection of tunes, day and night.  One that affected my mother more than I, was “There is no place<br/>
+like home”!<br/>
+The house did not have electricity but was equipped with gas lighting, which was operated by a switch, using a battery in each switch.  I have never seen this system before or since. Whether the battery was used to control a gas-valve, or merely light the gas flame (or both) I do not know.<br/>
+I remember that whereas our garden at home was lawn and flowers, the garden at Dunster was<br/>
+used exclusively for food.  Chickens, fruit, potatoes and other vegetables.  This usage was well established long before we came there, not as a result of the governments “Dig for Victory” campaign, a slogan later used to encourage such self-sufficiency.  It was a true “cottage garden” and not one as<br/>
+idealised in gardening programmes of recent years.  It was strictly functional.  <br/>
+I particularly remember cabbages, and black-currants.  The cabbages because one of my jobs was to collect the caterpillars that otherwise shredded the leaves, and the black-currants because they were used to make jam.  I was also urged to weed too, and not only at home, the school garden seemed to take up a disproportionate amount of the school day (but then what else we were being prepared for?)  I<br/>
+remember groundsel was valued for the chickens (as were the caterpillars!)  I did not mind feeding the chickens, it was a bonus.<br/>
+Like all her contemporaries, the housewife with whom we were staying made her own jam,<br/>
+mainly from fruit from the garden and the hoarded supplies of sugar.  Everyone seemed to buy up as much as they could get.  When the jam was put hot into the jars, before sealing the lids she used to put the jars on the kitchen window ledge to cool, to the great enjoyment of the local insects.  They sometimes became so enthusiastic that they lost their footing.  It was difficult to tell which was currant and which was fly.  When mother got fed up with fishing them out, she warned me not to eat<br/>
+home-made jam when it was subsequently served.<br/>
+Since the war lasted more than the few months expected at the time, I went to the village school, which was a great shock to me.  Although there are differences between schools these days, it was far greater then.  Whereas the aim of schooling in London was to turn out citizens who (mostly) could read, write and have at least a reasonable standard of numeracy, suitable for shop assistants or clerks, the aim of the village school seemed far lower, mainly to turn out obedient farm<br/>
+workers who knew their place.<br/>
+Although competence in reading, writing and arithmetic was indeed a goal, it was hardly<br/>
+expected of all students.  One thing that I can justly claim I owe to the school was impetigo, which despite many visits to the local doctor went undiagnosed at the time, but was recognised (and cured) immediately I returned to Croydon.<br/>
+After a year or so, mainly because my medical condition was getting worse and partly because<br/>
+the air raids had not occurred with the predicted ferocity, we eventually returned home, in time to experience the start of the “Doodle-bugs”, or V1’s.  Although crude, they were so fast the fighters of the day (Spitfires and Hurricanes) could not catch them in level flight.<br/>
+They made a quite distinctive noise and we soon grew to recognise them and took no action until<br/>
+the engine cut out, when everyone immediately dived for cover.  They would glide for a short while (which generally gave enough warning), before hitting the ground and exploding.  After some months they started to be fitted with a device which made them dive whilst the engine was still running. Sneaky!<br/>
+Because the ground is higher where I lived, and it was on the direct route to London, the area<br/>
+around Croydon suffered greatly from these unpleasant devices.  Later we were subjected to V2’s (rockets).  Unlike normal bombers and V1’s, the air raid sirens were unable to give any warning.  V2’s<br/>
+travelled so fast they exceeded the speed of sound and in those days there was no means of detecting them.  <br/>
+Following an entirely unexpected explosion, you would hear a rumbling echo, which was their<br/>
+wake catching them up.  It was said at the time that if you heard them coming, you were all right, it was only if you didn’t, that you (or your relatives) had problems.  Fortunately, from my own selfish personal point of view, Croydon suffered less from these than the V1’s, partly because their launch<br/>
+sites were being overrun by our forces.<br/>
+However most of the damage I knew about was caused by bombers dropping high explosive or<br/>
+incendiary bombs.  Some were fitted with time-delay fuses, which caused even more disruption than those which exploded on impact.  They could not be left, threatening a factory or houses, but had to be dug up and defused if possible.  Whilst this was going on the inhabitants of the houses or factories were<br/>
+evacuated, causing disruption.<br/>
+I remember some peculiar and decidedly odd effects of bomb blast on houses, two in particular. <br/>
+In one case a bomb had fallen during the night on a house in a nearby street, but I took a long time finding it next morning.  The reason was that the front of the house was still complete, there was no visible damage, even the tiles on the roof and the very glass in the windows was unbroken and the curtains still hanging behind them, but unbelievably, from there on back there was nothing but rubble! <br/>
+There were no centre dividing walls between the front and rear rooms, and no rear wall either.  The house had been completely disembowelled!  <br/>
+I can’t explain how it occurred.  It was not that the house had been damaged in a previous raid and the authorities had pulled down any dangerous structure, it had all happened in an instant during the previous night.  The other occasion was almost the reverse, the front and centre walls had gone but<br/>
+left the rear wall intact.  This was not quite so amazing, all the glass in the remaining windows had broken.<br/>
+Two types of shelter were issued, the type we were given was the Anderson, it assembled into a<br/>
+curved tunnel-like corrugated steel structure about six foot long, about the same in width and five feet or so high in the centre.  It was half-buried in the garden, the soil dug out was placed over the shelter as additional protection.  Sand bags were put a little way in front of the entrance to divert direct blast<br/>
+from that direction.  There was just room for four bunks, two upper and two lower with space to walk between.  It always suffered from damp and was liable to flood when it rained.  Ours was later lined with concrete to keep the ground water at bay.<br/>
+During the worst of the blitz we slept in the shelter every night and at first ran there during the day when the sirens warned of an air raid, later the warning sirens merely put us into a higher state of alert and we stayed out, but ready to run when we heard the approaching enemy aircraft or V1’s.  Apart<br/>
+from well-shielded torches it had no lighting of course, especially as the “Black-out” meant that even a candle exposed to the night was liable to bring down the wrath of the wardens.  The cars and lorries,including military vehicles had their headlights covered by a metal mask with louvers which allowed<br/>
+only a glimmer of light through, barely enough to see it coming, what it must have been like to drive I hate to think.  Not that it bothered me then!<br/>
+There were also communal shelters built of brick with a reinforced concrete roof.  Although<br/>
+stronger than normal buildings they were not sufficient to protect against a direct hit, but they did guard against bomb blast and the debris from anti-aircraft shells, commonly called ‘shrapnel’.  I used to go<br/>
+out most mornings looking for it.  It came of course from the anti-aircraft guns of which there were several batteries on waste ground and parks in the neighbourhood.  The other deterrent was the barrage balloons, although we could see several in the sky around, there were none based close to us.  I think they were intended to make the bombers fly too high for precision aiming.<br/>
+The bark of the guns, the thud of the shells exploding high overhead mingled with the distinctive drone of aircraft made sleeping in the shelter during the raids impossible, but it only became more than a nuisance to me when a bomber released a stick of bombs.  If they were close one could hear the whine as they came down and we listened for the succession of explosions; hopefully (selfishly) getting<br/>
+quieter as they receded,  or as happened on one occasion landed one either side of our house,<br/>
+fortunately a hundred yards or so away.  <br/>
+Still I was a child and as a child accepted this as normal.  That is how things were.  At that age I just did not realise the dangers I lived through.  Except perhaps once.  My father and I were alone in the shelter when we heard a VI cut out.  In the silence that followed it flew closer until we could hear the air rushing over its wings.  It got louder and louder, we were sure it was coming right on top of us. <br/>
+Father grabbed me tightly and pulled me down, then the sound inexplicably faded and a few seconds later we heard it explode as it destroyed a nearby house.<br/>
+I also remember that metal street fittings, notably house and park railings were taken away. Aluminium saucepans and other items were collected for the war effort.  I remember taking a wheel barrow round searching out such ‘scrap’.  I can’t help feeling now that it was more psychological than<br/>
+practical.  I must also mention gas masks, we were all issued them, they smelled musty and rubbery,were uncomfortable to wear and allowed only limited vision.  They were kept in square  cardboard cartons with string to hang round our necks and had to be taken everywhere with us, although later I don’t remember being unduly restricted going to school or roaming the streets and parks.  Mine had a protective Rexene cover, probably made by mother.<br/>
+Father’s health was such that he did not go into the armed forces.  Prewar he was in the print butwas re-trained as a turner and sent to work in Grantham, a town which later produced one of our PrimeMinisters, though I do not hold him personally responsible.  Due to continual health problems he later returned to Thornton Heath where he worked in a precision engineering factory in near-by Mitcham.  <br/>
+He joined the Air Raid Wardens and amongst the friends he made at that time was a young<br/>
+solicitor who was of use to me professionally in later life.  To increase his income, badly hit by the change in circumstances, we rented a room for a while to a young police constable.  Mother also worked although pre-war she had been a full time housewife, most women were called up for essential work, for a time she worked as a typist in the same factory that also employed my father.<br/>
+Later in the war several relatives lost their homes in air raids and two great-aunts came to live with us for a while.  Still later my maternal grandfather also came to stay after he suffered a stroke that affected one whole side.  I remember he was a big man and mother found it difficult to manhandle him with his lack of mobility, however I remember he married again and went to livc with his new wife in<br/>
+Hove.  <br/>
+At my age the war  didn’t make as much of an impression on me as my parents, they tried,<br/>
+successfully, to shield me from the worst, we were very fortunate that we were spared any real damage to our house and immediate family.  There were shortages and food rationing of course, and we ate different food from that my parents would have chosen otherwise, perhaps that is why I developed a liking for corned beef even after real meat became more readily available.  I know my parents found that rather odd.  But I accepted things, that is how they were and to my mind, always had been.<br/>
+I remember the garden was converted into an allotment and we grew some of our own food,<br/>
+particularly tomatoes and I remember we sometimes used to make a meal of them , cut up with salt, pepper and vinegar.  I didn’t miss bananas (there was a popular song at the time;- “Yes we have no bananas....”)   I must have had them pre 1939 but I had completely forgotten them and remember disappointing my mother when I was not enthusiastic about the first one I tried when they did come back into the shops.  One thing that I still retain is horror at the thought of throwing away edible food.<br/>
+We didn’t have television of course, nobody did, but we listened to the radio avidly.  Not only the news but the midday music programmes broadcast from works canteens around the country and comedies, like, ‘I.T.M.A.’  (Its That Man Again, with Tommy Handley Colonel Chinstrap and all).  I remember being glued to my chair during episodes of ‘Dick Barton - Special Agent’!  The papers were also affected by rationing, becoming very thin, although of course I don’t remember them pre-war. <br/>
+The papers and the cinema, the Gaumont British and Pathé news reels, provided the pictures of the war that are now shown on TV.  The news those days was far less immediate (and censored too, in ways that would be impossible now).<br/>
+For me life continued in much this way until the war with Germany eventually ended with a great deal of celebration, tinged by the fact that the war against Japan was still continuing, until that too finished. <br/>
+We had celebrations then too, but rather more muted as the war with Japan seemed less immediate, unless you had friends or relations fighting there, which we didn’t.  We didn’t have streets parties in our area, but I remember the victory celebrations well.  Rationing and food shortages didn’t end then, but continued for some years afterwards, the end of sweet rationing in particular took a very long time coming.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/77/a2040977.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-594">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in West Thornton: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>40</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in West Thornton </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

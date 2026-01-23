@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Leytonstone - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.0022823063838749999, 51.569843113313027], [-0.0018771862556459999, 51.569991202027531], [-0.001522166870906, 51.570148144802751], [-0.00102527979882, 51.570414091542133], [0.00035407647400699998, 51.571285071595469], [0.0012058143834269999, 51.571764994124514], [0.0021894019210369998, 51.572248010895478], [0.0028789874410569999, 51.572546906573479], [0.0041705070962269998, 51.573057947955398], [0.0043575352146849999, 51.573167860339787], [0.0054318632341569997, 51.573661943329142], [0.005880426351304, 51.573893842387548], [0.006259872831391, 51.574112878681511], [0.0075561666763570004, 51.574932265264202], [0.0086870318198170003, 51.5736818561546], [0.013455752550755, 51.575360776563414], [0.014504331358371, 51.573958972954564], [0.014834278029681, 51.573546958145791], [0.015556416522103, 51.572479186461578], [0.015699571315195001, 51.572392138644439], [0.015787461522391001, 51.572360277765554], [0.015955907271641999, 51.57233519150396], [0.016171906168961001, 51.572365201540315], [0.016489355267521998, 51.572507136698562], [0.016570461105971001, 51.572587099368604], [0.016588222094086998, 51.572642155245433], [0.016582501524342999, 51.572696205789903], [0.016459190189996999, 51.572885348317818], [0.016671678897649998, 51.572856686365995], [0.017060245438969002, 51.57275066683178], [0.017310219367219999, 51.572672177064312], [0.017471724399210999, 51.572592123081591], [0.017782143988675, 51.572310255971971], [0.018014615884816999, 51.572020188672106], [0.018883277632722, 51.572348223315515], [0.018898809580602, 51.572250862282466], [0.019006547764388999, 51.570611370073657], [0.019088861019414999, 51.569924550833413], [0.018460272394455, 51.570047487887727], [0.018344776867004, 51.570107506258275], [0.018247488126683999, 51.570130543326698], [0.018155498828481002, 51.570130440433111], [0.017795143605925001, 51.570078459052112], [0.017710800030939, 51.570047458923924], [0.017667268221555999, 51.570001410198081], [0.018416351605190999, 51.568302690846856], [0.018560937636883001, 51.567840738928112], [0.018966336815028, 51.567077824017737], [0.019005849150417, 51.566951807930749], [0.019026336262828999, 51.566762894009827], [0.019002416885347002, 51.566609865242562], [0.018957312570285999, 51.566507930347193], [0.018684212872923, 51.566144917605968], [0.018480389588194, 51.566001871771505], [0.018336397633930999, 51.565906978697512], [0.018150205690661, 51.565816034277006], [0.017748340203916999, 51.565681034513894], [0.017507537664195001, 51.565640072408783], [0.017166097169069999, 51.56560701891015], [0.014430692730531, 51.565602023716316], [0.014454983959948001, 51.565212955081201], [0.014316756019051999, 51.564391098803327], [0.01427272550298, 51.563762236465628], [0.013705981022655999, 51.563895192246591], [0.012334001044307, 51.564356132430888], [0.0098735252301090006, 51.564408003071541], [0.0097584050324079994, 51.563699138748127], [0.0097039616603740008, 51.563487061670592], [0.0096432639956660002, 51.563276205911393], [0.0094933806695979995, 51.56300618480995], [0.0091445255143969995, 51.563213234669952], [0.0084470676848319992, 51.563552139972977], [0.0056426705751460001, 51.564783902634687], [0.0047140188945919998, 51.563803982603908], [0.0043583567881780002, 51.563795730662804], [0.0039069957689420003, 51.563785032820981], [0.0038771555589759998, 51.564705879195969], [0.0037328937353480001, 51.565034883114819], [0.0036443045992109999, 51.565152882622904], [0.0035505122388060002, 51.565275879003124], [0.0031033335721410002, 51.565729773105907], [0.0031815670420030002, 51.565847732658099], [0.0019875794552639998, 51.566318615226578], [-0.0014512791050979999, 51.567528403828817], [-0.0053868816324479998, 51.568868252398936], [-0.0022823063838749999, 51.569843113313027]]]]}, "type": "Feature", "id": 1606, "properties": {"pk": 1606, "name": "Leytonstone"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Leytonstone, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Leytonstone, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Leytonstone</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Waltham Forest</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Leytonstone
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Leytonstone, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Leytonstone: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>42</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Leytonstone</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-850"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-850" id="name-850">
+                    War Memories: Working as a Builder in London <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-850" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Podgie (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/56/a2547056.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>I was born in Grimsby in 1926 and moved to London when I was about 4. We lived at Leytonstone in the East End of London. We often went to bed to the wail of sirens and it is now history how the Blitz gradually took shape. </p>
+<p>Most able bodied men were called up into the services so it left a work force, in the building trade of men that were unfit or not old enough to go into the services. I was from the later category being about 15.</p>
+<p>I worked for a builder called Ackworth who had teams of young lads and older men engaged in bomb damage repairs. This was what was known as 1st aid repairs. When a bomb dropped in an area we were sent to put black outs up with black bitumen felt over the windows that had been blown out. We were usually working on the fringe of the incident and often found ourselves on roofs, throwing tiles to the ground. If a roof was too bad it was sheeted over to make it weatherproof.</p>
+<p>One particular time, in Edmonton, we were called to, we had repaired most of the slipped and damaged tiles on the roofs and as it was 12.30pm Saturday, it was time to "knock off". I still had a couple of tiles in my hand so not thinking, I placed them on top of a chimney pot and made my way home. The usual raids took place all over the week end. On Monday I went back to the same site to complete the rest of the work detailed to our work force only to find that another bomb had fallen close to where we had been working. All the tiles on the roofs had been lifted and shuffled down to the gutters which meant we would have to sheet the roof, however, the couple of tiles that I had placed on top of the chimney were still there untouched!. Strange things happened in bomb blasts.</p>
+<p>I feel I was a lucky man during the war, there were families that were not so lucky, some families hardly suffered a scratch, we were lucky we were one of them.</p>
+<p>One of the first bombs dropped in our area was a small one, approx. 250lbs. Shelters had been supplied and installed in the gardens of our house in Woodhouse Road. Most of the adjoining neighbours had them at the bottom of the garden, except one elderly couple who had put theirs close to the house because they weren't very agile. A bomb, which was probably meant for Stratford goods yards went a mie or more astray and unfortunately dropped right on the elderly couples shelter and killed them outright. If they had had theirs in the same place as everyone else they would have survived. The war seemed to take a personal dislike to this family, their son was killed by one of our own damaged planes returning from a raid. He was on duty as an ARP warden at a school that the plane crashed on. Later on their daughter was killed in an untimely accident, so the whole family was wiped out as if they had never existed.</p>
+<p>One day a bomb blasted carrots and onions from an old gentlmans garden into our drive. Not wishing to waste such useful commodities my mother went and collected them and we had them for dinner. That sounds heartless doesn't it but with 7 hungry mouths to feed she was not going to see vegetables go to waste.</p>
+<p>At 14 I was quite a well built lad for my age, and growing, so clothes were something of a problem. I remember forever ironing my one good pair of trousers in an effort to charm the young females of the area, this combined with a sports jacket, probably handed down to me from one of my elder brothers. I met an old school friend of mine down an air raid shelter at Smiths Paint Factory in Maryland Road. He was sporting a natty line in battle dress wear, complete with great coat and boots. I knew he wasn't in the army as he was too young, so I got chatting to him and he told me he had falsified his age and joined the Home Guard (their uniforms were identical to the regular army). I decided it was a brilliant idea, I don't know if they really believed my "supposed" age but they were desperate for members so I was soon kitted out with a new suit. Admittedly I didn't have a choice as regards style or colour but I thought I looked the cats whiskers.</p>
+<p>It was in an air raid shelter, I was about 14 or 15, when I met my fate. She wore an edge to edge black coat with napped in waist, a pair of chisel toed suede shoes on neat feet, a small hood that framed her angelic face.I was smitten.</p>
+<p>As the blitz really took hold youngsters would often have to wander from shelter to shelter as there often wasn't often enough room for whole families to sleep. Sometimes you wandered to different shelters, like migrants, looking for people of your own age. At first you would be resented by local lads as they though you were eyeing up their girls. In my case it came to blows with a lad called Ron. He was about 18 and by the look of his nose he had done a bit of boxing. Two locals told me that Ron wanted to see me "up top" so I had no alternative but to show my face. He was there to sort me out, but my father had taught me from an early age to defend myself, so that was it, we squared up and got stuck in. There wasn't really a winnder. I finished up with a lump like an egg on my cheek bone, he finished up with a black eye. We were eventually pulled apart by someone who told us we were a disgrace to the uniforms we were wearing (he was on his first leave from the army). We were made to shake hands and that was that. We became good mates afterwards. After that I was accepted down the shelter, no one bothered me again and I was allowed to pursue the lady of my dreams in peace. 60 years later I am still pursuing her, not perhaps with the same amount of vigour but with the same amount of sincerity!.</p>
+<p>About this time I was making my way home from Smiths Paint Works shelter. It was quite late and I was on my own walking towards the Thatched House. I usually turned right into Cann Hall Road and along into Woodhouse Road. There was an air raid in progress and as the searchlights caught one of the enemy planes in their beams the ack ack guns opened up. They didn't seem to be targetting our area that night but when the planes were overhead you had to be careful of the shrapnel from our own guns. Shrapnel was really nasty ragged lumps of metal that could take your head off if they hit you so it was wise to be a bit wary as you made your way along unlit roads. I turned into Cann Hall Road and a young lady stood in the doorway, seeing I was dressed in uniform she felt she could approach me with reasonable safety. She asked if I was walking towards Wanstead Flats. I said that I was and she asked if she might walk with me as she was a bit frightened. She fell in beside me and off we went. I couldn't tell you what she looked like because it was a dark night. We started off towards Wanstead Flats, things were reasonable quiet for a while but that didn't last. We heard the drone of incoming planes and saw the searchlights probing the sky. The gunfire was getting closer and closer, so we made a dash for the nearest protective doorway and sheltered there for a while until things calmed down. Where I lived was some way before Wanstead Flats but I could sense that the girl was frightened and said I would walk her close to her home. Finally we reached the Flats and turned into Danes Road, dodging in and out as the shrapnel flew. I accompanied her as far as a pub, she said she would be alright from there on. She thanked me and we said good night. I turned on my heels and retraced my steps back the way I had come. I don't remember hearing any noise or commotion but there was a huge explosion. I was picked up by a huge blast and blown flat on my face. I was conscious of flying glass as windows were blown out. I expected to find myself covered in blood. I gathered my thoughts, felt myself all over and to my amazement found I didn't have a scratch, was just deaf. My first thought was of the young lady I had just left, so once more I turned on my heels and walked to see if I could find her, but there was no trace. There were so many ways she could have gone that I didn't know where to start looking so I gave up and walked home, jumped into bed and went to sleep. The next day I heard that a landmine had come down in that area and I had been caught in the blast. I often wondered what happened to that young lady, had she survived or had she walked into it.It's something I'll never know.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/56/a2547056.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-850">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Leytonstone: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>42</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Leytonstone </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

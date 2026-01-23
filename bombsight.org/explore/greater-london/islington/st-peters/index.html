@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in St Peter&#39;s - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922406400000, 1], [-922233600000, 3]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.10622536609283301, 51.532650863910213], [-0.106112927727428, 51.532949875909779], [-0.106009522262783, 51.53313972144187], [-0.105289842533031, 51.534086650791096], [-0.10418585805652, 51.53521550119018], [-0.104099111955321, 51.535329590236266], [-0.103855138759961, 51.535540486698835], [-0.103626938065042, 51.535653559618879], [-0.10343519838144, 51.53571354617614], [-0.102070340983078, 51.53628750950368], [-0.101535343212945, 51.536604413449666], [-0.100709755710796, 51.537212373242284], [-0.100052815014117, 51.537730330828438], [-0.098921794043822994, 51.538746140901608], [-0.098411912337173002, 51.539108254783798], [-0.096862012179176005, 51.540052068712626], [-0.095922449295813006, 51.540645079523991], [-0.095868485954543003, 51.540615132908847], [-0.095258532970405999, 51.541003979818861], [-0.094280023192182996, 51.541471019728135], [-0.093914028201385003, 51.541300115420192], [-0.092182106202166006, 51.540148176083342], [-0.090806355368986999, 51.539188320087973], [-0.090088072847213999, 51.53873543758516], [-0.089637976672833006, 51.538421378576381], [-0.089329841995634998, 51.538182551002819], [-0.088867133993260003, 51.537868430862645], [-0.087162211036524995, 51.537497521135975], [-0.086579500725372002, 51.5374029235942], [-0.086618093033501001, 51.537255537934975], [-0.086817620715544996, 51.537268626718756], [-0.087086449227152002, 51.537219620671685], [-0.087411616679825999, 51.537137664234912], [-0.087701141039729993, 51.537024646214832], [-0.088662950948246, 51.53654670727915], [-0.089704195441538001, 51.536000650744647], [-0.09025778859552, 51.535757733048882], [-0.090773140021257998, 51.535502670718877], [-0.091374382197964996, 51.535240716133174], [-0.092548214124399994, 51.534668826011092], [-0.093284096179201997, 51.534332888662824], [-0.093987661995317995, 51.53403689237647], [-0.094485497111521002, 51.533854873817731], [-0.094554248871101004, 51.533891820299296], [-0.095051426417762, 51.533703886121437], [-0.095047130782625999, 51.533633842096997], [-0.096012537221829994, 51.533281945824001], [-0.096552300118078999, 51.533109871899136], [-0.097034389715797004, 51.532980977133413], [-0.095524647052610004, 51.530786186503157], [-0.095319162043160002, 51.530463338629588], [-0.095113787380713993, 51.530051263175764], [-0.095083525550472003, 51.529925630172535], [-0.095093105410958001, 51.529791270060088], [-0.095143378413151, 51.529666327912864], [-0.095407305272484005, 51.529193307503519], [-0.099555403004793, 51.530264231606346], [-0.102642623975175, 51.53108602367648], [-0.104028812985789, 51.531425986514492], [-0.105658974855165, 51.531858954475553], [-0.106177891095424, 51.5319708810595], [-0.10629556790002299, 51.531979954128651], [-0.106285741556175, 51.532346941245102], [-0.10622536609283301, 51.532650863910213]]]]}, "type": "Feature", "id": 1381, "properties": {"pk": 1381, "name": "St Peter's"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in St Peter&#39;s, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in St Peter&#39;s, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: St Peter&#39;s</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Islington</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    St Peter&#39;s
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in St Peter&#39;s, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in St Peter&#39;s: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>54</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>1</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in St Peter&#39;s</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-798"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-798" id="name-798">
+                    Alan French: War Baby: Interview. (Amended.)  Part one. <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-798" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Herts Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/21/a4095821.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Hello. My name is Alan French, and today is the 14th October 2004. The anniversary of the battle of Hastings.  Well firstly I can’t remember a lot about World War Two, because I was wearing napkins at the time.  My war time experiences were spent in Abbot’s Langley and Holloway.(Not the famous part, but the region in London.)I have got a feint memory of my father being close to my face going, 'Shhh! Shhh!' and hearing some bangs in the background, which I think could have been bombs. I can also remember some blue curtains behind him.  I’ve been told there was a situation where I was having a tin bath, because in those days we didn’t have bathrooms, unless you were terribly posh or very lucky. There was an explosion somewhere, and my father grabbed me out of the bath.  When he looked, there were all bits of glass that had shattered in the water. So I was very lucky. Very lucky indeed.  My mother had a sister, Mary. She also had a brother,  George Beales. Her sister married into a family called Bishop, elsewhere in North London. The Bishops moved to Abbots Langley in the late 1930s. During the war, for a few months, my mother and I, stayed with them, in Breakspear Road.  So that is why I hovered between Holloway, where I lived, and Abbots Langley during this conflict. Tom and Mary Bishop, with my cousins, had two dogs. Bob and Toby. Bob, I have been told would guard my pram. He would not let people near me. (Although, of course it could be that he was comfortable and did not wish to be interupted.)It was during my stay in Abbots Langley, that one of my older cousins, whilst in the army at the time, was married. Although some of my earliest recollections, probably took place in the war they are not all war related.  One thing I can remember very distinctly, and it’s something that I’ve seen even in adult life, is that you didn’t have to go far without seeing a bomb site.  I mean, quite close to me, there was a whole school that had been blown up. Things like that were common place. It was also quite common in the street, for some years, to see people who were unfortunate to have limbs, or an eye, missing.  I understand that I was born during an air raid. When, a few months later, I was taken to Abbots Langley, I gather there were nasty things coming down from the sky and exploding upon landing.  I was just rushed into the van, car, lorry or whatever vehicle, and whisked off.  So I consider myself to be very lucky to be alive.  There are many who are not.  And of course there are stories you hear from your parents, and there are some you don’t hear.  When I sit back and think, I don’t really know much about the nitty-gritty details of what my father did and whether he saw things that he didn’t want to talk about.  He wanted to join the Royal Air Force.  He went up to enlist, and I gather they said, “You’re missing”.  <br/>
+Apparently someone with the same name was missing from duty. He worked for a leather firm in Somers Town, which is in another part of London which comes under St Pancras. If you think about it, leather was a very valuable commodity.  Soldiers used/needed it for boots, straps for rifles etc. So he was required to do some work in this field. At least one lady gave my mother bitter comments due to my father not being at the front.  My mother worked for a firm called Cossor's who manufactured wireless sets, as they were called then, radio today, also radar equipment.  She did say that there was this bomb or rocket or something,that severely damaged the factory leaving this huge awsome crater. The firm was based at Highbury Corner. We lived in a road called Madras Place, which is a turning sandwiched in between, Liverpool Road and Holloway Road. Appropriately one entrance is opposite the Islington Library, so perhaps I should be recording this interview there.My parents became fire watchers. I cannot find it at the moment but I know I’ve got a Fire Watchers Handbook and other hand books, Battle of Britain, What to do if Hitler Invades, and if I come across them I will come down here some day and say, 'Look what I’ve got!'  I have some memorabilia here, including a letter from the desert which I will read out later, because its very difficult to transpose. (See Part two.)  I’ve got a photograph of me at some celebration.  I don’t know whether its 1945 or 1946. Because there were a lot of Victory parties in 1946 as well.</p>
+<p>Q.  Do you know which one you are? </p>
+<p>A.  That’s me and the lady on the end is my mother, only just in sight.  The only other person I know there, is a little girl, in the front row, called Wendy, who used to live next door.  There’s another little girl I played with called Denise, who also lived nearby. But I do not think she is in the photo. I don’t know where it was taken. I think it was organized by some Canadians.  I was forbidden to go to one victory party.  Apparently I was too young. Babies not allowed. My mother wasn’t very happy. I didn’t know this until I was well into my adulthood. In compensation, the organiser gave my mother a toy for me. She explained that I never had it. She said, ‘Well it was one of these things you sometimes get in Christmas crackers made of metal, you press it and it clicks. I thought it was very dangerous for a baby, and what's more it was made in Japan!' <br/>
+Remember, the Japanese part of the conflict, ended, for the first time ever, in nuclear warfare. Nazi Germany was also on the verge of an atom bomb. See the film, 'The Heroes of Telemark.' So World War 2 was in some ways a nuclear war. </p>
+<p>Q. It must have been very difficult for your mum and dad to have had such a small baby.</p>
+<p>A.  Yes.From what I gather, they used to live in Westbourne Road, which is in the Barnsbury part of Islington. I think they were a little worried because they were living upstairs somewhere, and with bombs coming down, if anything happened...  So they moved to Madras Place, in Islington's Holloway region. We lived  downstairs. We had at least one bedroom, a kitchen, a living room and a front room. There were other people who lived above us.  There was Mr &amp; Mrs Horton. Above them, at the top, there was a man I called 'Uncle' Jack.  There was a lady who lived with him for a while.  I am not sure in what way she was related to him.  Before he moved in, there was a Mrs Bennett who died.  I can remember quite clearly other neighbours. I have already referred to Wendy, who together with her brother Trevor,lived next door with their parents, Ted and Doris. On the other side of my house,there was a family called Biggs, Mr. &amp; Mrs. Wheeler and another lady called Alice, all living above or below one and other.  Mr and Mrs Biggs, had a son who was in the Navy. Thanks to him, I had my first banana.  He got it from Gibraltar. There might have been a daughter called Babs. I can remember elsewhere in the street, a family called Rowbottom. The block of flats at the junction of Liverpool Road and Madras Place, I can remember being built. I can't remember  what was before them. Denise, to whom I have referred earlier, lived at the end of Ringcroft Street. One of two roads that entered Madras Place from its side. I can't remember her father's name, but her mother's name was Grace. There are stories I have heard.  I don’t know whether or not I should tell them on the air, because they may not be for the squeamish, so If I do tell , there will have to be some toning down.  There are some nasty stories and some very comical ones.  Do you want to hear the serious ones first?</p>
+<p>Yes, tell the serious ones.<br/>
+  <br/>
+OK, I’ll try and tone down the first one because it’s not very pleasant.  I gather a bomb or rocket came down and exploded. A pub's bar room floor collapsed with people on it, into the cellar. Unfortunately, there were spirits in the cellar. They ignited. There was a huge mass panic to get people out. I’ve toned that story down considerably.  Another tragic one, is  where a rocket came down on a house and a woman, who incredibly, had thirteen children, happened to be out at the time. All thirteen children were killed. Just like that.  I have been informed by someone, who claims that he went into the building afterwards. There was nothing that could be done.  It was a terrible sight. The children were just all huddled there. All that could be done,was just get their bodies out. There was nothing else you could do. I have also heard of a woman's husband being absoloutely riddled with bullets. So there were some tragedies. But I’ve also heard that sometimes, there were were things that could make you laugh.  There’s the situation of a Costermonger, (Costers as they were also called as well as barrow boys) named Billy Hutchings, who when I knew him had a stall on the Holloway Road Pavement Market, as did one of my grandmothers, Lucy Offer. (Offer, by her second marriage.) Unfortunately, whilst he was taking his bath, (A tin one) a rocket came over Islington and split in half. One half just went into a roof without exploding. I don’t know if it was his house or a house nearby. Inevitably, something came down the chimney -  soot, dust etc all over him. There is a story I can tell of a similar experience someone had when I moved to Hemel Hempstead but it has nothing to do with the war.<br/>
+ <br/>
+End of Part One.</p>
+<p>The second half  includes the reading of a letter from Tunisia as well as a continuation of this interview. </p>
+<p>By the same contributor:- <br/>
+'The Three English Brothers French.' <br/>
+'The White Figure.' (A true wartime ghost story.)</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/21/a4095821.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-798">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-698"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-698" id="name-698">
+                    Islington experiences in World War II <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-698" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by firststeps (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/97/a2795097.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>WORLD WAR II</p>
+<p>Introduction</p>
+<p>The Second World War started a few weeks after my sixteenth birthday. When, like all other London schools, the one I attended evacuated, I remained in London and obtained employment, ultimately being taken on to the staff of the Bank of England, where I remained for thirty years.</p>
+<p>The first Air Raid Warning sounded. within hours of the declaration of war. Carrying the gas mask and identity card which had been issued when war became inevitable, I went with the rest of my family to the National Safe Deposit building in Queen Square, the shelter allocated to people living, as we did, in that part of Bloomsbury. It was considered a ‘safe place’ because, for security reasons, the building was reinforced, and the steel shelved storage areas were expected to give protection against falling masonry. (Later in the war it was demolished by a direct hit.)</p>
+<p>In October 1939 we moved to a house in Highbury, which we occupied for over thirty years.</p>
+<p>How to document the period from 1939 to 1945 is not easy to decide, especially as a day-by-day account would be boring, so I have opted for a subject format, avoiding, as far as possible. repetition.</p>
+<p>Air Raids</p>
+<p>Air Raid Shelters varied. Some were communal like those underground at Islington Green, Finsbury Square, and on the platforms of Underground Stations; also underground were the Anderson shelters of corrugated iron installed in private gardens; another type, similar to a cage, could be placed under a table; but the most popular in Islington were the windowless brick huts constructed in the street for general use, or in back gardens for individual households.</p>
+<p>Because of the importance of the shunting yards at Finsbury Park an anti-aircraft battery was stationed there, and a barrage balloon installed on Highbury Fields. Despite these defences (or perhaps because of them) Highbury attracted the attention of the enemy, not only with conventional bombs, but also with sticks of fire-bombs, VI’s VII’s and Land Mines, so even those buildings that were not destroyed, lost ceilings and glass. To protect themselves from the effect of this ‘blast’ many householders. fixed thin material, such as curtaining to their windows with such proprietory glues as Glarpex, which only minimally reduced the light, while keeping the splintered glass together.</p>
+<p>The ringing of church bells was prohibited.</p>
+<p>Among the buildings destroyed by bombing was the historic parish church of St Mary in Upper Street, so St Mary Magdalene, in Holloway Road, became very popular for weddings, with brides taking up ‘bag residence’ with friends living in that parish.</p>
+<p>To avoid giving help to enemy bombers at night a complete blackout was enforced. Streets were unlit, and a strict check kept on buildings to insure that no light should escape through windows and doors. So essential was this black-out considered that even torches used by people finding their way about the darkened streets were extinguished once an air-raid warning had sounded.</p>
+<p>Some people wore bracelets engraved with their name, address, and religion for identification purposes in case of injury or death through enemy action.</p>
+<p>Clothes</p>
+<p>Clothing of all types was in short supply, and could only be obtained by the surrender of ‘clothing coupons’, which was very hard on those who, having been still at school at the outbreak of war, had no reserve of clothes, so school uniforms were picket to pieces to be reassembled in adult styles; aunts were persuaded to give up pre-war evening clothes which were transformed into day wear; curtains which were not suitable for blacking out light made pretty dressing gowns to wear at night in an air-raid shelter; and young men coming home on leave frequently found that their only suit had been transformed into one for a sister To help women with these sewing tasks Make Do And Mend classes were organised, the most popular in Islington being at the Union Chapel on Compton Terrace.</p>
+<p>Stockings were a constant problem as, before the invention of nylon, they wore out quickly, but if one stocking, of whatever shade, was still in reasonable condition, it would be put to one side, then, when several had been collected, they could be boiled together in a saucepan, from which they emerge the same colour. Alternatively legs could be painted with a suitable brown dye and a line drawn up the back of the leg to give the impression of a fully-fashioned stocking with a back seam.</p>
+<p>Knitting was another way of eking out coupons, especially if a pattern was economic. If the same colour was used to make more than one pair of men’s socks, when the feet were beyond mending, one pair could be re-footed with the good wool from the leg of the other pair. </p>
+<p>Using up scraps of pre-war wool made fair-isle designs fashionable. When this source ran out darning wool was used. To discourage this method of avoiding sacrificing coupons the manufacturers were instructed to cut the hanks of wool into short lengths, but clothes-starve women soon discovered that each strand was just long enough to do one row for anyone of average bust size, as long as the pattern was not too elaborate.</p>
+<p>Service women whose cloths were provided, received some clothing coupons with which to purchase an outfit for their wedding, but for those who wanted a traditional white dress, these were insufficient, so brides in America donated their own wedding dresses to a ‘pool’ of clothes to be lent to brides from the women’s forces and nurses.</p>
+<p>Food and other rationed goods</p>
+<p>Most food was rationed, and that which was not was in short supply, but somehow mothers managed to feed their children and men folk, frequently by going without themselves.</p>
+<p>Such items as meat, butter, margarine, bacon, tea and sugar were rationed by weight; the number of eggs and amount of milk varied, but was frequently as little as 1 egg and 1 pint of milk a week; for tinned goods, dried fruit, dried egg etc. everyone had an allocation of ‘points’ to be spent on whatever was available; As households had different requirements it was sometimes possible to economise with, say, tea and sugar, which could then be unofficially ‘swapped’ with other households for butter.</p>
+<p>Fish, although un-rationed, was scarce, so if a fishmonger was known to have received a supply long queues quickly formed outside the shop.</p>
+<p>Much ingenuity went into making interesting meals - a slice of corned beef, or Spam (a minces, highly flavoured ham-like product) could be oven baked between layers of carrot, beetroot and mashed potato (known as ‘Woolton Pie’ after the minister of food); the whole family’s ration of bacon rashers, stitched together could be cooked as a boiled bacon joint; birthday Victoria Sandwich cakes were made with dried egg and liquid paraffin, Christmas cake had Soya flour and gravy browning to hide the lack of fruit, and a tame rabbit, slowly baked, substituted for turkey at Christmas.  </p>
+<p>Sometimes a food parcel from relatives in Australia, Canada, South Africa, or USA, or brought home by service men who had been training in these countries, would bring great cheer, especially if it coincided with a wedding or other family celebration, enabling guests to be invited without the family going short of food for the next couple of weeks.</p>
+<p>A limited choice of meals could be purchased in restaurants works canteens, state sponsored British Restaurants, and schools, while children under sixteen were given a drink made of cocoa, dried milk and sugar; expectant mothers and infants were entitled to cod-liver oil and a drink made from oranges; and those certificated as having a health problem related to died might, by giving up some other part of their ration, obtain extra milk and eggs.</p>
+<p>Soap was another rationed commodity, but as shaving soap was exempt, many women used this instead, especially for removing make-up, which although not rationed, was in very short supply, so service personnel returning from abroad were encouraged by their women folk to bring toilet soap and cosmetic products home as presents.</p>
+<p>Housing</p>
+<p>The bombing of London left many people homeless. As an emergency measure Rest Centres were set up in church and school halls, and other large underused buildings, until more permanent accommodation could be found, usually in another part of the Capital. Fortunately there were properties whose normal inhabitants were living elsewhere. These were requisitioned, with several families sharing a house or flat.  Most of these people, having lost everything, were dependent on the generosity of others for even the bare necessities. One retired East End headmistress had decided when war started to live with her daughter in Hampstead Garden Suburb. When ‘her school’ and the surrounding district was flattened she asked that her, now stored, furniture should be given to bombed-out families. This was done, and a few weeks later, two men appeared at her daughter’s house to thank her – both had been her pupils.</p>
+<p>Pregnant service women, discharged from the forces, were not housed, so had either to return to their families, or if this was not possible, either hope to be taken in by a friend, or find a place to rent, but this last alternative was frequently a great strain on their meagre incomes.</p>
+<p>Leisure</p>
+<p>Personal time was at a premium, so not a moment was wasted, especially when relatives or friends came on leave. The first question they would be asked was: ‘When do you go back?’  This sounds unwelcoming, but it was so that every moment could be enjoyed.</p>
+<p>Dancing was the most popular form of entertainment, either at a services club, or a public dance hall (the Royal Opera House and Lyceum Theatres had both been turned into dance halls). For special occasions, such as New Year’s Eve, dances were held in hospital halls of residence for which invitations were issued to men either on leave or stationed in London.</p>
+<p>A number of theatres remained open putting on everything from reviews to the classics, and <br/>
+cinemas offered frequently changing programmes.</p>
+<p>Sunday afternoon poetry readings for those in uniform at the Stage Door Canteen, given by stage personalities attracted big audiences, but musical performances, other than piano recitals (the most memorable of which were those given by Dame Myra Hess at the National Gallery) were rare, as were works of art as the contents of galleries and museums had been pit into store outside the Capital.</p>
+<p>Keeping contact with friends and relatives serving abroad was another leisure activity. This took various forms, the most usual being the Airgram – a quarto-sized sheet on which the letter was written, photographed by the Post Office, and transmitted in a much reduced form to the recipient. The reduction in size had curious results, as when a relative serving in India, found a cobbler willing to make bespoke shoes that could be legally delivered in England without involving the surrender of clothing coupons, all that was required was that an outline of the proposed recipients feet should be provided. Unfortunately the wife for whom the shoes were to be made, instead of sending a full-price airmail letter sent the information on an airgram, which, when reduced by photography, was the foot-size of a new baby.<br/>
+  <br/>
+It seems amazing that the postal service was so efficient that letters, and parcels were delivered to every theatre of operation. The parcels would contain not only books and games such as chess, but also for the 8th Army in North Africa, cans of DDT.</p>
+<p>War Effort</p>
+<p>Everyone, whatever their age, was involved in war work of some kind, even if it was only Digging for Victory, by growing vegetables in a garden, or on an allotment in the local park, stripping old cables into their individual parts to be used for making new cables, or giving their aluminium cooking pots to be re-cycles as aircraft parts Iron gates and railings were also taken towards the production of armaments, but these were commandeered without the consent of the owners.</p>
+<p>Those under 18 were recruited to organisations such as the scouts, guides, and training groups run by the services, where they prepared for call-up by learning a variety of skills such as Morse code and first aid, and helped the civil defence services as messengers etc. </p>
+<p>Over-18’s of both sexes were drafted either into the armed services, or some other form of work, unless, like myself, they were in a ‘reserved occupation’, when they did a full-time job, going on afterwards to duties as a fire-watcher, warden, fire-fighter, or nurse.</p>
+<p>My normal timetable for those years will give some idea of what this meant.</p>
+<p>In the hope of being called up and put into nursing, I had joined the British Red Cross at the age of 17, passed my first-aid and home nursing exams, and completed 50 hours work on a hospital ward. At the Bank of England my usual working week was 9 a.m. to 6 p.m. Monday to Friday, 1 p.m. on Saturday. Monday evening was allocated for Red Cross lectures, Tuesday for work at a health centre (usually washing neglected children and seeing if they needed referring to a doctor); Wednesday evening was ‘free time; Thursday – ward duty until 8.30, then supper, and, if there was no air-raid, bed at the hospital, but on call, until 7.00 a.m.; Friday duty with another VAD at Archway Underground, where we had a hut at the end of a platform from which we dispensed first-aid to shelterers there, and at another station on the Northern Line; Saturday afternoon was free time, with an evening duty at the first-aid post in a Holloway cinema (where, with another nurse, I sat in the front row of the circle, and if not called to an incident, had to watch the film at least three times); Sunday morning brought another hospital ward duty, but the afternoon and evening were free.</p>
+<p>World War II Ends</p>
+<p>V-E Day<br/>
+Although this brought great relief, for most people it was not a happy day. Everyone had lost a <br/>
+relative or friend, so the overwhelming feeling was that of mourning, and many, like myself, took the opportunity of a day off from work to visit the grave of a loved one.</p>
+<p>There was also the realisation that many service personnel might be transferred to the Japanese theatre of operations.</p>
+<p>V-J Day<br/>
+It was not until after V-J Day that people dared hope that, however slow the recovery, the future had been worth fighting for.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/97/a2795097.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-698">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in St Peter&#39;s: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>54</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>1</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in St Peter&#39;s </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_43.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Patience &#39;Boo&#39; Brand, a WVS volunteer, stands on the &#39;wrong&#39; side of the counter of the WVS canteen amongst a group of thirsty Pioneer Corps. She is receiving a cup of tea from a WVS colleague inside the canteen and is just about to hand it to one of the ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197955">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#243-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_43.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="243-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_43.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Patience &#39;Boo&#39; Brand, a WVS volunteer, stands on the &#39;wrong&#39; side of the counter of the WVS canteen amongst a group of thirsty Pioneer Corps. She is receiving a cup of tea from a WVS colleague inside the canteen and is just about to hand it to one of the ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205197955">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

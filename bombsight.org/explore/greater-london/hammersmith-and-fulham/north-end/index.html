@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in North End - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922060800000, 4]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.21326219752282199, 51.490205130418978], [-0.213272388547981, 51.490750737894032], [-0.21115848070413701, 51.490532053077857], [-0.21034108874530499, 51.490507076897963], [-0.20951254867180699, 51.490537008732552], [-0.20873343948341799, 51.490615029537302], [-0.20805526470757399, 51.490713004105665], [-0.20766632771604401, 51.490782089406729], [-0.20556963742782799, 51.491214960781861], [-0.20430091460962299, 51.491425977746111], [-0.202918973132552, 51.4915850793682], [-0.20240812138477601, 51.491685999734166], [-0.20062412540347199, 51.490074280296845], [-0.20037476217942499, 51.489982358097976], [-0.19937524046164001, 51.489119327298241], [-0.19895035934220101, 51.488798348567208], [-0.19902759618642801, 51.48875738841334], [-0.19830093323842299, 51.488121526295217], [-0.197903855851955, 51.487849581399367], [-0.197546037359184, 51.487654538508927], [-0.19709951222700201, 51.487449557803771], [-0.196450198535388, 51.48720465109966], [-0.19762224361053499, 51.486726675428272], [-0.198449626875634, 51.486450644778799], [-0.19893961674275601, 51.486306704160512], [-0.19934050142444301, 51.486207766282497], [-0.20051209401495701, 51.48596875633956], [-0.20257309648834601, 51.485499737807956], [-0.202821710139898, 51.485312743193347], [-0.20331756898254599, 51.485018815971337], [-0.20391521369643101, 51.484768868335713], [-0.20445855133937499, 51.484571770500423], [-0.20490983699667201, 51.484449837233214], [-0.20637992960767501, 51.484194831201862], [-0.208017949568951, 51.483765887027637], [-0.20814522507351901, 51.48396384882178], [-0.20866022580211499, 51.483845959550194], [-0.208814210755354, 51.483867842527815], [-0.20904459628225, 51.484121882125848], [-0.20911689163117, 51.484091797781694], [-0.209477837367683, 51.484459821574738], [-0.20955153543803601, 51.484439869081577], [-0.20959858568001499, 51.484502688153], [-0.20974919058750699, 51.484449765395546], [-0.20977600007481101, 51.484477716676473], [-0.20994314885802001, 51.484438821836584], [-0.21008232960474801, 51.484608712157247], [-0.21115822342842, 51.486145555576236], [-0.21155611950418299, 51.486041604045305], [-0.21174016998456599, 51.486307445499136], [-0.212419837123031, 51.486192050628652], [-0.21282689112233899, 51.48700547133879], [-0.21319984657389501, 51.486929523247426], [-0.21323984827651299, 51.487023431046296], [-0.21350372431999801, 51.486974476102048], [-0.21368879292482101, 51.487339567513729], [-0.213091974426523, 51.487455339062677], [-0.21301978709441899, 51.487494285869822], [-0.213271816416092, 51.487990317889277], [-0.212371038423532, 51.488130312959768], [-0.21374510924328599, 51.490219089435598], [-0.21326219752282199, 51.490205130418978]]]]}, "type": "Feature", "id": 1259, "properties": {"pk": 1259, "name": "North End"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in North End, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in North End, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: North End</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Hammersmith and Fulham</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    North End
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in North End, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in North End: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>28</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in North End</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-480"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-480" id="name-480">
+                    Doodlebug Raids in London
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-480" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by John E. Forbat (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/30/a4076930.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>
+As air raids seemed to be declining after three years of evacuation, it was agreed that I should go back home to London permanently - as it turned out, just in time for a resumption of regular night raids.  
+</p>
+<p>
+Now aged fourteen and no longer so puny, I obtained the steel helmet and Fire Guard armband that was obligatory for Fire Guards in the six-storey block of flats where we now lived.  This involved patrolling the corridors to check for incendiary bombs and more interestingly, standing on the flat roof above the sixth floor, to watch the search lights pick out bombers and to see the anti aircraft shells bursting. Regular training and practice in the art of extinguishing incendiary bombs with the piddling jet from a stirrup pump in a bucket of water, taught us to crawl below the smoke and to direct the jet, holding the hose over our heads while another pumped, till the bucket was empty. 
+</p>
+<p>
+I was ready to go to bed one evening some hours before my watch duty time, when a raid was going ding dong, as I looked out to the North, with the black out curtains behind me.  A stick of bombs started whistling towards us, each a little nearer and when the whistling reached shrieking level, I ducked back behind the curtain.  The bomb fell a short distance away and the window I had been looking through shredded the curtain near my stomach. Soon the Chief of our Fireguard section was ringing our doorbell.
+</p>
+<p>
+"John, take this pink form to the Auxiliary Fire Station at Beaufort Street School and tell them we need them to put out a fire on the corner of Gliddon Road.  We already pulled an old lady out - except she insisted on going back for her false teeth.  Be quick now."
+</p>
+<p>
+By now having my own bike, earned by tilling Uncle Eugene's allotment for a shilling a day, I donned my "tin hat" and clutching the pink form, sped the half mile along North End Road, over never ending broken glass.  When I arrived, the school itself was well alight and I was told to go back - they were busy putting out their own fire.  I made the return ride over the glass, somehow without the tyres going flat and the fire in Gliddon Road just continued to burn.  
+</p>
+<p>
+I was sometimes late for school.  Everybody was sometimes and at assembly, after the Headmaster had announced who had been killed in the previous night's raid, the late boys were paraded for their punishment.  
+</p>
+<p>
+I must have been fifteen when the Doodlebug flying bombs began to rain down at all hours.  One of the first passed right over our heads as my brother Andrew and I were cycling into Kent one Friday evening for one of our many weekend Scout camps.  The A2 ran dead straight southeast and the throaty ramjet roared ever louder as it approached to fly right overhead.  Flak was bursting all around it - quite a spectacular show - till the shrapnel started to bounce off the pavement around us and we ducked into a doorway, later burning our fingers on the hot shards.  
+</p>
+<p>
+On the way home on Sunday, we passed the Streatham house of a good friend who was old enough to have been called up for Service.  Their front door was missing and all their windows were blown in, so Mrs Randall asked us to go to her sister who lived near us in London, to tell her they were OK.  We got back onto our bikes and passed the cause of the Randalls' damage - a whole block of houses flattened by a single Doodlebug, leaving little more than a big crater.  We cycled on past our flats towards the Randalls' relatives in Hammersmith and racing south as the sirens wailed, we heard another throaty roar rapidly approaching.  We had been trained to lie down in the gutter with our hands covering our heads and to wait until the engine cut.  The Doodlebugs then pitched down to dive onto wherever they were pointing.  It cut out very close to us, so we dived for the kerb and waited.
+</p>
+<p>
+A great mushroom cloud rose where it had hit in the next street and we got back up. Before we could pass on the Randalls' message, Andrew who had started medical school by then tarried to render First Aid.  
+</p>
+<p>
+In the months while the Doodlebug campaign persisted, the air raid sirens sounded just about every few minutes, it seemed.  Most people dived into air raid shelters - often down into the Underground, where at night many slept on the platforms.  But as many Doodlebugs came during the day as at night and while our flats had a big basement that was used as a shelter, we boys only used it to practice our table tennis, while it was otherwise unused.  As Mother found out only after the War was over, being up on the roof was more exciting during air raids.  
+</p>
+<p>
+The frequency of air raid warnings got so high, that taking heed would completely prevent all normal activity and for the first time in my school days, I determined never to be late. No way was I going to let Hitler dominate my life any longer! Air raid warning or not, I rode to Sloane School and thumbing my nose at Hitler, arrived on time without fail every day. When the V2 rockets began to fall, there was no warning and no way to hide anyway.  Once you heard the explosion - followed by the whine of its supersonic arrival, it was obvious that some other poor bastard had bought it.
+</p>
+<p>
+If only I could be a couple of years older - I would have given my right arm to fly a Spitfire like some of my brother's friends.
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/30/a4076930.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-480">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-857"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-857" id="name-857">
+                    Nancy recalls her service with the WRNS at Station X <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-857" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by CSV Solent (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a4247840.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>(Based on her history as told to her grand-daughter.)</p>
+<p>This story was submitted to the People's War site by Ken on behalf of Nancy Deacon and has been added to the site with her permission. Nancy Deacon fully understands the site's terms and conditions.</p>
+<p>“I didn’t really want to go into the Wrens”.</p>
+<p>Nancy was about to celebrate her 18th birthday early in 1942 when a choice between the women’s’ services became urgent. Since leaving school at 16 years of age, with Matriculation proudly achieved, she had been working in the administration staff at the local isolation hospital in Leicester. She knew that once past 18 she would become subject to the wartime regulations, called ‘Direction of Labour’, by which the government could say how and where you should be employed. That would mean staying at her present job, because it was classified as a ‘Reserved Occupation’. And Nancy felt she wanted to see a bit more of life than that promised. She said -</p>
+<p>“You see, my life-long friend, Edna, was already in the WAAF and she was having a jolly good time, from what she said, so I wanted to join them. But from time to time, when they had more applicants for certain categories than they needed, they stopped recruiting, so for the moment I couldn’t do that.</p>
+<p>“It was the same with the WRNS, but just at that time they were recruiting, so that is what I did. I volunteered for the WRNS. Well, the reason I didn’t fancy joining them was the black stockings they made you wear. Of course the ATS was always available but I decide on the WRNS, as my brother was on active service in the Royal Navy.”</p>
+<p>Her first posting was to a basic training unit, which involved a lot of scrubbing of the stone floors of Tullichewan Castle in Scotland. At the end of that she was held back for further specialist instruction, as was Joyce Lisle, whom she met there. From then the two of them were to go through the service together and remain friends for life. They had been chosen for ‘Special Duties’ and their immediate destination was to a<br/>
+London unit, and six more weeks of training. </p>
+<p>“We didn’t know quite what was in store, tho’ we had some idea, as the Official  Secrets Act’ was involved. At any rate, Joyce and I were taken by escort and seen onto a train at Glasgow Station, where we were put into an empty compartment and the door locked on us.</p>
+<p>“The train began to fill up, with standing room only in the corridor. It was obviously a troop train and we eventually started south, but the journey wasn’t straight forward.  With stoppages for alarms of bomb damaged lines ahead; shunting into sidings to allow  other trains through and other reasons. At the time we did not know what was going on as we were completely isolated in our compartment. At night we had only the dim light from the one, blue, bulb allowed in the ‘blackout’, and during the day, because of the anti-splinter net on the windows, we couldn’t see much of the outside world. I have no memory of anything to eat. </p>
+<p>“It was 6 p.m. when we were locked in at Glasgow, and it was 2 p.m. the next day  when we were released at Euston Station, and taken, again under escort, to our London  base.”</p>
+<p>The six weeks of training which followed was to introduce them to the ‘art’ of code breaking.</p>
+<p>“At the time we knew we were code breaking, but did not know how our work fitted into the whole operation. There were about 300 of us WRNS on this work, at the station.”</p>
+<p>Many of the messages dealt with were of no use but others were of great importance, and -</p>
+<p>“I remember being told that our work helped to sink the Bismark. I was proud to hear that. Because of the restrictions of the Official Secrets Act we weren’t allowed to tell anyone of the work we did then. Not even our families, and it had to be kept secret for 30 more years.</p>
+<p>“Winston Churchill said we were his golden geese that never cackled”.</p>
+<p>The code-breaking base was in a northern suburb of London, conveniently connected by underground railway (the ‘Tube’) to the centre of the capital. Nancy and Joyce made good use of that.</p>
+<p>“When we were not on shift, that is off duty, Joyce and I would go as often as possible to London and its West-End. One of our favourite places was the Queensberry Club for servicemen and women. By this time the Americans were in the war and this was where all the famous stars would appear to entertain them, and all the other allied troops. I remember seeing Bing Crosby, Bob Hope, Benny Goodman and his band, and<br/>
+lots of others there. Not to mention our own ‘Forces Sweetheart’, Vera Lynn.”</p>
+<p>From the start of the war London had filled up with representatives from every European and Commonwealth nation, joined later by the ‘Yanks’; with a confusion of uniforms and variety of languages on its streets. Bombing and blackout not withstanding, it was a vibrant scene. The place to be; particularly around its centre.  At night, from the dark streets where they dodged cars and buses, with their  merest glim of light from masked headlights, Nancy and Joyce would have to grope through a ‘light-lock’ to enter a cinema or theatre and come, dazzled, into a burst of light inside, and noise of people making the most of a chance to get away from the war for a little.</p>
+<p>“Theatres and so on would send out free tickets to the forces for their shows, and our base received its share. Joyce and I took advantage of these and I remember one night, an air raid started while we were in a West End theatre. Our orders were to get back to our unit as quickly as possible if this happened, so out we went to get the Piccadilly line tube. Everything was OK until we came to the above ground section at West<br/>
+Kensington station, when there were lots of stops and starts and long delays. Being in the open the carriage lights had been reduced to the familiar blue bulb, and we could hear the sounds of the raid going on around us. Eventually, with the train stopped we were all led through carriage after carriage and ended up at Hammersmith station.</p>
+<p>“The police and firemen were far too busy, with the chaos going on among the falling  bombs and burning buildings, to have any time for us two stranded WRNS. The train  service had stopped at midnight and the only thing we could do was to start a long walk back to Stanmore. Our situation wasn’t as bad as some sailors we started out with, as they needed to get to Skegness. We seemed to lose track of them somewhere<br/>
+along the way but we got as far as Neasden before we became too tired to go on.</p>
+<p>“The only thing we could think to do was to look for a Police Station, and when we finally found one we were given cocoa and sympathy, and offered somewhere to sleep for the rest of the night. Which turned out to be wooden boards in the station cells.  The Tube started again at 6am., so after more cocoa we got off early and back to base.  I suppose we were so full of ourselves and the troubles we had been through that we<br/>
+expected to be welcomed in, as some kind of heroines. Instead of which we received hard words, and Joyce was reprimanded for losing her uniform cap in the confusion!</p>
+<p>“It’s funny to think, looking back, that although we might have grumbled about things at the time, we never really complained, or refused to do something. We just got on with it.”</p>
+<p>Nancy’s parents, who as others of their generation, experienced the first World War, had only one other child.</p>
+<p>“I had a brother, Bert, a couple of years older than me. He had gone into the navy and served as a lieutenant in South Africa and the Mediterranean, commanding a motor torpedo boat, (MTB). His boat was itself torpedoed in the Med, and he was a long time in the water before being picked up. The exposure he suffered was the cause of damage to his kidneys and he only survived until 1950. He was 28 when he died.”</p>
+<p>Romance hadn’t been neglected during all this time and Nancy became engaged to Geoff, whom she had met in the Leicester hospital days. </p>
+<p>“Geoff and I were married in 1945. Of course it had to be arranged some time ahead  and we had chosen the 5th May. No one expected that the war would end three days later.”</p>
+<p>Nancy continued her code breaking work in the WRNS, until the Japanese surrender the following August and, now being a married woman, she was demobbed fairly quickly next month. She and Geoff then started their life together, with all the housing and other shortages, and struggles of the early postwar years ahead of them. They had two children and two grandchildren. Nancy was widowed in 1992. </p>
+<p>Now at 81 years of age she says -<br/>
+“I have had a good life, enjoyed it and think I have been very lucky.”</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a4247840.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-857">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in North End: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>28</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in North End </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

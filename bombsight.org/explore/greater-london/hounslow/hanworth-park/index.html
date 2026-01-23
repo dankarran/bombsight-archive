@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Hanworth Park - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922579200000, 8]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.42322005325804202, 51.437501761140567], [-0.42277202728209801, 51.437559804414747], [-0.42230724503471201, 51.437712887808395], [-0.42141712337003701, 51.438100777534892], [-0.42019614711152597, 51.438420841282536], [-0.41993523731840399, 51.438502758047257], [-0.419629654975124, 51.438680729796552], [-0.41925160428118002, 51.438990781140731], [-0.41905736260757298, 51.439120804994168], [-0.41875975161409201, 51.439210649661298], [-0.41848043042906802, 51.43926574941031], [-0.41796059249009299, 51.439319711651954], [-0.41731090793917103, 51.439448640850614], [-0.417065919431442, 51.439511650123265], [-0.41688566450172099, 51.439575671192735], [-0.41616889600902701, 51.439901663060454], [-0.41570290568841101, 51.440166675022553], [-0.41518712299708499, 51.440518553778027], [-0.41472532606319301, 51.440882541564307], [-0.41366628595298999, 51.44178149730179], [-0.41160341153101299, 51.443591233280607], [-0.41113163007748998, 51.444215284386615], [-0.41033663669852999, 51.445535091853891], [-0.40943511496766699, 51.446851901704193], [-0.41089467811636499, 51.447582792078677], [-0.41123967860996302, 51.447645773687405], [-0.40487257219109601, 51.448988815898183], [-0.40417448959588698, 51.449120808180588], [-0.39047536276313199, 51.451240771018725], [-0.39025823925677799, 51.450776793567734], [-0.38981347824156698, 51.449688940758101], [-0.389614238592083, 51.449279996023904], [-0.389529369509308, 51.449174013906791], [-0.38941146101230301, 51.449137974139767], [-0.38913551947686897, 51.449157930876311], [-0.38788360786607701, 51.449320005745136], [-0.38770433460039999, 51.449327936504154], [-0.38759005249702599, 51.449304025862482], [-0.38743555378966499, 51.449132028986831], [-0.38696637128263101, 51.448714034855072], [-0.386412775267447, 51.448305134885217], [-0.38631881661809703, 51.448202257339751], [-0.38629261488500499, 51.44807811150266], [-0.38645351645881698, 51.447251343697921], [-0.38632270071719299, 51.447020241763532], [-0.38631371049404001, 51.446854315997108], [-0.38626764421921, 51.446732290822425], [-0.38599646721784497, 51.446592406081628], [-0.38575268554866499, 51.446491397210444], [-0.38416575294115701, 51.445737505807813], [-0.38480386666323602, 51.445202538848939], [-0.38520181664201703, 51.444820652050531], [-0.38833088044419101, 51.441431866252358], [-0.38897102928016303, 51.440835928319352], [-0.389166198788861, 51.440567015525986], [-0.38965976341792802, 51.440749985276142], [-0.390729788317003, 51.439653990407749], [-0.39035178397855602, 51.439458127423876], [-0.39082477373716101, 51.43893422161279], [-0.39132454679200201, 51.438953161833872], [-0.39181045684210403, 51.437446301575577], [-0.39196233773834999, 51.436770443253742], [-0.39222739172509302, 51.436110474012459], [-0.39228960622979497, 51.435862495045086], [-0.392306484853295, 51.435714493494459], [-0.39228366615017701, 51.435583507485838], [-0.392243201067212, 51.435519581930038], [-0.391730548890449, 51.435599530183474], [-0.39193553236775902, 51.434806655422094], [-0.39205631447525302, 51.434426698159271], [-0.39221827793897102, 51.434026798990494], [-0.39248616142278198, 51.433477863034831], [-0.39270720495720102, 51.433366804805125], [-0.39345636049519001, 51.433182754240001], [-0.39453415928184199, 51.432741863361336], [-0.39562886607981601, 51.432356829789512], [-0.39618307130311198, 51.43220592255701], [-0.397052632885662, 51.432035862980229], [-0.39784577046416197, 51.431839881229109], [-0.39869370024351503, 51.43160684310967], [-0.39950260756620698, 51.43135795293091], [-0.40107644644903001, 51.431024943910316], [-0.40144199329817098, 51.43093297664182], [-0.40174627635403498, 51.430818957362803], [-0.40218831171758601, 51.430518968506526], [-0.40239782082079401, 51.430441031623161], [-0.40264301599804603, 51.430383958317357], [-0.402964002312164, 51.430434980392924], [-0.403324870077161, 51.430528976016291], [-0.40380800482616103, 51.430609874772529], [-0.40539970482488802, 51.430665966935798], [-0.40577860320613801, 51.430667888447495], [-0.40615981897376902, 51.430706930702726], [-0.40686770761804603, 51.430917899002324], [-0.407637434536196, 51.431186747534625], [-0.40832656871976503, 51.431394781808542], [-0.40890734294775499, 51.431525751531041], [-0.41020909730691502, 51.4317117381052], [-0.41076342482051198, 51.431814650991214], [-0.41152126073767697, 51.431999711774139], [-0.41217816085145997, 51.43212664144594], [-0.41292702591646002, 51.432311571562686], [-0.41343298088767899, 51.432409608710941], [-0.41386380415813501, 51.432522640075653], [-0.41506783692466598, 51.432935427985932], [-0.41539557947262501, 51.433013487039268], [-0.41580347291655201, 51.433087425755041], [-0.41616279206129903, 51.433110402675638], [-0.41689130633690002, 51.433117434840405], [-0.41727583863860102, 51.433070306539896], [-0.41793698996726902, 51.4329509525327], [-0.41885510501903001, 51.432959453808763], [-0.41953717763192, 51.43433829803805], [-0.42024936572190202, 51.435288158988236], [-0.42043722738497202, 51.435225073241803], [-0.42087744358795998, 51.435836015379678], [-0.42133291333450101, 51.435782996790969], [-0.42169515173779298, 51.435774108158483], [-0.422025086410518, 51.435724037586134], [-0.42218405942104498, 51.435677134826562], [-0.42264593876276302, 51.435464021913837], [-0.42292894865091102, 51.435745049657633], [-0.42311506503221902, 51.436059055267698], [-0.423065021675188, 51.436076080142563], [-0.423691132972979, 51.437478878921027], [-0.42322005325804202, 51.437501761140567]]]]}, "type": "Feature", "id": 1355, "properties": {"pk": 1355, "name": "Hanworth Park"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Hanworth Park, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Hanworth Park, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Hanworth Park</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Hounslow</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Hanworth Park
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Hanworth Park, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hanworth Park: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>77</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>1</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Hanworth Park</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-746"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-746" id="name-746">
+                    from schoolboy to shunter - Part Two Working on the main land <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-746" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by CSV Solent (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/96/a4009196.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the People’s War website by Marie on behalf of John and has been added to the site with his permission. John fully understand the site’s terms and conditions.</p>
+<p>In 1943 a call went out for young men to train as railway shunters on the mainland.  I volunteered and within a few weeks I was sent to the marshalling yard at Feltham in Middlesex.  The size of the place was an eye-opener — it had 32 miles of track and sidings and a fleet of nearly 100 steam locomotives.  I was given lodgings with the family of one of the yard foreman, gave my ration book to his wife and then had 2 days to look round and familiarise myself with the yard and the workings of this vast layout.  After another couple of days to learn the rudiments of loose shunting, I was assigned to a shunting gang which consisted of two class three shunters and one class one shunter who was in charge.  The class Three shunters were, depending on their knowledge, either working the hand points or unhooking the wagons to get them marshalled in station order.  You had to do a lot of running to keep up with the work and I was put on the shunting pole unhooking the wagons and working twelve hour shifts.  When I started in this gang I was told how the previous shunter had had a very serious accident and had both his legs amputated below the knee which wasn’t the kind of thing I needed to hear. There were a lot of points that needed to be stepped over — on the night shift with restricted lighting this was difficult and made even worse by air raids when all the lights would go out but we had to carry on working until the German bombers went over when we would go for shelter, or when the nearby anti-aircraft guns started firing and shrapnel would rain down like confetti.</p>
+<p>After working twelve hour shifts I would arrive at my lodgings very tired and filthy so would wash and clean up, have my meal and then go straight to my room and bed.  One evening I was woken up by the husband banging on my door — the Germans had been dropping bombs on a nearby depot but some had started landing on the roofs of the local houses and everyone was outside with ladders and rakes getting these incendiary bombs down onto the ground so they could be covered up with sand and earth which would put the flames out.  And until I was woken up, I hadn’t heard a thing!</p>
+<p>As winter fell shunting became even worse — we now had to contend with the black-out, frost, snow and ice underfoot and above all the London smog which sometimes lasted days.  We had to carry out the flat shunting using whistle codes so the driver knew to pull up, set back or stop.  Even so, there were derailments and collisions everytime the smog came down, and the freight trains leaving the yard were hours late.  As these had to be slotted into the mainline passenger train service — with 4 trains an hour into waterloo and 4 trains an hour out, the signalman controlling all this mayhem had quite a job.</p>
+<p>Early in 1944 the freight traffic started to increase more than ever — this was for D-Day, but of course we didn’t know it at the time.  Because of shunting staff shortage I only got one Sunday off in five, when I would attempt to visit my family on the IOW.  I would get away late Saturday afternoon and be back on Monday.  This worked well until Saturday 4th June 1944 when I arrived at Portsmouth harbour  to find that the paddle steamer boat service to Ryde had been suspended — the only boat to the IOW was the Portsmouth to Fishbourne car ferry and there were no more of them until Sunday morning.  I went back to Portsmouth Town station, found somewhere to get a sandwich and a cup of tea and then saw the Station Forman and told him I couldn’t get home.  He fixed it up for me to sleep in the compartment of an electric train and for someone to give me a call in time for the first car ferry.  As this ferry came out of the harbour I saw rows and rows of ships large and small stretching out as far as the eye could see.  The weather was terrible and I felt so sorry for all the soldiers being tossed about in the flat bottomed landing craft by the very rough sea.  When the ferry landed, I got the bus home to Gunville and explained to my mother what had happened, had a meal and then had to go back to work.  I heard that the invasion of Europe had started and turned up at the yard to find they were looking for volunteers to go as shunters in Southampton Docks to help deal with invasion traffic.  I volunteered straight away and on D-Day plus seven, I was on my way.  I had to report to the Dock Superintendant’s Office traffic Section — a large building in the old docks facing Canute Road.  I was given my lodgings address and told to wait for the Superintendant — he noticed straight away that I didn’t have a  London accent and his face lit up when I told him I was from the IOW.  He’d been brought up in Alverstone which was the last station I worked at before I went to London.  By now he’d obviously formed his opinion of me and he said “I know you’re very young, but if I offered you a Head Shunters job do you think you could do it?”  I said I would give it a jolly good try and he sent me to the New Docks as the track layout was a lot easier to learn than at the Old Docks.</p>
+<p>The next morning I reported to the New Dock Inspector and was assigned to a Head Shunter so I could start learning the track layout for the whole of the New Dock area.  It was no easy task, but after nearly two weeks learning on different shifts I said I was ready to take over with my own engine.  This job turned out to be one of the greatest experiences of my career.  I had to deal with trains of petrol in jerricans, these had to be shunted out from the sidings, taken across the roadway and pushed onto the dockside at berths 107 and 108 to be loaded onto pallets and hoisted on board the ships.  Ammunition was loaded at 101 and 102 berths, and things like large tents, nissen huts, picks, shovels etc were moved from berth 103 to 106.  We also had three ambulance trains fully manned and ready to go 24 hours a day.  Two of these trains were American and one of British medical staff, and whenever a hospital ship was due to arrive at the Old Docks, the New Docks shunters would have to pull these trains out of the sheds and over the Town Quay, threading your way between pedestrians and motor traffic, and all the vehicles that were parked too close to the railway lines that would mean you had to stop, find the driver and get them to move it so you could carry on.  Some days there were many of these trips!</p>
+<p>By now I had settled into my lodgings — the front bedroom and a small sitting room of a Victorian house in Winchester Road — and I persuaded the landlady to take in another shunter so I had some company when off duty.  Shunters were allowed extra cheese rations and this pleased her, but not us — nearly every day we had cheese in our sandwiches!  So being on a 12 hour shift I sometimes went into the Dockers Canteen where the food was basic but filling, and when off duty I went to the Government run British Restaurant serving wartime meals.  This restaurant was on a bomb site in the High Street, Above Bar.  But everywhere you looked there were bomb damaged buildings, especially in the Old Docks and surrounding areas.   We were now getting Allied troops back from France, the first lot I can remember were the American Rangers from Normandy.  They had taken awful punishment and lost a lot of men trying to get a foothold on “Omaha” beach landing.  After some very severe fighting they had managed to advance inland, and now after a few weeks they were relieved and came back to England.  They were being sent to London for Rest and Relaxation.  The first train to leave with these bomb-happy troops kept getting stopped by some of them pulling the emergency cord and it took many stops and starts just to get to the Millbrook exit onto the mainline.  The train driver and guard asked the Docks Traffic Inspector to get the officer in charge to stop the cord pulling or the train would not go any further as it would be a hazard to other trains on the mainline.  Sure enough, that put a stop to all thr trouble!</p>
+<p>Just outside No 8 gate, on spare ground sloping down towards the sea, the Americans had built a concrete hard to load tanks and troops.  These large boats were departing one after another, and then after a few weeks the flow of men and tanks got less.  They then laid temporary railway tracks down the hard and started loading railway freight vehicles.  These had arrived as a kit of parts in large crates and were tested and assembled on spare land at the Millbrook end of the docks and then pulled down to Number 8 gate and pushed onboard.  The track had to be flexible in places to compensate for high and low tide and some derailments did occur but a crane was kept on stand-by to deal with these.  The boats started coming back full of German P.O.Ws instead of being empty.  They were unloaded and marched to a very large compound of huts, and barbed wire which had been used by the Allied Troops days before D-Day.  There they were deloused and then loaded back onto trains to be taken to Kempton Park Race Course or Newbury Race Course under a military escort to await dispersal to proper P.O.W. camps. </p>
+<p>Amongst all of this work, we also had traders inside the docks who needed their wagons to come and go.  Hibberts had wagons full of lager from Alloa in Scotland — it was bottled and ready to go onto ships; Cadburys had ships chocolate and cocoa arriving daily; there was Ranks Flour Mill supplies and Myers Timber Merchants receiving materials, plus coal for the coal fired ships, so we were kept very busy.</p>
+<p>I remember receiving a letter from my mother early in 1945 with some bad news, our village had lost another young man, John Caute, who’d been a school friend of mine.  He was serving in the “Royal Tank Corps” and had been killed crossing the Rhine River.  There’s a plaque to his memory in the village church at Godshill where he was an altar boy.  </p>
+<p>V.E. Day arrived and I remember all the ships in the port of Southampton sounding the morse code V on their sirens and the church bells rang for hours, no black out restrictions anymore and the pubs were full that evening.  The “Channel island” boat service started up taking refugees and supplies back with them.  The Queen Mary came back into Southampton and the Queen Elizabeth came to Southampton for the first time since she was built.  They were both still in wartime grey paint and put into service repatriating American troops — if memory serves correctly they took 10,000 troops at a time.  Later the Queen Mary had to go into dry dock to have all the barnacles and weed removed from her her bottom as it was affecting her speed and steerage — I was one of the shunters who took away the loaded wagons of evil smelling scarpings.  I made friends with the dry dock forman and he took me down the stairway to the bottom of the dock so I could see just how big she was, and the size of her proppellors and rudders.  It was quite an experience!  Then in 1946 I finished my time at Southampton Docks and was sent back to Feltham Marshalling Yard to become a train despatcher.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/96/a4009196.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-746">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-820"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-820" id="name-820">
+                    My Life - Born in 1918, then a Soldier in WW2 - Part 10 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-820" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by robert beesley (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a3452933.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>On arriving at St Johns Wood, I reported to the duty N C O and he wrote my name down in the register. Then a Private took me to a billet, here I found another N C O, that had arrived earlier. We got talking, none of us knew each other. Then we were given some food to eat.  None of us left the camp that evening. During the evening there were more N C O's and Privates arriving at our billet.<br/>
+The next morning we were all paraded, and we were then informed that we had to do a six week refresher course. Over the next few weeks, we did all of the basic training such as rifle, map reading and everything that you learnt when you joined the Army.<br/>
+ After we had completed the training and passed out I had a weekend pass , which I used to go and visit my family. Then we were posted to other camps. Myself and eleven others were all posted to Hookwood in Surrey, which was a Royal Ordanance Store Depot. We unloaded all of our kit and was taken to the Dining room and given tea. The cook was A T S and there was five Italian Prisoners-of-War sitting at the top of the table and they were talking. Three of the N C O's went to the table and found out that they had been Prisoners-of-War in Italy. They could speak the language so they started speaking Italian, but two of them moved away and it nearly came to punch up, but it was the woman cook that stepped in to calm things down.<br/>
+There were some Ordanance group also working there and also civilians work, we never saw much of the Captain. He was always with a A T S Driver. Nearby was an<br/>
+R A F Aerodrome, which is now called Gatwick Airport. We spent our evening in the pub with the A T S. It was Christmas 1945 and we had leave. All of the N C O's had a chicken to take home for Christmas, but I cannot tell you how we won them?<br/>
+On returning back from our Christmas leave, the N C O started to get demobbed at one or two at a time. I spoke to Captain Gardener about signing on for 2 years, that was 1946. As the N C O got demobbed, we had a party at the Pub. Next, the A T S returned to Guildford in Surrey to the A T S camp. The R A O C  were to move to another camp. I was to take some stores from the Quarter Master's store and travel by road to Colchester in Essex. We arrived on the Tuesday afternoon and unloaded the stores. The Quarter Master Sergeant told us to put it into a large room and gave us the key. He then said that after we had finished doing this, to hand the key back to the storeman.<br/>
+I was shown my billet and unpacked my kit. Then on the Wednesday I reported to the Quarter Master, he told me to lay out the stores to go to Hookwood for checking.<br/>
+On Thursday afternoon I again reported to the Quarter Master, got ready to hand over but he said to leave it until the Friday. As the storeman had been working with me, we checked the stores together and he agreed that everything was in order and then signed the document. I also signed the document and handed the key to the storewoman. Next morning, the Quarter Master<br/>
+said " I  check the stores and then take them off your hands". At 10.00 a.m., the Quarter Master approached me stating that some stores were missing. I said to him "Bull, it was all present yesterday". he replied to me "Not now it isn't, then report the thief to the Company Commander"<br/>
+I was told to report to office, Quarter Master was stating stores stolen. The Company Officer turned to me and said"What do you have to say?" I replied "All the stores were present and correct yesterday when I locked up" He then said "What proof have you?" I then handed him the C/O my document which had been signed by myself and the storeman. Also stated that they key had been handed to the storewoman. I then said " Call in the Special Police. The C/O replied "No need for that" That was the case closed and shut. Two months later, having gotten to know the other stores across the way, they told me "You know those stores that you had lost earlier, they were in our stores. I asked them who had brought them to them and the reply that I got, was the QUARTER MASTER!<br/>
+C S M Simpson spoke to me about transferring to R A O C as a driver. I thought about it for two days. I then approached the C S M to sign my document and within the week I was in the R A O C. I took a driving test, which I passed. <br/>
+One Friday in September 1946, the Sergeants Mess was robbed of cigarettes, tobacco and spirits. On the Saturday at 12.00p.m. I was on my way to the station with others when two civilians stopped me. They asked me what I had in my back pack and I told them that it was none of their business. They then showed me their documents and they turned out to be Special Investigation Police. So I opened my pack, out came a Army boot, I was asked why I was taking this home, I told them, to give them a good clean. I asked them why had they stopped us. One of them said had we not heard and we did not know what he was talking about. But it was the news that the Sergeants Mess had been robbed. I could have turned round and said to the "Try the Quarter Master, he stole my stores" But I thought better of it so I held my tongue!<br/>
+It was 1947 and I had put in for an Overseas posting. I got the posting and I was then sent to Feltham in Middlesex,I had 7 days leave. At hat time, my wife had run off with an R A F Sergeant to Scotland. On my return, after my leave, at 6.00a.m., the draft for Germany came through. So I boarded a train to London, once in London I had to go across town to King Cross station. I waited there until 3.00 p.m. and then boarded another train for Hull up North. On the Monday, we boarded a ship for Germany. It arrived in Hamburg in Germany on Friday. We spent the weekend in Hamburg and we found the Germans were friendly. On the Monday we boarded a train which was to take us to Dusseldorf, When we arrived there a lorry was waiting for us so we got aboard. There were twelve of us. Off we went, along the way, the men were being dropped at different places. Everyone had got off except there were two of us left. When we stopped again, both of us reported to the Office. It was 145 Vehicle Park and I learnt that my other travelling companion was called Private Barr and he was Scottish. He went to the Quarter Master's stores. I just clicked my heels until Major Hurley read my documents and I was told to report to his office. He asked me questions such as "Was I a Prisoner-of-War?" I replied "Yes"."Can you speak and understand german" Once again I replied "Yes". So to se if I was telling the truth, he sent for a German to test me. This German had worked in the camp and he tested me and said I was alright. The Major then told me to report to the Special Police Unit in M I R. On arriving,no on was at home. The home address British Occupation of Rhine (BAOR). That afternoon I met Justeward N C O and Felix Kaufman, who was half Jew. He was the interpreter, he spoke to me in German, I replied, he then said "Are you Polish" I said "No" He said"Ex Prisoner-of-War good". Another interpreter was Alex, whose Father was English and the Mother was German. He had served with the German Air Force but he was not to be trusted by Felix. <br/>
+My Mother wrote to me to tell me that my wife was going to have a baby, so I then made enquiries about obtaining a divorce.<br/>
+Our duty was to recover War Department stolen property. We would check vehicles for wheels with loose nuts then we would lay in wait, at night.  Nine times out of ten, we always had a result. When we visited places on information obtained, it more or less always led us to an arrest and trial. We made road blocks on the Autobahns where we would stop lorries or cars. One night, we stopped an Ambulance, the Police said "No Ambulance". I stopped the vehicle and what was inside was a cow and two German civilians. This was going to be a German Police case. The Mayor, had given us a free hand  but it was only the Mayor that received our weekly reports. We received documents from the Mayor. Whenever we needed food or accommodation for the night at Army or Military, this was always available to us. We would always give them a telephone number so that it could be verified and that was that. But we never ever got freedom of the barracks. In the short time that we had been in operation, we had recovered quite a number of tyres and one vehicle. Saturday evenings were spent at the Cafe Belton which was in the town of Wermelskirenen. Here the Off Duty Officers and wives and other ranks would socialise with the Germans. The lads would be after the girls and when the cafe closed there would be no transport home, so they had to walk home. Christmas was nearly upon us. The lads had a good time with us that year. Officers and senior ranks waited on tables and after lunch, you could do as you wished. On the eve of the New year, there was one great party which was held at the Cafe Belton</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a3452933.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-820">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hanworth Park: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>77</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>1</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Hanworth Park </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Data Sources: Bomb Sight - Mapping the World War 2 London Blitz Bomb Census </title>
+
+    
+
+    <link rel="stylesheet" href="../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../index.html'><img src="../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../index.html">Map</a></li>
+                    <li><a href="../../explore/index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../index.html">Data</a></li>
+                    
+                        <li ><a href="../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+
+    
+    
+    
+
+    <!--jasia 201112 all-->
+    <div class='container'>
+        <div class='row'>
+            <div class='span7'>
+                <h1>
+	Index of Data Sources</h1>
+
+
+                
+                    
+                    
+
+                    
+                        <h3>GLA Boundaries</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>GLA Boundaries</p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>24 hours of Blitz Sept 7th 1940</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>24 hours of Blitz Sept 7th 1940</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>Data previously transcribed from the London Metropolitan Archives  from the London Fire Brigade Records, recording: time  bomb fell, location, type of Bomb  and Damage or other details.  Made available via the Guardian public data store. </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>Guardian  Data Store &amp; London Fire Brigade Records</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p>Copyright Guardian  Personal and Non-commercial </p>
+                                </dd>
+                            
+                                <dt>Url</dt>
+                                <dd>
+                                    <p><a href="https://docs.google.com/spreadsheet/ccc?key=0AonYZs4MzlZbdGZyNDJtd0d0ZFhvRTBxOFAyMkRFeUE&amp;hl=en" rel="nofollow">https://docs.google.com/spreadsheet/ccc?key=0AonYZs4MzlZbdGZyNDJtd0d0ZFhvRTBxOFAyMkRFeUE&amp;hl=en</a></p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Vector Point Data</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>None</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>Location data recorded in text form as address. This project has used various automatic geo-coders to link the address field to a British National Grid Coordinate.  This method in not infallible and some spurious locations exist and the process introduces error.</p>
+
+<p> An actual measure of accuracy is difficult to obtain but when using the data you must be aware that there are errors in the positioning of the locations where the bombs fell.  </p>
+
+<p>For this reason the dataset we have presented  is useful for non-commercial  and general use but should not be used for any legal purposes.  <br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Weekly Bomb Census for 7th to 14th October 1940</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Weekly Bomb Census for 7th to 14th October 1940</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>This background map records the locations of bombs which fell shown in different colours to show different days of the week. </p>
+
+<p>For the period of the Blitz, there are 559 weekly map sheets for region 5 alone. </p>
+
+<p>Due to time and cost constraints the project we are using weekly bomb plots for the first week of the reporting period- for Central and East London (7th to 14th October 1940) (HO193 / 01).This will provide an overview of daily intensity and proof of concept to hopefully justify the remaining weekly maps to be integrated. <br /></p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>The National Archives</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p>Images reproduced by permission of The National Archives, London, England</p>
+
+<p>The National Archives give no warranty as to the accuracy, completeness or fitness for purpose of the information provided</p>
+
+<p>Images should be used only for purposes of research, private study or education. Applications for any other use should be made to The National Archives Image Library, Kew, Richmond, Surrey, TW9 4DU, Tel: 02083925255 Fax: 02083925266<br /></p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Raster GeoTiff</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>H0193/ 01</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>In order to collect the data from a paper map a number of processes had to be developed. Each process introduces a degree of error. </p>
+
+<p>•	The paper map was photographed with a high resolution camera by the reprographics department of The National Archives. <br />•	The maps were created prior to the war and will contain surveying and drawing errors  that are difficult to quantify<br />•	Digital images were then transformed by adding a geographical reference system. We used a 3-order polynomial transformation with underlying base data from Ordnance Survey Open Data. This process  will introduce error when matching the historical image to the current base map. <br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Aggregate Night Time Bomb Census 7th October 1940 to 6 June 1941</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Aggregate Night Time Bomb Census 7th October 1940 to 6 June 1941</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>This data is for London Area which was the equivalent of Civil Defence Region 5. During the WW2, Britain was divided into 12 Civil Defence Regions. London Was recorded as region 5 and was sub-divided into 9 Civil Defence Groups.  The project has collected data for map sheets covering region 5.  <a href="http://blitzbombcensusmaps.files.wordpress.com/2012/04/index-map-for-h0-193-13.jpg" rel="nofollow">http://blitzbombcensusmaps.files.wordpress.com/2012/04/index-map-for-h0-193-13.jpg</a></p>
+
+<p>The maps show night bombing only between 7 Oct 1940 and 6 June 1941, For each bomb dropped a point on the map has been recorded to show the location of where it fell. On the original maps black circles represent high explosive bombs and red circles represent parachute mines. This dataset is a geo-referenced image of the original historical bomb census maps. </p>
+
+<p>They were produced by the Air Raid Precautions Department, Ministry of Home Security, Civil Defence and Common Services Department and Emergency Planning Department. <br /></p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>The National Archives</p>
+
+<p></p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p>Images reproduced by permission of The National Archives, London, England</p>
+
+<p>The National Archives give no warranty as to the accuracy, completeness or fitness for purpose of the information provided</p>
+
+<p>Images should be used only for purposes of research, private study or education. Applications for any other use should be made to The National Archives Image Library, Kew, Richmond, Surrey, TW9 4DU, Tel: 02083925255 Fax: 02083925266<br /></p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Raster GeoTiff</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>H0193/13</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>In order to collect the data from a paper map a number of processes had to be developed. Each process introduces a degree of error. </p>
+
+<p>•	The paper map was photographed with a high resolution camera by the reprographics department of The National Archives. <br />•	The maps were created prior to the war and will contain surveying and drawing errors  that are difficult to quantify<br />•	Digital images were then transformed by adding a geographical reference system. We used a 3-order polynomial transformation with underlying base data from Ordnance Survey Open Data. This process  will introduce error when matching the historical image to the current base map. </p>
+
+<p>•	The error is difficult to quantify but  when using the maps and data you should be aware of that there is uncertainty in the data.<br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Anti-Invasion defences</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Anti-Invasion defences</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>This dataset records the militarised landscape .  of the UK marking defences built  against the WW2 invasion of Britain by Germany originally collected between 1995 and 2001 and updated in 2002.  The dataset records the location of anti-aircraft/tank defences and lots of other types of defences. </p>
+
+<p>The dataset contains data for UK – but we have selected anti-invasion defences contained within Civil Defence Region 5 – London. </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>Council for British Archaeology Defence of Britain Dataset</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p>© Council for British Archaeology:  <a href="http://dx.doi.org/10.5284/1000327" rel="nofollow">http://dx.doi.org/10.5284/1000327</a> </p>
+
+<p>Council for British Archaeology (2006) Defence of Britain Archive [data-set]. York: Archaeology Data Service [distributor] (doi:10.5284/1000327)</p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Vector Point Data</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>doi:10.5284/1000327</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>Dataset created by Volunteers – so accuracy is difficult to assess. </p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Imperial War Museum Images</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Imperial War Museum Images</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>We used the IWM collections to search for images relating to WW2 in London. </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>Imperial War Museum</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p> © IWM Imperial War Museum Non Commercial Licence</p>
+                                </dd>
+                            
+                                <dt>Url</dt>
+                                <dd>
+                                    <p><a href="http://www.iwm.org.uk/corporate/privacy-copyright/licence" rel="nofollow">http://www.iwm.org.uk/corporate/privacy-copyright/licence</a></p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Images</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>See individual pictures</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>A location was assigned to each image manually. Locations were identified from the textual description provided by the IWM for each image. </p>
+
+<p>In cases where locations were not identifiable we randomly distributed them images across locations in London. </p>
+
+<p>The images are intended to help the user build contextual understanding of London at the time  - not to provide specific images of each bomb incident. </p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>BBC  history WW2  memories</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>BBC  history WW2  memories</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>The BBC asked the public to contribute their memories of World War Two to a website between June 2003 and January 2006. We have extracted just a small sample of 460 that correspond to the period of the Blitz/ Air Raids in London to include in our application </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>BBC History</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p>Copyright lies with the each of the original contributors - see contributor identified for each memory</p>
+                                </dd>
+                            
+                                <dt>Url</dt>
+                                <dd>
+                                    <p><a href="http://www.bbc.co.uk/history/ww2peopleswar/" rel="nofollow">http://www.bbc.co.uk/history/ww2peopleswar/</a></p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Text</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>None</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>We screen scrapped a sample set of stories and then  used Yahoo places API to take the text within each story and identify different places.  When  place name was identified a places API to provide an X and Y coordinate for each place identified in the story. We used this X, Y to create multiple locations for each story. </p>
+
+<p>The automatic text recognition of place names provides a useful starting point to geo-locating memories but does not provide 100% accuracy due to the very difficult and complex algorithms required. Therefore the locations of stories are to provide contextual background rather than absolute locations. <br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Bombs  - Aggregate Night Time Bomb Census  - 7th October 1940 to 6 June 1941</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Bombs  - Aggregate Night Time Bomb Census  - 7th October 1940 to 6 June 1941</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>This data is for London Area, civil defence region 5: Night bombing only between 7 Oct 1940 and 6 June 1941. </p>
+
+<p>For each bomb dropped a point on the map has been recorded to show the location of where it fell. On the original maps black circles represent high explosive bombs and red circles represent parachute mines. This dataset is a geo-referenced image of the original historical bomb census maps. </p>
+
+<p>This dataset provides a point location for each of the bombs recorded on the original map. </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>Bomb Sight Project, University of Portsmouth</p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Vector Point Data</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>None</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>In order to collect the data from a paper map a number of processes had to be developed. Each process introduces a degree of error. </p>
+
+<p>•	The paper map was photographed with a high resolution camera by the reprographics department of The National Archives. <br />•	The maps were created prior to the war and will contain surveying and drawing errors  that are difficult to quantify<br />•	Digital images were then transformed by adding a geographical reference system. We used a 3-order polynomial transformation with underlying base data from Ordnance Survey Open Data. This process  will introduce error when matching the historical image to the current base map. <br />•	The locations of each bomb was then individually captured by hand. Sometimes it was difficult to identify if a bomb was in fact a bomb so the dataset will contain false positives (bombs identified as bomb locations that are not) and false negatives (bombs that have not been identified – or were not marked on the original maps). <br />•	The error is difficult to quantify but  when using the maps and data you should be aware of that there is uncertainty in the data.<br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                        <h3>Bombs - Weekly Bomb Census for 7th to 14th October 1940</h3>
+                        <dl class='dl-horizontal'>
+                            
+                                <dt>Name</dt>
+                                <dd>
+                                    <p>Bombs - Weekly Bomb Census for 7th to 14th October 1940</p>
+                                </dd>
+                            
+                                <dt>Description</dt>
+                                <dd>
+                                    <p>Data collected for Central and East London for the period 7 to 14th Oct 1940. For each bomb dropped a point on the map has been recorded to show the location of where it fell and attribute collected to correspond to the day of week it fell on. <br /> </p>
+                                </dd>
+                            
+                                <dt>Provider</dt>
+                                <dd>
+                                    <p>Bomb Sight Project, University of Porsmouth</p>
+                                </dd>
+                            
+                                <dt>Copyright</dt>
+                                <dd>
+                                    <p><br />Point data should be used only for non-commercial  purposes of research, private study or education.  We can give no warranty as to the accuracy, completeness or fitness for purpose of the information provided. </p>
+                                </dd>
+                            
+                                <dt>Type</dt>
+                                <dd>
+                                    <p>Vector Point Data</p>
+                                </dd>
+                            
+                                <dt>Archive_reference_id</dt>
+                                <dd>
+                                    <p>None</p>
+                                </dd>
+                            
+                                <dt>Accuracy</dt>
+                                <dd>
+                                    <p>In order to collect the data from a paper map a number of processes had to be developed. Each process introduces a degree of error. </p>
+
+<p>•	The paper map was photographed with a high resolution camera by the reprographics department of The National Archives. <br />•	The maps were created prior to the war and will contain surveying and drawing errors  that are difficult to quantify<br />•	Digital images were then transformed by adding a geographical reference system. We used a 3-order polynomial transformation with underlying base data from Ordnance Survey Open Data. This process  will introduce error when matching the historical image to the current base map. <br />•	The locations of each bomb was then individually captured by hand. Sometimes it was difficult to identify if a bomb was in fact a bomb so the dataset will contain false positives (bombs identified as bomb locations that are not ) and false negatives (bombs that have not been identified – or were not marked on the original maps). <br />•	The error is difficult to quantify but  when using the maps and data you should be aware of that there is uncertainty in the data.<br /></p>
+                                </dd>
+                            
+                        </dl>
+                    
+                
+
+            </div>
+
+            
+                <div class='span3' id='subpages-nav-list'>
+                    
+                    <ul>
+
+                        
+                            <li ><a href="../index.html">Data</a>
+                                
+                        <ul>
+                            
+                                
+                                    <li  class="active" ><a href="index.html">Data Sources</a></li>
+                                
+                                    <li ><a href="../citation/index.html">Citation Guide</a></li>
+                                
+                                    <li ><a href="../terms_of_use/index.html">Terms of Use</a></li>
+                                
+                                    <li ><a href="../copyright/index.html">Copyright</a></li>
+                                
+                            
+                            
+                        </ul>
+                        </li>
+                    </ul>
+                </div>
+            
+        </div>
+    </div>
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../index.html">Data Sources</a></li>
+                    <li><a href="../terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

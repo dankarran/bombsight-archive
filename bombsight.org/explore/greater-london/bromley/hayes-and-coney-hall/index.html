@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Hayes and Coney Hall - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.019003742998980999, 51.363821687449359], [-0.018522722437622, 51.363941699787958], [-0.017530223596581001, 51.364137784173444], [-0.01674142338117, 51.364315816037809], [-0.015846664189473999, 51.364576767813062], [-0.013912429916365, 51.36530964562494], [-0.0096327571403440008, 51.366873575526569], [-0.0080448149383590007, 51.367484506888225], [-0.0063877253628519997, 51.368094534822482], [-0.0059702285643449997, 51.368300444349309], [-0.0055554916955399998, 51.368463404009574], [-0.0047545576325330003, 51.368917400712505], [-0.0032162559928229999, 51.369932250878321], [-0.0020640532188499999, 51.370657183600912], [-0.0013940577697829999, 51.371113243366537], [-0.0010903077837229999, 51.371366189647311], [-0.00075440846762399999, 51.371697127436342], [0.000168856314542, 51.372854094348391], [0.00036439750721900001, 51.373055059596766], [0.0013630481693910001, 51.373735929711557], [0.002092387117246, 51.374294793190373], [0.0020988452673330001, 51.374483958303294], [0.0021813034530050002, 51.374706946483698], [0.0024099194800680001, 51.375088892461733], [0.002707483179124, 51.375445771987764], [0.0032571706391859999, 51.375817724042214], [0.00374709792894, 51.37621964783628], [0.003929899347171, 51.376477587495032], [0.0039488196115690004, 51.376643637301967], [0.0032024060838200001, 51.376620571833755], [0.0029082829212839999, 51.376630656345647], [0.001346159251024, 51.376725644903331], [0.00028741010451399998, 51.376830565137197], [-0.00057645132846399999, 51.376956460710026], [-0.0020690830805549999, 51.3772244458508], [-0.0022505338859100002, 51.377285435206922], [-0.0020970896562409998, 51.377406472685273], [-0.0023221365782249998, 51.377456390660285], [-0.0019810807214329998, 51.377719385164824], [-0.001642589900568, 51.377923394779934], [-0.001387896127492, 51.377894315471906], [-0.00109330606501, 51.378327410984177], [-0.00078431570739600001, 51.378328326695886], [-0.00063053521896299996, 51.378951266653999], [-0.00017794668150900001, 51.378799379829047], [0.00085697679093199998, 51.379347269569656], [0.001141200556546, 51.3796452241818], [0.0017183686395280001, 51.380049174665523], [0.0018397161622600001, 51.380051318814303], [0.0025653944984090002, 51.38046213872984], [0.002888219235765, 51.380615120024039], [0.0024721103940820001, 51.380856188974995], [0.0027802805659850002, 51.381455130604316], [0.0027311982792690001, 51.381524113922708], [0.0031441071909039998, 51.382094006369087], [0.0036787841516999998, 51.382428973314404], [0.0029057372956549999, 51.383258863896607], [0.0027338911108630002, 51.383560807526422], [0.0026450437497840002, 51.383932865191625], [0.0025911696451839999, 51.384303754026767], [0.002642310617002, 51.385783607858052], [0.0027375122131749999, 51.386853391732153], [0.0027368549014979999, 51.387352365896156], [0.0027113555703750002, 51.387735422258139], [0.0026035626336049999, 51.388085315867961], [0.0032971760009350001, 51.38835532647834], [0.0035438395658789999, 51.388429235037847], [0.0043437010759449996, 51.388540331735399], [0.0043017744074169998, 51.388773172089465], [0.0041938369603289997, 51.388893193469919], [0.0051024180586369998, 51.389292167017345], [0.0052485138387599996, 51.389120199390725], [0.0059665200822139998, 51.389105237922969], [0.0062782182339769996, 51.389125335219191], [0.0064958590607150004, 51.389685206876131], [0.006377225974881, 51.389725178238997], [0.0061878625349670001, 51.389832257912857], [0.0067360639383940001, 51.390186096834334], [0.0069217736024119996, 51.390365164847054], [0.0070594013777710001, 51.390554043908843], [0.0070983654061259997, 51.390705135431332], [0.0071202288889279999, 51.391020065983938], [0.007224304996505, 51.391099079956014], [0.0076888610716169996, 51.391286012834826], [0.0080157485380390001, 51.391386080519652], [0.0073562388173500004, 51.391978964755246], [0.0078099022908479998, 51.392121965040793], [0.011162427430139, 51.393283833500043], [0.011465156896462001, 51.393405808594743], [0.011620566397091, 51.393507815531464], [0.012206302256003001, 51.393363854197304], [0.012194292509737, 51.393294783554786], [0.012302276218482001, 51.393298831771212], [0.012299016801327001, 51.393060861791469], [0.012584972688832999, 51.393066908539296], [0.012634650330247001, 51.392642971572499], [0.012497875066053, 51.392637871156289], [0.012514726252605, 51.392489902091398], [0.013124281446575001, 51.392499947292919], [0.013154911993751, 51.392113006273398], [0.013974239413065999, 51.392112977981057], [0.013959388423522999, 51.392184048033023], [0.014647187629873999, 51.392196110691735], [0.014700175407784, 51.391991033813312], [0.016068786143427001, 51.392020045902669], [0.016073440088535, 51.391860066191086], [0.016579255651158999, 51.391881004191141], [0.016568844877712, 51.392155049724217], [0.01708847269371, 51.392347038606978], [0.017131883227512999, 51.392312983430102], [0.017455971150138, 51.392430072351118], [0.017885647496624, 51.392007038848405], [0.018174598023324998, 51.392326088123191], [0.018299783372635998, 51.392435071389755], [0.019351859128203999, 51.393028041290542], [0.019927713861144999, 51.392538121229613], [0.020347464619159001, 51.392359031366603], [0.020883308034550001, 51.392062156749517], [0.020969828908184999, 51.391987040886839], [0.020997575634686998, 51.391903232821072], [0.021110026153822001, 51.391886117152687], [0.021338555890343999, 51.391751217914511], [0.021490490508659001, 51.391733282552558], [0.021647602432995999, 51.391629119538003], [0.021667632006913001, 51.39153322452119], [0.021961284403511, 51.391245302908175], [0.022065655572885, 51.391208232365592], [0.022189579609048, 51.391105212303735], [0.022747053855130001, 51.391014368518199], [0.023125817006696001, 51.390884312564502], [0.023428570112771, 51.390823307278787], [0.023743416160866001, 51.390588407077296], [0.023678865762745999, 51.389919414270295], [0.023947530642448998, 51.389676461535295], [0.024285568569794001, 51.389621437851957], [0.024339690394503, 51.389504445493948], [0.024817235467275999, 51.389292589048409], [0.025160962308433, 51.389081496713565], [0.025386300674717002, 51.389037552827141], [0.025547141985378, 51.38903856621311], [0.025779380268701999, 51.389069543993763], [0.025832984971496002, 51.389062567011251], [0.026020343197158999, 51.388972498396498], [0.026874729184940001, 51.388689618522712], [0.028482378606559999, 51.388092715604721], [0.029072570527827999, 51.387889849513165], [0.029471717998382, 51.387774742952992], [0.02974987226896, 51.387787761638542], [0.029949542732590002, 51.387691846810931], [0.030682945193176998, 51.386949871881718], [0.031017739953062, 51.386111950817096], [0.031160413727251, 51.385987084373333], [0.031166909980105, 51.385809077817477], [0.031222521263801001, 51.38564511943445], [0.031278741290541999, 51.385555068814099], [0.031224865314387999, 51.385434171612232], [0.031207585199125001, 51.385328101345138], [0.031250254916438, 51.385115183559407], [0.031369519825063003, 51.385009140105389], [0.031463554191969001, 51.384881046333184], [0.031582505372404, 51.384788213389896], [0.031936274720480003, 51.384298289121283], [0.031908691990134998, 51.384162321948232], [0.031839078900356997, 51.384071211878485], [0.032178425685360001, 51.3836412554408], [0.032247306505297002, 51.383594256453968], [0.032551599021648003, 51.383650381374167], [0.032688454971998002, 51.383536295995931], [0.032891599544794002, 51.383154366502019], [0.033071777475242002, 51.383004406858447], [0.033178066559192997, 51.382970387037354], [0.033237301714637998, 51.382888423578237], [0.033297232722495997, 51.382842417272549], [0.033428606910188001, 51.38236140333732], [0.033491506396547001, 51.382260544297502], [0.033665437125439998, 51.382111530114358], [0.033736365380810998, 51.382009555438614], [0.033777340761522001, 51.38173849444447], [0.033688670298204, 51.381257653184456], [0.033683050593333999, 51.381110632173339], [0.033849756105884997, 51.380393785804685], [0.033961303276164, 51.3800938180418], [0.034088474952435999, 51.379477839277136], [0.034140589530927003, 51.37905286334037], [0.034720802912355998, 51.378303971201156], [0.035227905602709997, 51.377608043958183], [0.035179558911883999, 51.377429028155277], [0.035271170721808, 51.376842194119611], [0.035342978130958998, 51.37657818461674], [0.035347222055444001, 51.376390243542204], [0.035430675268208998, 51.376247154083259], [0.035316689785884002, 51.375965302945986], [0.035350171381611999, 51.375667251539575], [0.035339805337974997, 51.374846408574413], [0.035311555088059998, 51.374634435477311], [0.035029734079408001, 51.373362485125043], [0.034854910907222002, 51.372842521021703], [0.034693048701495997, 51.372513578568324], [0.034527189006625998, 51.372276608509672], [0.034140490203910002, 51.3718586906353], [0.034117062387986001, 51.371755674117551], [0.034178034759273002, 51.371449704869114], [0.034146512678631002, 51.371305803980178], [0.033891203584612999, 51.370630843962402], [0.033546643973823002, 51.369967838622074], [0.033422764855182002, 51.369664931150332], [0.033366683840007003, 51.368926102121129], [0.033312704291128002, 51.368660059301533], [0.033317522540751002, 51.368323165984926], [0.033350916443279997, 51.36796216542168], [0.033458858105996997, 51.367804185120278], [0.033513551220858001, 51.367620138272322], [0.033131866055218999, 51.367598244068169], [0.032912350568734997, 51.367568184091454], [0.031983039857941001, 51.36738619123205], [0.031568358005374997, 51.367288137098392], [0.031366884782503997, 51.367260155601784], [0.031095073962189999, 51.366657285389536], [0.030329068943591001, 51.365741338356628], [0.029992554727465998, 51.365380294329924], [0.029483184330883001, 51.365150383917658], [0.029100773758677, 51.364827363470106], [0.028566759373698999, 51.364283544869139], [0.028096262569278, 51.363632539460284], [0.027392053732192001, 51.362283714853795], [0.027182820756565002, 51.362160725084905], [0.026895020471141, 51.361803746678028], [0.02639611605334, 51.361280813176897], [0.026090159062808, 51.361264741439328], [0.025723321932684999, 51.361191697496047], [0.024893218163496999, 51.360873872598198], [0.024570225127383001, 51.360674874309751], [0.023519278026198, 51.35996980749961], [0.022306260707176999, 51.359354929773133], [0.022291801534732002, 51.359047027357462], [0.019948285578623, 51.358098952446596], [0.020282994790723, 51.357647182275677], [0.020370277931436, 51.357570082251527], [0.02039547096795, 51.357510205289572], [0.020382267815119998, 51.357414045151067], [0.02033455377046, 51.357309059731278], [0.019835817198269001, 51.356644318027946], [0.019258689592394001, 51.356095307422287], [0.019229311383633999, 51.356019224788483], [0.019232710789273001, 51.355933313100678], [0.019289309844580001, 51.355791268672398], [0.019822999173625001, 51.355516348601761], [0.020503805057283001, 51.355198425146376], [0.020816452307238002, 51.355469422742154], [0.021040564897169999, 51.355564338156221], [0.021163535480090999, 51.355584418556724], [0.021318652309612999, 51.355580342075335], [0.021600746171273999, 51.355524319062397], [0.021254847200846, 51.354681444976542], [0.020767072318970001, 51.353694598599539], [0.020387329283244, 51.352999700981073], [0.020228983525982, 51.352644681680246], [0.020148526343105998, 51.352529726090005], [0.019974808175699001, 51.352559703781381], [0.019399645377066999, 51.352584650273215], [0.018997642274102999, 51.352587648399968], [0.017979957886438001, 51.352551646779602], [0.017496390254005002, 51.352577685536545], [0.017369298834970001, 51.352565683916318], [0.017177180394491998, 51.352360608112484], [0.017032380968812998, 51.352149661532877], [0.016102335510391998, 51.351042824440874], [0.016046514733494999, 51.350895828397626], [0.016046930514686, 51.3507418142161], [0.016009264762495999, 51.350578906042294], [0.015775359328918, 51.350218854979438], [0.015588655086217, 51.350054993845085], [0.014978710229578999, 51.349777862796152], [0.014959452663345, 51.349706955254725], [0.014805936011388, 51.349603925844569], [0.014791247937180001, 51.349473920832047], [0.014431271425811999, 51.349533928519726], [0.014232310609513001, 51.349643020601832], [0.013918657183634, 51.349735952473004], [0.013757020270838, 51.349754892984201], [0.013514512250055, 51.349750912486883], [0.012619803614489999, 51.349815888398865], [0.012334250112794, 51.34985381739537], [0.012085168252153999, 51.349904886221054], [0.011618029522785, 51.349936797686489], [0.011328168139165, 51.349937843536701], [0.011164794013294, 51.34995778641494], [0.01033031758105, 51.349881765330508], [0.0097486332474200008, 51.349859848793997], [0.0094282086186400008, 51.349921271157733], [0.0094466965286190002, 51.350220818053494], [0.0094278194648720007, 51.35040479173302], [0.0092065075858360004, 51.350803707579551], [0.0090158086165980002, 51.350978693981546], [0.0087862476574570008, 51.351086607122326], [0.0080776957900969993, 51.351324702499319], [0.0075165791197519998, 51.351547623052753], [0.0067349241504409997, 51.351797507131515], [0.0065413052614220002, 51.351351594723056], [0.0062744568360620003, 51.351160572445046], [0.0053623053410220001, 51.350703647213265], [0.0049061196076350001, 51.350451789065595], [0.0046248910238229999, 51.350239644972618], [0.0045252339364290003, 51.350115734284365], [0.0044326771514080002, 51.349989731333253], [0.0044170444601830004, 51.349713746159829], [0.0044779659389950002, 51.349443762587107], [0.0044730817986330003, 51.349331849586541], [0.0043719275278169996, 51.348679908093516], [0.004247124833379, 51.348493900192238], [0.0039071179847640003, 51.3483329293826], [0.0034183162134250001, 51.348196981351336], [0.003060914467925, 51.348131008238774], [0.0026866903692560002, 51.348028928780401], [0.002484352947024, 51.347917030571459], [0.0018839277250810001, 51.347175963465254], [0.0014424651256970001, 51.346746093442157], [0.0010648952969270001, 51.346505097085199], [0.00065292409437200005, 51.346175040170436], [0.00036229530283000001, 51.346096121918819], [-0.00066640019282199995, 51.345927081033494], [-0.001033835231331, 51.345836117772279], [-0.0021713529027109998, 51.345682126292928], [-0.0028481861698990002, 51.345534754503944], [-0.0029442337393180001, 51.345658214507907], [-0.0030752757727840001, 51.345926157439621], [-0.0037541074044739999, 51.347735889474826], [-0.0038964175996179999, 51.348219857428738], [-0.0042183974715040004, 51.348803698103588], [-0.0043089696591980002, 51.349094699116591], [-0.0044701310911779996, 51.349413746143348], [-0.0045979043405210002, 51.349736717966209], [-0.0046574229036629999, 51.349957636144644], [-0.0047053528204700004, 51.350982517384629], [-0.0049251773017189998, 51.351728309551888], [-0.0050666583025710003, 51.352087345290037], [-0.0049497324471829999, 51.352113320617327], [-0.0050416704593909999, 51.352249214095856], [-0.0052989405512, 51.352443295220098], [-0.005477603673069, 51.352628301912432], [-0.0054121444156860002, 51.352647280640006], [-0.0053330983260599998, 51.352669260211606], [-0.0053772966498100002, 51.352788326447445], [-0.005460282424185, 51.352820229657844], [-0.0055312366373780003, 51.352881294525076], [-0.0055443990852430004, 51.352929717062082], [-0.0059009605624380001, 51.353297183932249], [-0.0059372609662660001, 51.353391242739583], [-0.0066613115163879997, 51.353957194759509], [-0.0074330692933260003, 51.354769006681039], [-0.0080111223366549997, 51.355308017162415], [-0.0086870841415709991, 51.355824930746998], [-0.0089374067687779998, 51.355972795870933], [-0.0093441657981700003, 51.356135815387617], [-0.010112016347769001, 51.356521787291037], [-0.011118703069057, 51.356989650807392], [-0.011991387005616, 51.357318657047692], [-0.012276301319173, 51.357020544504302], [-0.012547274263812001, 51.357085560809274], [-0.013021392809679001, 51.357165551980529], [-0.013203923336256, 51.357241571851894], [-0.014006489201151001, 51.357822437787526], [-0.015652229027320001, 51.358876362155378], [-0.016138332347278999, 51.359344349217189], [-0.016537660690582, 51.359805256749809], [-0.017327084414900999, 51.360588209939614], [-0.017673036707428001, 51.360768164510077], [-0.017854903213736999, 51.360985104680026], [-0.018155595968070998, 51.361132107553331], [-0.018289564302303999, 51.361252125556732], [-0.018401924354863999, 51.361353084225918], [-0.018165527576246999, 51.361422017704761], [-0.018370006800682001, 51.361718027821979], [-0.018495864882557, 51.362067922906924], [-0.018769662137314, 51.362546930293647], [-0.018910254464462001, 51.362721851229651], [-0.019233252853065, 51.362934858727847], [-0.019862001791895002, 51.363573723562389], [-0.019003742998980999, 51.363821687449359]]]]}, "type": "Feature", "id": 1120, "properties": {"pk": 1120, "name": "Hayes and Coney Hall"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Hayes and Coney Hall, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Hayes and Coney Hall, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Hayes and Coney Hall</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Bromley</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Hayes and Coney Hall
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Hayes and Coney Hall, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hayes and Coney Hall: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>133</dd>
+                                
+                                    <dt>Parachute Mine </dt>
+                                    <dd>1</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Hayes and Coney Hall</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-609"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-609" id="name-609">
+                    Memories of a Canal Boater [J.Peters : Part 1] <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-609" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bournemouth Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/06/a4060306.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The train drew into Hayes station slowly jolted and shuffled to a standstill\ the carriage was so hot that with a feeling of relief I heaved and collected my gear and dumped it on the platform, wondering very much what was coming next. I wished that the little brown eyed man, who was the M.O.T. official, who had met me so efficiently at Waterloo to escort me across the whirl undergrounds; assuring me when the noise was slightly less than usual] that I was' especially lucky to have Miss Gayford as my trainer; was still with me to help me face this marvellous person. A brisk voice behind me asked to carry my kit bag, said its name was Miss Gayford ' Everyone calls me Kit'. That was over. The owner of the voice was slim and extremely vigorous aged about thirty five [this I afterwards found was too generous] black hair, gold earrings, muscular brown arms and legs, which I envied and hoped to emulate as soon as possible, a rosy weather-beaten brown face, long nose and a friendly smile, delightful green eyes. She was dressed in an old red frock with an open neck. We walked across Hayes Bridge to the other side of the ‘Cut’ where the Boats were lying. Oh magic words my inside throbbed violently with excitement and time so to speak stood still. Its a funny thing about Hayes but nearly always I have noticed that the sky seems to be covered with thin white cloud, the sort of cloud that makes a sunny afternoon chilly but still bright and Hayes bridge which is built of white stone, is very wide and seems to pick up the light of the sky and reflect it so that looking westwards it all seems like a river of light, across which if one happens to be there about five in the afternoon, the swarms of cyclists returning home to tea form a dark stream of people flowing against the current of light. Rather like Blake's River of Life. Though perhaps a rather far-fetched comparison. </p>
+<p>We dumped my gear on board the motor Battersea and went off to find the food office about ration cards. On the way we met Kay. My first reaction was' My God' and so apparently was hers. Especially as we were to be cabin mates in the motor cabin, by far the smaller of the two cabins. One is apt to wonder what ones mate is going to be like. </p>
+<p>Kay was middling height and seemed very blonde - with-a, very brown face, very blue eyes-very wide red mouth - an extremely short cotton print frock and most striking of all exceptionally pure white legs. I couldn’t think how this had happened and remember thinking rather idiotically perhaps she is one of those people that never tan all over. Her voice terrified me, it was sophisticated in the extreme, frightfully efficient and wordy. I sounded completely helpless the moment I opened my mouth and felt it. However when we got back, worse followed Miranda appeared from the butty cabin to put a pie the star in cupboard. She too was fair but not so fair, had long aristocratic features, ice blue eyes that gazed at me with no expression at all. At Kit’s introduction ' ah yes Hallo' and disappeared. Not encouraging. But very much, I thought, what I had expected and remembered Baker's remarks about tough women. Frightfully, frightfully you know with unexpected warmth. </p>
+<p>Miranda was left on the butty, Kay was taken by Kit on the motor. I was given a piece of' Boater's Pie' to fill the increasing gap in my middle. It's very good 'Boater's Pie' either hot or cold and is much like Cornish Pasty made of mince and cold potato. I ate and listened to -them start the engine. Kit's engine was a dream to start, rarely needing more than a couple of turns with the crank before she would slip into gear and burst into a rhythmic powerful throb; it would vibrate through our little cabin, separated from the engineer room by only a thin partition, in a very definite way. Sometimes when we were tired and trying to get a rest at the end of a long day - it could be just hell. But then it was just exciting. </p>
+<p>I got my things unpacked into the drawer and top cupboard which were mine, Then had a mighty struggle with my mattress getting it stowed away into the bed locker where Kay already had hers stowed. Hers however was small and blue and mine a mighty stripped thing that fought against imprisonment like a wild thing. I wondered if this had to be done everyday as I supposed it had, just how we were going to cope. I still wonder. The cabins of canal boats are, I think, feats of carpenters’ skill. There is everything one needs for a completely well supplied, if not comfortable existence in a space 'of 8ft by 6ft. The motor cabin is smaller than this, having the extra room taken up by the engine room. The final effect is that from the outside the butty appears to have less space than the motor. You descend from the false step, false because it is taken out to be scrubbed regularly and dried to pure whiteness on the cabin top on to the coal box. A triangular affair which fits under the step, its lid must always be spotless. On ones left is the stove slightly at an angle to give as much space as possible, it has an oven rarely used as such, usually for drying wood There is an open grate on which a lot of cooking is done in winter .It is customary to keep one's primus or oil stove on the left hand corner of the fire for extra cooking. The background to this corner is painted sax blue. The stove should be brilliantly polished. Then come the cupboards. The food cupboard with its arch shaped table forming its door and held at the top so that one lets it down for meals. Below this is a small cupboard in which saucepans may be kept. Adjacent to this one of the large drawers for clothes. Above this the locker for bedding, quite a deep affair, the front of which is at night' let down across the centre space of the cabin supported by the bench on the other side. Forming one of two beds and can if need be be used as a double one. Above the bed are two small lockers for small private possessions and toilet items. At the end of the butty cabin is a door leading into the annexe. A neat little stall place divided from the actual hold by a board partition and tarpaulin sheets. One keeps vegetables/brooms/oilskins in here. It's inclined to be troublesome, if the rain doesn’t get in the coal does and when they both get in together as not infrequently happens one is in for a hell of an afternoon spring-cleaning. ' </p>
+<p>Emerging once more from the annexe, observe our neat bookshelves and a hook for coats. The side-bed bench is about one and a half feet wide and runs completely down one side of the cabin. The drawer takes up the first half of it. Then comes what is commonly referred to as under the side bed. A large hollow space which one reaches through the top. The kindly carpenters having left several of the planks loose therein are kept shoes and other glory hole items. The far end of this space is partitioned off for the battery. These batteries last about a week giving a very good light. They are charged off the motor so one the advantages of motor cabin life is constant good light. Cups and jugs hang neatly on hooks along the cabin wall also hurricane lamps if one has them. It doesn’t seem to me that the space could be more neatly used. There are in addition a flap for the side bed which is raised at night and rested on the coal box and a wooden plank which goes across the bed space for a small extra seat. Beneath this if one is lucky one has a painted bread tin and somewhere hanging on a hook, its allotted space to cover two small ledges for pan and floor cleaning materials at the door end of the cabin and over the stove a lovely rose covered 'Arnbowl' or hand bowl in which all ones washing is done. The regulation issue for the G.V.C.C. are scarlet, lovely they look when new. But they can never compare in gaiety with the riot of flowers that cover the dark green surface of the hand painted ‘Arnbowl’ with their spotless white interior and the dainty castles painted on their bottoms for display when they are hung up. But this did not occur to me then. The cabins of the training boats were dingy and dark and very well worn. Nothing was very well polished - not that there was much to polish- it was hot and stuffy. So as soon as I could I changed my smart clothes and put on an ancient summer dress that had seen its best days harvesting and emerged on deck. To emerge from a cabin is the only way to describe it, the entrance is steep and narrow and awkward, especially on the motor where one has to avoid the gear handle and the steerer, who wants one out of the way as quickly as possible. The result is a series of bruises about ones shoulders for the first week; after which one becomes agile from necessity. We were on that occasion all set, that is we had our loading orders for London Docks and nothing to collect from the Depot. So in grand we sailed past the Depot, I can't remember anything about Hayes Corner ‘A famous and fateful spot’ then and on for the top of the locks where we were to tie for the night. <br/>
+The run down to the docks was peaceful as there is no traffic on a Sunday evening. The water is good, one only has to slow down to pass lines of little bobbing pleasure boats that have been bedded down en route or long swaying herds of barges creaking and slamming each other in an elephantine manner; sometimes if badly tied swinging savagely out and snapping at ones heels. A snap from a twenty tonner is no joke. You creep past with a weather eye and scarce a ripple from your bows. "Little Rosie, Gert Winnie or Golden Girl gives a wild lurch, a groan and sinks back to eye you morosely and vengefully. </p>
+<p>The evening was warm and lovely, the sunlight golden making kind the endless rows of little suburban houses and tiny gardens. The sweep of the golf links green and rich dotted with sheep and small figures moving slowly across the artificial hillocks in search of pleasure. I looked and looked and breathed the sunlight, felt my hair lift in the breeze and felt utterly indescribably alive, happy and free. The beat of the engine gets into ones blood and makes it race and we were moving too. Kit explained that the butty was short strapped on cross straps for travelling light and that my job was to stand at the long wooden tiller of the butty and if her stern got too near the bank I was to put the tiller in the direction I wanted her to go and swing her away. Easier done than said, thought .I and found out otherwise. Through some of the more gingery and difficult bridges she showed a surprising and alarming tendency to swing in from the motor right in under the curve of the bridge to the danger of life and limb not to mention the chimney and the water can. Both these articles are detachable in times of crisis, frequent in ones early days. One has to do a lot of chimney removing. We chugged steadily rhythmically and easily onward. After a while Kit sent Kay onto the butty and took me along the catwalk of planks laid along the cross beams of the boat which are level-*with the gun whale and therefore suspended about 4ft 9 ins above the bottom of the hold, to the fore end of the butty. The motor slowed down the butty bows slid forward level with her stern counter Kit jumped lightly down followed not so lightly by me. </p>
+<p>The stern of the motor - sits down in the water when one is travelling light and her bows rise in comparison. Both boats have a draught of about four foot, nine inches when empty, no draught at all to speak of, so that the difference between loaded and empty boats is incredible. Especially to the steerer who has to see round her cratch when empty. The cratch is the wooden triangle at the bows which is the fore point of the sheeting up framework. Now, I began to wonder about my relationship with boats. Kit told me to sit on the cabin roof and I was terrified to realise that I had to walk round the gun whale which appeared to be about six inches wide and jump onto the cabin roof which has a depth of about three foot from the gun whale. God! I did it in a terrified way and thought eyeing the dark green swirling water slipping between my feet, what is going to happen if I miss it when I jump off. However that could wait, the view became suddenly breathtaking, we had left Suburbia behind and after miles of factories, warehouses and barges, suddenly rounded a long bend, there before us lay two huge gasometers, one camouflaged, one white and dazzling, a long curving white concrete edge of canal before we reached them/beyond which lay London at our feet. All the spires drifting smoke and the immensity of it. In the immediate foreground lay Paddington shunting yards. Someone murmured something about bombs and we looked at those snaking masses of rail, thinking how easily one well placed bomb could have finished them off or heavily disorganised them. Italian prisoners, the first I had seen, waved at us cheerily looking good in the dark green battledress they wear, some more dashing with red tam-o-shanters.</p>
+<p>On we went, the warm summer breeze whipping the water into a semblance of those little grey green waves in Botticellis Venus. The clouds golden and warm above the golden haze of the distance it was all an Italian painting, gasometers included. We beat into their shadow and our world went dark-- on a little further, bridges and railways everywhere. Kit said we would soon be in the slum area. Tall buildings blank walls rose on either side of us, cans bobbed in the water and the grass on the banks went dead. The towpath had an evil look about it and the walls turned into houses with blind eyes and balconies that over hung the Cut. The dirt was incredible filthy curtains, filthy windows, carpets hanging over balconies and only odd scrawny scarlet geranium here and there to cheer things up. One old bald headed man with a shiny ruby red face and an incredibly fat belly, attired in his shirtsleeves and very unshaved, gave us a toothy grin. A sudden babble of yells rose from the other side of the Cut where bathing naked in the canal were a large crowd of youths, some swimming vigorously towards us others drying themselves round a large camp fire. I watched them curiously, the ones in the water looking exactly like seals their hair streaming over their faces. Their horse cries making little sense above the noise of the engine. They yelled and whistled until we disappeared, one or two others watched us pass or dived hurriedly into the water.</p>
+<p>The canal widened and after a series of wide sprung bridges and a reach of canal far statelier in width than it's surroundings warranted and a particularly filthy stretch of flats known as 'Valentine's Row', we reached Paddington stop. Here, when loaded boats are gauged or tested to find out if their draught is the same as it was when the boats left the docks. When travelling empty you can if you wish collect water, but you have no luck with the office. It's a narrow place through which boats can go breasted up - but in any case one has to creep, as otherwise a tidal wave would submerge the company offices, a nasty jar for them! Just beyond the stop is a wide turn - you creep from under the bridge, swing widely through another narrow bridge and into the tunnel. As it was Sunday there's no need to enquire the 'Tug was coming through'.</p>
+<p>On weekdays this is a ritual because every half hour or so a busy little tug collects the light barges going down and takes them through to the top of the locks and brings the loaded ones back up. We whistled through the engines suddenly alarmingly loud and hollow - the air, cold and clammy and the water ink like and slapping violently at the sides. We were out in a few moments - two more bends between towering warehouses; suddenly we were there 'The top of the locks' Camden Lock! We slowed down, Kit released the butty from its shorts straps — handed Miranda the cotton line with which she walked up to the bows climbed round the cratch slipped the noose and was ready to step calmly onto the butty bows as they slid past, do the same to her, the two boats swung together gently.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/06/a4060306.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-609">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-611"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-611" id="name-611">
+                    Memories of a Canal Boater [J.Peters : Part 3] <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-611" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Bournemouth Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a4060388.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>At Appleton where a collection of G.U.C.C. boats. "Beer" said Kit some were loading, others just waiting. Boater youths, brown or red faced, mending ropes, or bailing water, tending to give us quiet looks. The women were chattier, mopping the roofs of their cabins or scrubbing the woodwork. Strong and stocky, most of them with greasy hair, brown skins and brown eyes. Coloured scarves worn three comer ways round their heads, blouses and skirts. None in slacks. The older women in dark clothes, all with aprons and busy. Children in most of the hatches, dirty and scruffy most of them with torn clothes and unwashed faces. But finding ourselves, how difficult it was to keep clean, we decided one could never tell, unless at very close quarters if it was one weeks dirt or merely the accumulation of one day! We went on and on and after about ten hours travelling drew towards the Hayes Depot. The huge silver gasometer marking it with an unmistakable beacon in the evening light. " Breast up, ready to tie before the bridge and then go round to the right" said Kit." All loaded boats tie there on the way up country". Sound your horn very well before the bridge and sweep round, keeping straight in the centre of the Cut till your stern will swing clear of the bridge hole. Then go full ahead and put all your weight on the tiller. Miranda took one of the forty-foot shaft and stood poised on the bows, ready to give an extra heave if there were boats tied on the bend. We crept through, our engine beating gently, our stern swung clear and the engine roared into full acceleration, a fountain of white water burst from her stern, the full seventy foot of our boats pivoted slowly round. Miranda laid down her shaft and seized a rope to tie instead, the watching mechanics and boaters went on with their jobs. "Very nice" said Kit. And we all swelled unintentionally with pride. Because the corner is more than a right angle and only slightly over a boat length in width and for all that the Cut runs straight past the bridge on down to Brentford, there is very little room for untidy parlour tricks. So we tied up and ate our supper we lay next to Rosie someone and her husband a two handed pair of spotless cleanliness and trim beauty (both boats and people); and stern to stern with Dickie Boswell and his wife Lu. They were delightful, full of fun; both short and stocky, he was of Romany stock and looked it with a smiling cheerful face and an endless flow of conversation. Lu was plump and fair of face with pure platinum blonde hair, bleached to a gold not from a bottle, tied roughly back from her shinning rosy cheeks. They had three flaxen haired children - hopelessly dirty and full of beans and all under five. They knew Kit very well and talked across the stern of the two boats while we ate supper sky larking between each other like a couple of kids. Kay, who was feeling unappreciative, went off for her beer. I did some washing, then wrote to the gang, one of whom had sent me a parcel. I stretched myself in the last rays of the sun and eyed my dirty aching limbs. Must wash. But to watch the sunset behind the factory buildings was so much more exciting and to listen to Lu's shrill voice putting the kids to bed, and Dickey's backchat from the motor cabin where he was washing with noises like grampus. Further down the lay-by someone was fiddling with their engine the sound rose and faded away repeatedly in the quivering air. The boats bobbed gently as a pair of "Fellows" went down to the docks loaded. Taking the wide sweep of the bend under the bridge easily and confidently. The man on the motor going full ahead to pull his butty round and his stalwart daughter, her hair in curlers, rowing her tiller frantically and making it with apparently perfect judgement. Lu shouted and the girl yelled back resting on her tiller as she disappeared beneath the bridge. "Yes" thought I. "This is the life" and went happily to wash. Later on Dickey played a mandolin to lull the children to sleep and sang in a rich deep voice with Lu's shrill treble joining in occasionally. Kay landed on the roof with a thump and came in a flaming temper. "Christ! What a row - Never get any rest with those people! Ghastly tied stern to stern with anyone - oh God!" Her remarks subsided in bubbles and she washed vigorously, rolling herself up in her blanket after and curling up "Can't stand it - oh Christ! Too hot with the doors shut", Slam! Slam! Went the doors and some vibrant remarks went out into the now quietening summer night. Peace settled gently down and the world went to sleep. I felt disloyal to Kay who I liked but wished Dickey had gone on singing but didn't have long to wish it in. The next day we went north. I felt like the first adventurer. At first everything was silver in the sunshine. Cowley Bridge was just like a painting by Cotman - a little white stone bridge, still reflections, vast tall beeches towering above it -- Cowley Lock is lovely too. On, up the wide stretches of canal, everything misty in the sun. The same routine for locks. We did three locks each. Lock wheeling or getting the locks ready motor and butty. I learnt to take the motor in very gently, always on the right, touch the wall just beyond the gate, going into neutral as one touched; and then as ones boat straightened out reverse then the instant she came to rest or touched the sill forward gear to prevent her slipping out releasing the butty off the towrope just as one goes in. The butty was the same drill with the addition of the towrope. A new and fright some thing controlled entirely from the butty. The length of rope is coiled neatly into the hatches behind one and runs over a stud round which it is twisted; along the length of the boat through "running blocks" to the mast where it passes through a shackle tied to the mast and lies neatly down the side of the sheets when not in use. From there it is seized by the motor and affixed to the stud as the motor goes out of the lock. The rope is held by the butty steerer who pays it out to the required length and then crosses the rope rapidly round the stud and checks it; with a special tie when this is achieved. As one has at the same time to steer, and we were constantly meeting boats coming down, waiting outside the locks to hustle us out" Life was an agony of anxiety! Kit took me lock wheeling on bikes, we tore along a towpath which was narrow and bumpy and seemed to have been chewed by a crocodile. Fishermen, who, as it was Sunday and late summer were beginning to appear in their hundreds, eyed us and our boats with dislike or shouted cheery remarks at us. Kit took very little notice and feeling much like Alice and the Red Queen (except that we were getting somewhere fast), I tore along behind her. One false move and it was the thorn hedge or the Cut. There was no time to be unable to crank those blasted paddles up now and up they went, slowly at first and then more easily. My arms ached and the sun got hotter and hotter. We climbed through the stately Georgian beauty of Casioberry Park and the people got denser and denser, Watford, Cassy Bridge, Iron Bridge - two hellish bends we didn't do too well, Lady Capels, Hunton Bridge and chain, Ricky, Black Lock, Cowley and Denham Deep were past history and might have happened a thousand years ago instead of this morning. The thicker the people, the more furious Kit got and the clumsier we became in our mutual anxiety to do our best. We moved babies off checking stumps-- "Oh! Do you mind -- your little boys- I’ve got to stop this boat!!" "Can you get away from the gates they open inwards you see?" We had to keep kids away from the paddles in case the checking tongue of steel slipped and someone's windless flew to do damage amongst the crowd. Miranda gave a sudden laugh and said "Fantastic isn't it!". Her fisherman's hat on the back of her head and her orange Breton fisherman's jerkin wide at the neck - a pair of grey flannels and sandals. I suddenly realised we did look odd ourselves, our faces streaming, our weird assortment of clothes. Kay became sophisticated and spoke politely to people. Miranda's eyes laughed and her cultured accents cleared little Ernie and Jim more quickly than ever we could. Kay looked like something from Hollywood her red gold hair shinning in the sun - her thin clinging shirt and slacks and graceful figure. I was just hot. We drank deeply between locks, no rest all day, except for five minutes on the roof now and then. Kit lock wheeled for us for necessity demanded a bucket. By night, when we tied up at seven, we were dead. "Fishery" half way to Iring Summit. A lock between a graceful white stone bridge with a Georgian balustrade. A good pub. We washed, Kay went for a drink with Kit - I envied her energy and the pub but I didn't like beer and I vaguely disapproved of women drinking, so I ate, read, ached and went to sleep. I wondered what Miranda did in a vague way but very vaguely. The next day was much the same only by the afternoon we reached "The Cow Roast" and the Summit. A toothless lock keeper like a hen checked us and gauged us and we realised that we'd finished the first upgrade of forty-four locks from London. We went swinging easily on the longer snubber across Tring Summit and having being told at the Cow Roast that we should be "Locked up" at Mathas owing to water shortage - so we tied up at four pm. Kay and I ate enormously and planned great washes. I had mine first and sat on the deck, she splashed and I drew a couple of "Barlows" that had tied up behind us. Lovely they are, much lighter than G.D.C.C. boats in frame with "Bologna" engines. They have, I think the most fascinating beat on the Cut, uneven and exciting with a sort of wild natural rhythm about it! Wow! They are painted very daintily with a white strip round the bows and stern, gay bunches of flowers to end and edge it. On their deck hatch they have a scarlet heart on a white ground and the doors to their cabins are painted traditionally with roses and castles; so are their water cans and Arn bowls. By the type of painting on these articles you can tell where they come from. Whether it be Braunston yards - which favour a dark green ground and roses and castles or Bedworth which have a lighter more orange and yellow flowery style. There is yet another style of painting from Messrs Harvey-Taylor's yard at Leyton Buzzard. I think they are a subsidiary to Nurses at Braunstone and as such not important, although their boats have very nice castles painted on the side of their cabins. Still so have "Fellows". Next day in a cold white mist we went down Mathas. The butty, one checked going into the lock but didn't tie up, it had an irritating thumb string to remember which was attached to a minute steel thumb under the gate and with which one stopped the butty swinging out of the lock with the motor, the moment the gates opened. Irritating because it entailed having to leave it on till the toe rope was picked up and flip it off in time to deal with paying out the towrope! There were fun and games until we learnt how to do it! We had to keep the butty "Up" near the front of the lock and see her "Elum" didn't sink onto the sill. She was then taken back on a string by the motor as soon as the sill became visible, dropped and picked up by the towrope. The white mist, the pair behind, the fact there was a pair waiting for us at every lock. That bloody thumb string was the final straw. Failure to deal with it at exactly the right moment meant both boats sailed out breasted and in short pounds it was to hard to get them apart in time to get round and in the next lock. The boaters were kindly, most of them knew Kit well and were ready for the strange things her crew might do. The days past rapidly and peacefully enough. We learnt our muscles were getting stronger and life wasn't quite such a rush. Beyond Mathas, the locks stretch on over rich farmland flat on either side - the locks every half mile or so. The harvest was rich that year and I remember lock wheeling, the scent of the corn making the keen air of the heights sweet and gazing enthralled at the golden land, chequered with sheaves that stretched away on either side. An occasional green stretch dotted with black and white cattle to break the monotony. The winding blue ribbon of canal with its white concrete edges broken by tall rustling bunches of reeds. The grey house of a lockkeeper standing over the black and white gates of the lock. Or an occasional warm red brick farmhouse sheltered by haystacks and tall poplars, as the only habitations in sight. Little white bridges, clumps of willows as we came down to Leighton Buzzard and even richer, greener cattle land stretching away to the little red brick town. Silent grey herons that stand rigid, ugly and yet graceful between the reeds. Busy little moorhens bustling like agitated bees in and out of the dark overhanging banks and clucking with irritation at the intrusion of Battersea's vast bulk. Past Harry Taylor’s yards, an untidy jumble of sheds with a boat on the stocks; a few dirty boats haphazardly tied beyond. Round the sharp bends of Leighton, under the bridge with the little straight silver horn sounding shrilly to warn other boats of our coming and people gazing curiously down. Through the Jackdaw pound noted for its bends, bad muddy stretches and blind bridges. Long pounds now with time to check our stores, tidy the cabins and polish our brass-Stoke Hammond-Talbot, Fenny. Fenny with the pub that is every boater’s store where one does all ones shopping- and buys stacks of tinned milk. Water gauging and a revolting man for a lockkeeper. Fenny is quite a place. We spent a night there and I thought of the holiday camp where the College was spending its holiday-harvesting. Somehow the idea didn't fit, although I found out later they were much nearer than I thought, and I regretted it promptly. From Fenny there is a six-hour pound to Stoke Bruene. Seven uphill locks with a lockkeeper who has no teeth-watery blue eyes ~d a soft spot for Kay. Miranda refers to him as "that old horny goat ". An exquisitely pretty village with a pub, a church, poplars, a row of cottages in grey stone. The last lock being tucked inconveniently, as locks go, under a bridge, we stop there and I am told of Sister Mary, who is to tie a finger Miranda has damaged. Her father was a Cut doctor and left a bequest in his will for Mary to look after the boaters which she did to the extent of always being dressed like a Commandant with a white headdress. She was a legend from one end of the Cut to the other. Her efficiency was doubted as Miranda came back from her visit startlingly arrayed in a sling and instructions not to use the hand for three days. "Wait till we are through the tunnel" said with a giggle, as Miranda announced her opinion of “this nonsense".</p>
+<p>We set off on a long snubber, Kay on the motor, Miranda and I lying flat on the roof of the butty for my first tunnel-Blisworth-two miles long-just a rabbit hole in the steep green side of the hill. We put on our headlamps and go into the unfathomable darkness slowly, feeling our way down the right hand wall. The air goes damp and cold, the water sloshes and slaps, the walls shine with dampness. Drips hit me on the arms and legs at intervals. The engine makes a terrifying roar and one can hear crashes in the dark and see no motor at all. The crashes cease, an arc of light appears round our bows and curves across the roof. "Keep your bows in the centre and you will always be alright. If you see anything coming keep to the right and go slowly." The stern of the motor was now in being with Kay looking tense and never turning, steering carefully suddenly the engine roared into life and we seemed to fly through the narrow space. Kit remarked that if you tried to keep the butty in the centre it simply didn't and it was difficult to stop oneself over steering in a tunnel. We passed under a great funnel of light leading to the sky, "Look up" commanded Kit and I did.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/88/a4060388.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-611">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Hayes and Coney Hall: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>133</dd>
+                            
+                                <dt>Parachute Mine </dt>
+                                <dd>1</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Hayes and Coney Hall </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

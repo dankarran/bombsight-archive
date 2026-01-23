@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Brompton - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922406400000, 3]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.179584990128557, 51.49148245258997], [-0.17840844564392899, 51.492065411993302], [-0.17906291707421501, 51.495343080523973], [-0.17957095263911299, 51.497778654610109], [-0.17356712902226701, 51.498220787194093], [-0.17355947205097799, 51.498299767325115], [-0.17248428880948199, 51.49839079168563], [-0.17247217206163401, 51.49846872617654], [-0.171805115079738, 51.498531673636442], [-0.17180120975889099, 51.498606780201364], [-0.17149905542999799, 51.498686657123407], [-0.16964539661509401, 51.498901660309599], [-0.16841508728195401, 51.499020715001649], [-0.168203541704879, 51.498996756707534], [-0.168052335808278, 51.498882688780547], [-0.167930881360287, 51.498520810824914], [-0.16764528678962201, 51.498299824603556], [-0.16580391086510499, 51.499240684905402], [-0.16550572198444, 51.498696754147467], [-0.16285876746941599, 51.500128687189083], [-0.16259917245354299, 51.500291677686619], [-0.16236776437467501, 51.50047057926006], [-0.161571058390682, 51.501225541871079], [-0.16134542484261599, 51.501394550152717], [-0.16102514190521999, 51.501588483360266], [-0.16078191622627999, 51.501702554132351], [-0.16059025930231299, 51.501765590386817], [-0.158601047541857, 51.502233603628397], [-0.15847345020807099, 51.502249022293356], [-0.15850395414047, 51.501514640348411], [-0.15852607803909799, 51.501412701689226], [-0.15851694630800001, 51.501259681732449], [-0.15843684869622601, 51.501079561557674], [-0.15787526286109199, 51.499016797306453], [-0.156097993410798, 51.497761111325218], [-0.15604860579753299, 51.497512050573761], [-0.157030969004016, 51.497423097728195], [-0.16175724937869701, 51.496889020215946], [-0.16278701126352199, 51.49678516331096], [-0.16290133518203001, 51.496786107088518], [-0.16344799355568901, 51.496268183323927], [-0.16417856914364201, 51.496551083537717], [-0.164554137038776, 51.496190102560391], [-0.16473969196400301, 51.496121061907978], [-0.166347351171893, 51.495213241094369], [-0.16682183219385699, 51.494877253084375], [-0.168075272827067, 51.493931273767032], [-0.168337858455927, 51.493669816588685], [-0.168921874162375, 51.493722777710893], [-0.16901479627814101, 51.493493366736587], [-0.169117107190427, 51.493389307818774], [-0.16973025688507501, 51.49302933982505], [-0.16849460567848901, 51.492207607283675], [-0.16962729382977201, 51.490834687783426], [-0.16984602016466499, 51.490543600906101], [-0.16984080096877499, 51.490471712934678], [-0.169776802853919, 51.49033863911616], [-0.17010975122410699, 51.490252783109995], [-0.170685714650255, 51.490820576360939], [-0.171798224870748, 51.491862507825822], [-0.17376314795761499, 51.490635718754149], [-0.17566356311789, 51.489375719702885], [-0.176919784077294, 51.490360536384962], [-0.17722900887269399, 51.490643554114939], [-0.17753649031593699, 51.490992576731664], [-0.17921875558778899, 51.490166672425538], [-0.18010867692514199, 51.491286423295918], [-0.179584990128557, 51.49148245258997]]]]}, "type": "Feature", "id": 1384, "properties": {"pk": 1384, "name": "Brompton"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Brompton, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Brompton, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Brompton</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Kensington and Chelsea</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Brompton
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Brompton, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Brompton: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>42</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Brompton</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-772"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-772" id="name-772">
+                    Kathleen Cartwright -My Experience of Life in the Wrens <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-772" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Huddersfield Local Studies Library (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a2843840.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story has been submitted to the People's War site by Pam Riding of Kirklees Libraries on behalf of Mrs Ashton and has been added to the site with her permission. The author fully understands the site's terms and conditions.<br/>
+Early in January 1944, I joined the Women’s Royal Naval Service after having been employed in the Dewsbury Civil Defence Offices from the time of leaving school.<br/>
+After initial training as a teleprinter operator in London, I was sent to Hampshire and accommodated in a Fort in Fareham. From there I was transported to the hills above Portsmouth to work in SHAEF (Supreme Headquarters Allied Expeditionary Force). One had to go down numerous steps to a busy underground establishment. The personnel who worked down there were on watches (shifts) working eight hours ON and OFF duty for a period of 72 hours. I also learned that personnel who had worked there for some time had to undergo regular sunray treatment. After one spell of duty, however, I was called to the Duty Officer and informed that I was to return to London and I had no idea why I was being moved so quickly. Issued with the requisite railway pass, I returned to London and my instructions were to report to a new billet at Princess Gate, South Kensington. Next day I was told to report to Norfolk House, St James’s Square and thus became a member of staff of the Allied Naval Expeditionary Force (ANCXF) under the command of Admiral Sir Bertram Ramsay. My address for the remainder of the time I was with them was Naval Part 1645, C/o GPO London.<br/>
+I soon realised that the work was of great secrecy and importance and that we were the Headquarters for the Allied Naval invasion of Europe. We received and transmitted many signals in connection with “Overlord” referring to Mulberry Harbour, Pluto Pipe Line, etc and much information which became news items after the successful liberation of Europe. When a “top secret” message came through on our teleprinter it had to be sealed and stamped by the duty officer and then delivered to Admiralty house by whoever had received it on their machine. We were working eight hour watches involving mornings, afternoons and nights. I dreaded the “top secret” message coming through on my machine, having never been out alone in Dewsbury, my home town, during the middle of the night, but sure enough, on one occasion it did, at 3.am. It was totally black outside and I ran all the way to Admiralty House at the top of the Mall and back again. I was thankful that it only occurred once, but maybe I would have felt less afraid a second time at being alone in the middle of the night on the streets of London.<br/>
+There were about 100 Wrens in the party and in April we were sent to the South of England to Southwick House, about seven miles from Portsmouth. Most of the girls, having been in London for some time, were sorry to leave to go to a remote area and there were groans as the coach set off. However, being a cheery crowd, with the usual British sprit, everyone settled down to accepting a change of venue. The spirit was flagging somewhat when out destination was reached. We came to a pretty village consisting of about two dozen houses. Masses of barbed wire and an endlessly long drive brought us to a typically old type of English Manor house. We learned it was called Southwick House. To the rear of the building were two long prefabricated sheds, still being prepared for us. The water was just being laid on and we had to scramble over planks to reach our respective quarters. I was quartered in a long narrow room with 14/15 double bunks down each side of a narrow space. Some folk would say, “What of it” and that “it could have been worse,” but considering we were all on duty at different times, it proved to be rather hectic. We worked the same hourly watches as in London, and every third day we had a turn on night duty. After a particularly tiring night we would fall into bed exhausted, only to be awakened about an hour later when a case would be banged on to our feet. Under the bunks was the only place to keep our cases and when the stewards swept the room, they hurled the cases on to the beds, regardless of any occupants. Nicely dropping off to sleep again, we could be wakened by chattering as off-duty Wrens prepared to go on duty after lunch. It was a hectic life but pretty soon we became accustomed to sleeping in snatches. To compensate, however, the weather was glorious and in our free time, we were taken by liberty boats (marine lorries) to spend a couple of hours on Hayling Island and to enjoy the sands and sea. The only occupants of the Island were members of the forces, as the civilian population had been evacuated. On occasions, also, we managed to get a lift into Portsmouth and visited the cinema. When jeeps passed us on the roads we could always rely on a lift by the friendly American allies, but all the same it was better to travel in numbers!<br/>
+The less said about the food, the better — cheese and minced beef dishes. On night duty the only meal consisted of corn beef, with margarine, together with crumbly bread from which to make sandwiches, but there were flies creeping around all the time which was off putting. I was lucky to have received some jars of jam from home, but with wasps hovering around, it was almost impossible to eat it.<br/>
+The teleprinter room was a hive of activity and we could never relax for one moment as we sent signal after signal in connection with the coming most important event of our lives — the liberation of Europe and the end of the war. Whatever the discomfort, no-one objected; everyone was too intent on their work and the small part we were playing in this moment of history. I welcomed the change from routine when I was transferred for a short time to the deciphering room, which overlooked the official courtyard at the front of the building. We witnessed the arrival and departure of some very important and high-ranking officials. I shall always remember glancing outside upon hearing a jeep stop with a squeak of brakes. Out stepped “Monty” (General Montgomery). He glanced towards our window and raised his hand in salute. He looked so cheerful and friendly — such a busy person and yet he found time to acknowledge us with a wave. He wore a long grey pullover and his famous beret — nothing to signify the importance of his position. Shortly afterwards, General Eisenhower stepped out of his car — followed by his little dog! Next came Air Marshall Tedder — he was so tall and stately — immaculate in his blue Air Force uniform. We became quite used to seeing these important leaders and on one occasion, Winston Churchill passed on his way to the control room. With all these comings and goings we realised that the invasion was very close indeed.<br/>
+On June 5th we were told by the Commander that the invasion boats had set sail for Europe. On that evening I was on night duty and knew that it was the most memorable occasion of my life. At midnight, the Commander told us that in 20 minutes our first airborne troops would land in Normandy.<br/>
+The office seemed chilled with expectance and no-one could speak, for I am sure that waiting for news is almost as bad as taking part!. One could imagine all the dangers and what a risk was being undertaken and the lives of our brave invaders being so much at risk. I thought of my folks at home, soundly asleep, little knowing of the momentous occasion taking place and I offered silent prayers on behalf of all those taking part. Our first official news came through in the early hours from the “Augusta” and the “Scilla” — all was being carried our according to plan. Within a matter of days our teleprinters were all connected to the ones in Normandy which were manned by the Marines and in between messages we were able to glean a little of what life was like on the other side of the Channel.<br/>
+The night following the invasion I was not on duty, but during the evening I watched the hundreds of gliders being towed across to France and felt very proud indeed to have helped, even in such an insignificant way, towards the culmination of such a great operation.<br/>
+Life went on and we began to lose more sleep, not through our work, but by visits from flying bombs. Orders were that the off-duty Wrens had to go down to the cellars and stay there until the”all —clear”. The first night we trundled down carrying blankets and tin hats and settled down in the cellar. None of us could sleep, but all was in darkness when suddenly the girl next to me quietly started to fold up her blanket and move off. Being curious I did the same and much to my surprise, on reaching the half-lit passage, I saw a long line of girls, all creeping stealthily along in order not to waken the officers, for we would certainly have been sent straight back. Someone dropped a steel helmet and we all “froze” but no-one came and thankfully we trecked back to our quarters. In spite of the “doodle bugs” we managed to have a night’s rest and next morning were able to face being “pulled over the rolls” for disobeying orders. The officers only discovered our disappearance some three hours after we had all vanished. The next night I was on duty, so was not obliged to sleep in the cellar, but the girls who were, again refused to stay down, complaining of beetles and mice. We were all ordered to parade and asked which we preferred —beetles or bombs. To which, in chorus, we replied “bombs”. The powers that be decided not to enforce the rule about staying in the cellars during the air raids until proper facilities were provided. The next week was quite a “pantomime” — we would cluster round the windows, watch the red light on the doodle bug and then, when the engine stopped, everyone disappeared like lightning under the bunks. The word “fear” was never mentioned and it was fortunate that we treated the incidents in a light-hearted manner. After a full week had elapsed, with the flying bombs circulating around us, it was announced that the cellars were now fit to sleep in. Three-tiered bunks had been neatly arranged, walls whitened, floors scrubbed and everyone issued with extra mattresses. However, once the accommodation was provided, the sirens never went again, so we did become prepared for bombs, but a little late!<br/>
+Following the invasion out Group (Naval party 1645) eventually left Southwick House, our work completed in England. Many members continued with the party into France and were finally disbanded in Berlin. It was a sad day when we left Southwick. The months we spent together in London and then Southwick united us in a very special bond of friendship. I still keep in touch with six of the Wrens — after 50 years!<br/>
+As my marriage was arranged to take place in October, I opted to stay in England and moved to “HMS Duke” in Great Malvern — a shore establishment for new recruits. I was there for a few months and then finally moved to Scarborough where I worked at the Signals Station on Irton Moor until “V E DAY”</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/40/a2843840.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-772">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-817"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-817" id="name-817">
+                    What I Did in the War. <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-817" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by claxtons (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/62/a2902862.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>WHAT I DID IN THE WAR </p>
+<p>I do remember “the day war broke out”, that<br/>
+is of course the second world war. I was just 10 years old.</p>
+<p>First of all the air-raid sirens went almost immediately, shortly followed by the “all-clear” - a false alarm. Secondly I remember being quite upset and crying after I had gone to bed, because I was afraid. </p>
+<p>It must have distressed my parents. We already had our gas masks and our identity cards - I still have them both. </p>
+<p>We had to carry the gas masks with us all the time. Later on, an additional section was added, due to a new potent gas.<br/>
+ <br/>
+Nothing much happened in the first year, except that our schooling was interrupted. Ann and I and a few others living locally went to school at the house of a teacher who lived nearby (about a half-a-mile away instead of 1 1/2 miles). </p>
+<p>I think that lasted for the first year but then we went back to the school, just in time for the real war to start.</p>
+<p>The Blitz</p>
+<p>The battle of Britain started in August 1940 and we saw some of the dog-fights high in the sky. Also the bombing started and we spent some time at school in the air-raid <br/>
+shelters. Mostly we sang songs. There were benches to sit on, along the walls.</p>
+<p>At home we also had a shelter - of sorts ! Our house was a mainly wooden bungalow  with a corrugated-iron roof, raised on stilts (for flood protection) and the shelter was built under the only room which was made of concrete blocks with a tiled roof - which happened to be my bedroom. </p>
+<p>The floor of the room was laid with old <br/>
+mattresses and there was a trap-door in the floor to getinto the shelter (there was also access from outside). Underneath had been dug out a bit and sides had been <br/>
+added (of wood).</p>
+<p>We had a paraffin stove for heating and cooking and took down hot-water bottles and blankets, because we had to spend nearly every night in there during the autumn of <br/>
+1940.This was because the German planes attacking London headed for the River Thames and had the extra land-mark <br/>
+of the large reservoirs in our area.</p>
+<p>So in fact although we heard the planes going over we didn’t get bombing - except once. We had our local “blitz” one night. My father put out an incendiary bomb which landed in our garden and there were a number of small high-explosive bombs around the area. We explored the craters the next day.</p>
+<p>Apart from that, we had the noise every night of the anti-aircraft guns. There was a box barrage fired from nearby, which made a tremendous racket. (Shells exploded <br/>
+in a cubic area of sky and nothing in it could survive - but there was never anything in ours!) </p>
+<p>We collected lots of shrapnel from these affairs. Shrapnel could kill - one of the reasons air-raid wardens and others wore tin hats.  </p>
+<p>My father was an air-raid warden and was based at a post near our house. He was on duty some nights of the week. </p>
+<p>He also did night duty at the Natural History museum in London, where he worked. They had much more bombing and the museum suffered a lot, with incendiary bombs and high explosives, including a very big one called a land-mine.</p>
+<p>Many of the books from his library had been evacuated to the country, but some rare ones were caught in the fire and we had individual pages of unique books pinned <br/>
+on a clothes-line in our kitchen, to dry out. </p>
+<p>Before the war there were 15 staff, but during the war there were only two of them. They did have to provide information for potential targets from time to time.</p>
+<p>I think it was for his devoted work during the war as much as anything that he was awarded an MBE when he retired.</p>
+<p>Incidently he cycled to work throughout the war - 16 miles each way.I went with him a few times when I was big enough. It was exhausting.</p>
+<p>There was one occasion when he and two friends were in a fishing punt near the weir in Sunbury that they saw three planes going in to land at Vickers factory at <br/>
+Brooklands and they saw that the last one was German ! It had sneaked in that way and dropped its bombs on the factory.</p>
+<p>My mother was in the WVS (Womens Voluntary Service). On one occasion she mentioned in conversation that her father-in-law was an air marshall. She had missed out two words, because he was an air-raid shelter arshall! </p>
+<p>One of the things she did was to accompany evacuees on trains - this was while we were in Blackpool.</p>
+<p>The flying bombs</p>
+<p>I remember the flying bombs very well and, in particular, the night the V2 rockets started. They were very frightening because you couldn’t hear them coming - just the explosion when they landed.</p>
+<p>One Sunday we had a lot of people at the house and we went on an expedition up the river where we lived. At the end was a weir called Tumbling Bay and it was an exciting expedition because you had to get out and push the boat over shallows.</p>
+<p>After we had started back, the air-raid siren went, which in those days meant a flying bomb was headed our way. As we arrived back at our house we heard the bomb <br/>
+coming (Ishall never forget that noise) and heard the engine cut out. That usually meant an immediate vertical drop and so safety for us as we could tell it was still <br/>
+some distance away.</p>
+<p>I rushed to the top of the bank to look for the explosion and I saw the flying bomb apparently coming straight towards us - it was of the rarer glider type. I shouted a warning, then realised it was not heading <br/>
+quite our way. </p>
+<p>Well, it hit that weir at Tumbling Bay where we had been thirty  minutes earlier. Two people were killed and the weir flattened , causing the river to flood.</p>
+<p>Of course we realised afterwards that we would have set off for home when the siren went, anyway, so would have been safe, but a Dutch merchant sea captain visiting us that day, who had been through numerous <br/>
+convoys, said he had never been more frightened.</p>
+<p>I think it was that event as much as anything that caused my parents to arrange for my sister and I to be evacuated to Blackpool to my aunt and uncle, where we <br/>
+stayed from August 1944 till March 1945.</p>
+<p>The German prisoners</p>
+<p>Our house was almost beside the Thames River Board offices and one day agroup of men appeared working in the grounds. Their working clothes had large coloured patches on the jacket and trousers: they were <br/>
+prisoners of war.</p>
+<p>My mother made them tea and gradually my parents became friendly with them - one in particular named Eric, who in fact was nearer my age than theirs. </p>
+<p>Their camp was about 10 miles away and my father, my sister and I cycled there once to visit them in the camp. We were allowed in without any difficulty.</p>
+<p>After the war, Eric brought his wife over to visit my parents and they remained in touch for many years. I think all the prisoners appreciated meeting some <br/>
+ordinary English people, on friendly terms.</p>
+<p>Food</p>
+<p>As a child my diet was normal. My mother prepared the food and had the problem of making do during the war, when there were shortages. </p>
+<p>We did not have sugar in our <br/>
+tea and always had a surplus which could be exchanged with other people for other rationed foods (this was the fringe of the so-called black market).</p>
+<p>We had ration books, which were partly for portions of specific food, such as butter (two ounces a week) and partly for a choice of less basic items (such as tinned food) by use of a points system. </p>
+<p>The only eggs were dried eggs, in powder form. Some people were favoured by shop-keepers, hence the term “under-the-counter”.</p>
+<p>We always ate together as a family although there was a time when my father had a special diet to try to cure or avoid attacks of migraine - he  suffered very badly from these in middle age and could be prostated for two days at a time, about once a fortnight at the worst. </p>
+<p>He had always been keen on dieting for health, but didn’t inflict it upon the rest of us.</p>
+<p>School dinners started at primary school, just after the war started, presumably as government policy to ensure an adequate diet. </p>
+<p>Certainly I never remember not having enough to eat, although I have a <br/>
+recollection of seeing oranges for what seemed like the first time when visiting a Dutch ship in harbour in London near the end of the war.</p>
+<p>Immediately after the war food was just as short. I remember going to what were called British Restaurants, where the food was a bit like school dinners except that there was some choice. </p>
+<p>These were again Government policy. Rationing still existed when I got married in 1954, but only for clothing, not for any food.</p>
+<p>D Day and after</p>
+<p>D day caused great excitement, We had a map of France on the wall, with coloured flags for the Allies and the Germans and we listened to the news to find out how <br/>
+to move them.</p>
+<p>I remember seeing American bombers flying back from daylight bombing raids, sometimes with huge chunks missing where they had been hit.</p>
+<p>VE Day</p>
+<p>This was the day to celebrate victory in Europe. I think it was in June 1945. We had a big outdoor party at our house. All the scouts and guides were there and lots of other people. </p>
+<p>We had a bonfire on which we burned an effigy of Hitler. My parents obtained from somewhere a large number of coloured jars in which they put candles, so that we had <br/>
+coloured lights. All the flags that could be found were flown. It was a great occasion.</p>
+<p>VJ Day</p>
+<p>This was in August 1945 and I was at school harvest camp. We joined in the celebrations in the Berkshire village where we were billeted. They had a huge bonfire and we <br/>
+boys had great fun with the local girls.</p>
+<p>I had no understanding at the time of the horror of the atom bombs which had achieved this victory.</p>
+<p>	-------------------------</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/62/a2902862.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-817">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Brompton: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>42</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Brompton </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <h5><a data-toggle="lightbox" href="index.html#lightbox-carousel">Start Image Slideshow</a></h5>
+
+    <div id="lightbox-carousel" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+        <div class='lightbox-header'>
+            <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+        </div>
+        <div class='lightbox-content'>
+            <div id="carousel" class="carousel slide">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    
+                        <div class='active item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Builders of the &#39;Blitz Repair Squad&#39; enjoy a morning wash and shave at basins in the ablutions huts which form part of their camp in London&#39;s Onslow Square. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201085">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_1.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Builders of the &#39;Blitz Repair Squad&#39; queue to collect their breakfast from women of the Women&#39;s Voluntary Service (WVS) in the mess hut of their camp in London&#39;s Onslow Square. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201088">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_6.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Foreman J Wigley (from Darlington) discusses his day&#39;s work with his boss, contractor C Dougill, (of Dougill and Sons Ltd, Darlington) outside his billet at 16 Onslow Square, London. Mr Wigley is part of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201095">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_7.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                E F Knight (the surveyor for building contractor C Dougill and Sons Ltd., Darlington, seen here centre) hands out mail to builders from his firm who are part of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201096">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_8.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Women of the Women&#39;s Voluntary Service (WVS) hard at work preparing breakfast for the men of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help repair damage caused by V1 flying bombs. These women are volunteers from the ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201099">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_9.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                A view of London&#39;s Onslow Square, showing the ablution and mess huts which have been constructed in the road to house the builders (groups of whom can be seen around the Square) of the &#39;Blitz Repair Squad&#39;. This Squad is a team of builders who have come to London from ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201097">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_10.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Women of the Women&#39;s Voluntary Service (WVS) arrive early to prepare breakfast for the men of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help repair damage caused by V1 flying bombs. The women can be seen walking ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201098">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_13.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                Builders of the &#39;Blitz Repair Squad&#39; enjoy a hearty breakfast in their mess hut in London&#39;s Onslow Square before beginning their day&#39;s work. The original caption states that they have queued for a breakfast of &quot;bubble and squeak plus minute portion of chopped bacon, bread, margarine, marmalade and tea&quot;. -
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201086">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+                        <div class='item'>
+                        <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_14.jpg.800x600_q85.jpg">
+                        <div class='lightbox-content-overlay'>
+                            <p class="hidden-phone" >
+                                It is 6:30am, and builders of the &#39;Blitz Repair Squad&#39; prepare for the day ahead in the bedroom of their billet in London&#39;s Onslow Square. Six men share a room in a large house on the Square, which had originally been intended for use by refugees from Normandy. Five men ...
+                            </p>
+                            <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201087">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence</a><!-- jasia -->
+                        </div>
+                        </div>
+                    
+            </div>
+            <!-- Carousel nav -->
+            <a class="carousel-control left" href="index.html#carousel" data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="index.html#carousel" data-slide="next">&rsaquo;</a>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+    <ul class="thumbnails">
+        
+            <li>
+                <a href="index.html#200-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="200-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Builders of the &#39;Blitz Repair Squad&#39; enjoy a morning wash and shave at basins in the ablutions huts which form part of their camp in London&#39;s Onslow Square. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201085">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#201-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_1.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="201-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_1.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Builders of the &#39;Blitz Repair Squad&#39; queue to collect their breakfast from women of the Women&#39;s Voluntary Service (WVS) in the mess hut of their camp in London&#39;s Onslow Square. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201088">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#206-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_6.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="206-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_6.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Foreman J Wigley (from Darlington) discusses his day&#39;s work with his boss, contractor C Dougill, (of Dougill and Sons Ltd, Darlington) outside his billet at 16 Onslow Square, London. Mr Wigley is part of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201095">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#207-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_7.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="207-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_7.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            E F Knight (the surveyor for building contractor C Dougill and Sons Ltd., Darlington, seen here centre) hands out mail to builders from his firm who are part of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201096">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#208-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_8.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="208-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_8.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Women of the Women&#39;s Voluntary Service (WVS) hard at work preparing breakfast for the men of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help repair damage caused by V1 flying bombs. These women are volunteers from the ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201099">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#209-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_9.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="209-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_9.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            A view of London&#39;s Onslow Square, showing the ablution and mess huts which have been constructed in the road to house the builders (groups of whom can be seen around the Square) of the &#39;Blitz Repair Squad&#39;. This Squad is a team of builders who have come to London from ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201097">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#210-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_10.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="210-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_10.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Women of the Women&#39;s Voluntary Service (WVS) arrive early to prepare breakfast for the men of the &#39;Blitz Repair Squad&#39;, a team of builders who have come to London from various parts of the country to help repair damage caused by V1 flying bombs. The women can be seen walking ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201098">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#213-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_13.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="213-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_13.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            Builders of the &#39;Blitz Repair Squad&#39; enjoy a hearty breakfast in their mess hut in London&#39;s Onslow Square before beginning their day&#39;s work. The original caption states that they have queued for a breakfast of &quot;bubble and squeak plus minute portion of chopped bacon, bread, margarine, marmalade and tea&quot;. -
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201086">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+            <li>
+                <a href="index.html#214-lightbox" data-toggle="lightbox">
+                    <img class="img-polaroid" src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_14.jpg.64x64_q85_crop.jpg" alt=""><!-- jasia -->
+                </a>
+            </li>
+            <div class="lightbox hide fade" id="214-lightbox" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class='lightbox-header'>
+                    <button type="button" class="close" data-dismiss="lightbox" aria-hidden="true">&times;</button>
+                </div>
+                <div class='lightbox-content'>
+                    <img src="../../../../../static.prod.bombsight.org/media/images/iwm_photo_14.jpg.800x600_q85.jpg">
+                    <div class='lightbox-content-overlay'>
+                        <p class="hidden-phone" >
+                            It is 6:30am, and builders of the &#39;Blitz Repair Squad&#39; prepare for the day ahead in the bedroom of their billet in London&#39;s Onslow Square. Six men share a room in a large house on the Square, which had originally been intended for use by refugees from Normandy. Five men ...
+                        </p>
+                        <a target="_blank" href="http://www.iwm.org.uk/collections/item/object/205201087">Sourced &amp; Licensed from  © IWM Imperial War Museum Non Commercial Licence
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        
+    </ul>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

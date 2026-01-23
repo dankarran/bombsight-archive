@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Enfield Lock - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.041232640887726997, 51.669546037260361], [-0.041062351752600999, 51.6701199817686], [-0.040935781638510998, 51.670455922838173], [-0.040804214249434, 51.670718869654969], [-0.040447371276686003, 51.671279857213761], [-0.040219385579481001, 51.671598791957841], [-0.039265731307327002, 51.672813571518219], [-0.038382591742038001, 51.673838570295132], [-0.037527999749228998, 51.67464147674994], [-0.037190129152771999, 51.674929489833168], [-0.036555094670788997, 51.675420483525059], [-0.036083715441776, 51.675910269559132], [-0.035587558945408999, 51.676471306907835], [-0.035327114853844002, 51.67682833627115], [-0.035056539933044001, 51.677106225822357], [-0.034387565298011, 51.678150229389416], [-0.034276097548298003, 51.678386101681149], [-0.034175240069359999, 51.678711093704848], [-0.034068845990601997, 51.67928904415453], [-0.033879115319828998, 51.680788861803542], [-0.033808346546541003, 51.68110774564186], [-0.033419280059446999, 51.682491829451116], [-0.032994398017208999, 51.682469539162405], [-0.032961149358176997, 51.682506634724071], [-0.030700186095192001, 51.682417603288449], [-0.030661370488068999, 51.682541300290559], [-0.028403012512057998, 51.682329605486046], [-0.027713126858822001, 51.682247349118498], [-0.027587239814817002, 51.68218987516304], [-0.027129155077832, 51.682120495229299], [-0.026629051038764, 51.682082028544976], [-0.025977397966019999, 51.681993792807269], [-0.024717327974655, 51.681780118106332], [-0.024180163161454001, 51.681658392158667], [-0.023399388146118, 51.681525123802857], [-0.023196638414125, 51.681592946275657], [-0.022150129928704, 51.68147894459856], [-0.020960382327681999, 51.681290990376468], [-0.019798509815344, 51.681148467061874], [-0.017798430983940999, 51.681008501167845], [-0.015069038550299001, 51.680986289782844], [-0.012205125355112, 51.680877013071552], [-0.011091719446194999, 51.680867159440183], [-0.011154867328433, 51.680684588676833], [-0.011147558266336999, 51.68006749364006], [-0.010802964118024, 51.678935921039077], [-0.010460807883035999, 51.677295604642069], [-0.01034615777847, 51.676632159546649], [-0.010287560140478999, 51.676483917530334], [-0.010370113327212001, 51.676456650838652], [-0.010376094009723001, 51.676402653645873], [-0.010477199491959001, 51.676199795831877], [-0.010828362998692, 51.674994011134622], [-0.011377212544773, 51.671916089485578], [-0.011444044455243, 51.671112474210034], [-0.011397033046353, 51.670699774067671], [-0.011333634589796001, 51.670537813678074], [-0.010915061463079001, 51.66979657728465], [-0.01066249948162, 51.669487505495944], [-0.010612845537658001, 51.669350271484909], [-0.010585218569089, 51.669134827248875], [-0.010599417339344001, 51.669037552230982], [-0.010660567764872999, 51.668900887710294], [-0.01108073046018, 51.668243130837567], [-0.011245213914813, 51.667603658218852], [-0.011302929845519, 51.667152767458759], [-0.011518420435841999, 51.6638414296036], [-0.011435851891351, 51.663477667378444], [-0.011347113635798, 51.663295746888018], [-0.011258476323555, 51.663173414779578], [-0.010645639228464, 51.662474264325468], [-0.010209937682574, 51.662043393478633], [-0.0098577876858210005, 51.661768497968602], [-0.0099691208751900001, 51.661702519786061], [-0.010436565591107, 51.661924431887634], [-0.011317860963588, 51.662271383315037], [-0.011558090031642, 51.662089278559037], [-0.013775492032696001, 51.66242734571707], [-0.013771635841225999, 51.66247421505836], [-0.013913070647347999, 51.662484333031657], [-0.013938055489114001, 51.662431375251124], [-0.015245457639519001, 51.662684322487571], [-0.015941921184750001, 51.662795145432192], [-0.015993822395068, 51.662724225469283], [-0.017278239018421002, 51.662926189758025], [-0.017166392551098999, 51.663273036728221], [-0.017419776891083, 51.663348135778968], [-0.020018401202310999, 51.66346406292358], [-0.020386500823056, 51.663520140916717], [-0.020683238432888999, 51.663679003832158], [-0.020995986137755999, 51.663885061099322], [-0.021172315736733002, 51.664027970572192], [-0.021555305396848998, 51.664239989043217], [-0.022148833945903001, 51.664639892662827], [-0.022246179344484002, 51.664728927789575], [-0.022329074370958001, 51.66490089766959], [-0.022297153725288999, 51.665363894594918], [-0.022361893461074998, 51.665682807909569], [-0.022460298382839, 51.665809798691029], [-0.022664668546731999, 51.66595276363438], [-0.023049112823909, 51.666276792323551], [-0.023100818794474998, 51.666355776415735], [-0.023146146628311999, 51.666518687651219], [-0.023369198268075, 51.66664762855082], [-0.023966027649667002, 51.666349684523162], [-0.024080791442243, 51.666370722746905], [-0.024966674082167, 51.665951603627605], [-0.027017270640326999, 51.666203720324987], [-0.029198432845383999, 51.666342631410927], [-0.029159062260617999, 51.666937578528064], [-0.028954055431055999, 51.668058335740646], [-0.030228586448489001, 51.668201398833979], [-0.036222539809099001, 51.669023140326701], [-0.036123514420767999, 51.668157226948608], [-0.036483147431350997, 51.668201178584809], [-0.036684444496560997, 51.668207214535805], [-0.037268837681309001, 51.667965193289007], [-0.038902896369143999, 51.668155202351642], [-0.041397963799456997, 51.668500060291116], [-0.041232640887726997, 51.669546037260361]]]]}, "type": "Feature", "id": 1200, "properties": {"pk": 1200, "name": "Enfield Lock"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Enfield Lock, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Enfield Lock, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Enfield Lock</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Enfield</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Enfield Lock
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Enfield Lock, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Enfield Lock: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>31</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Enfield Lock</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-695"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-695" id="name-695">
+                    A Few World War II Memories of a young Boy <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-695" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by DENBAILEY (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/95/a4064195.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>A Few World War II Memories of a young Boy</p>
+<p>By Dennis Bailey</p>
+<p>I was born in September 1938 and was 1 year old when this Country went to war with Germany in1939. I lived in end of terrace house in the north-east area called Freezywater of Enfield in the then County of Middlesex which is just north of London. I had a Mum, Dad and two elder Brothers at the time.<br/>
+My father worked as a engineering machinist in a factory called ‘Enfield Small Arms’. This was a famous factory, renowned for the manufacture of the Lee Enfield Rifle as well as other weapons of war. His job entailed machining a part of a gun called the ‘bolt’. This was the item, that when the trigger was pulled, fired the bullet.<br/>
+He worked a shift of between 8 and 12 hours a day, six days a week. He was also a member of the ‘Home Guard’ and after work was expected to be on duty for as long as required while not at work. He would cycle to work (you could not get petrol or even to own a motorcar then) the Factory was about 2 km from our home. The main road, Ordnance Road, to the Factory was 1.5 km long and at the beginning and end of each working shift, this Road was completely full, impassable, with hundreds of cyclists (up to 8 abreast both sides of the road) going to or leaving the Factory. About halfway down, this road crossed a railway, by a level crossing, which was adjacent to the Enfield Lock Station. Of course, the level crossing gates were nearly always closed of the road when the Factory was discharging or receiving its workers and a huge traffic jam of cyclists would be created. There were two foot bridges over the railway, on the opposite side of the road to the station platforms. But the bridge nearest the road had steps and it was prohibited to carry a bicycle over this bridge and the other bridge was accessed by concrete ramps but cyclists were forbidden to ride bicycles on this one. Most days a policeman patrolled these bridges and caught lots of scuttling cyclists each day, trying to get to work, or home, on time. Also if stopped by the policeman, the bicycle would be scrutinized for defects, such as no or not working bell, no or only one working brake, no mud guards, no reflector or white patch  on the rear mudguard and if after dark, no lights. The miscreants would have to appear at the magistrate’s court and the standard fine for each offence was 10 shillings (50p). This was a lot of money when the normal pay was only about £5 a week for a male factory worker.      <br/>
+My Mother was a housewife looking after the home, and believe it was mainly her decision, not to send my brothers and myself to be evacuated to the country, so we lived throughout the war in Enfield. Being only a toddler, I did not venture very far from home until September 1943, when I went to a local infants’ school.<br/>
+Most of the early years of the war, the family lived in an air raid shelter called the Anderson Shelter. This shelter, known as a ‘dugout’ was supplied to our house and my Father with the help of neighbours and friends installed it in the back garden about 20 metres from the house. It was domed shaped with flat ends, approximately 2 metres wide 2.5 metres long and 2 metres high. It was made of made of corrugated, galvanized steel panels bolted to an angle iron frame. The ‘dugout’ was installed in a metre deep hole and covered with an earth mound at least 25 cm thick. The entrance was a 76 cm square hole in the centre of one end, at ground level. Against the entrance hole was a 76 cm cube wooden porch with a hinged door to one side, (facing the house) and a piece of sacking over the entrance to exclude any light from inside the shelter. The porch was also covered, except the door, with earth. The mound of earth covering the ‘dugout’ was sown with grass and in the spring lots of daffodils grew amongst this grass. Four bunk beds in two tiers with a small gap between were put inside the ‘dugout’ I usually shared a bed with my next older brother.<br/>
+The bunk beds were made of 10 x 5 cm timber frames with steel spring mesh tops. Bedding was made from cushion mattresses (probably from the armchairs in the house) and blankets. The only heating and lighting was from a small paraffin lamp and candles, torch batteries were not available items. A chimney was made from a bent piece of steel pipe to ventilate the lamp with fresh air, (it had to be bent, so as not to show a light at night). In the early years of the war, there was a problem with water seeping into the shelter, so a concrete liner, 10 cm thick, like a bath, was cast into the bottom of the ‘dugout’ (many of these liners exist today as garden ponds). It was always cold, damp and claustrophobic in the shelter; large people found it difficult even to get in the door! To entertain ourselves, we tried to read, write or play board games (e.g. snakes and ladders) by candle light, it was generally too noisy to try and listen to a radio, (there was no television then). Many hours, sometimes days, were spent in the shelter, only emerging for hot food and drink (it was impossible to cook in the ‘dugout’). <br/>
+Air raids went on almost continually when the weather was good, so you just had to stay under cover. I can well remember the enemy aircraft bombing London (the centre of London was 19 km to the south of or home), the light from the burning buildings, at night, was so bright; you could read a newspaper by it, (if you could read that is!). About 100 metres to the west of our house was an army anti aircraft (ack-ack) site. During an air raid the guns (at least 4 No 3.7 inch guns and a 40 mm Bofor’s gun) were fired repeatedly. The noise and vibration were terrific; our house had nearly every pane of glass broken, in fact by the end of the war, only one fanlight window remained intact. Even the pictures hanging on the walls had all their glass broken. The plaster on the walls was cracked and the roof tiles constantly had to be replaced because of the falling shrapnel and vibration. All the damage was repaired and made good after the war. At night the sky was also ‘lit up’ by searchlights, pencil like beams of bright light, that swept the sky for aircraft, and sometimes, with tracer shells weaving their patterns, it was brighter than bonfire night, but much more deadly.<br/>
+In 1941 a shell fired by this battery went astray and hit our house. It penetrated the upstairs external wall into the small bedroom, turned 90 degrees, went through an internal wall and ended up in my cot, fortunately (for me) I was in the ‘dugout’ at the time. This AA battery was observed by a German aircraft, which tried to bomb it, but the bomb landed on the front door step of a house in the next road north of ours and demolished the house. The bomb blast also blew the roof off our house, but this was quickly repaired by the emergency people.<br/>
+The AA battery was attached to a small temporary camp, which was a set of wooden billets surrounding a parade ground, with white washed kerb stones and a flag pole in the middle. The camp was surrounded with a fence of coiled barbed wire and had its main entrance in Bullsmoor Lane, after the war a housing estate was built over the site. You could hear a bugler play Reveille in the mornings and Last Post at night. Towards the end of the war it became a prisoner of war camp, housing mainly captured Italians. These prisoners were allowed out to work in the many greenhouses in the area, growing tomatoes and cucumbers.    <br/>
+One of my memories of these dramatic days was of the street gangs (of mainly boys), who used to assemble to play street games. They used to play cricket and football in the road and challenge other gangs to all sorts of matches. The gangs had no parents to organize them in those days it was strictly do it yourself and make any equipment out of odds and ends. I used to tag along with my elder brothers, Stan was 8 years older and Colin was 6 years older. I remember one group outing, because most swimming pools were closed for the duration, we went to swim/paddle in local rivers. On this occasion, we climbed over a farm fence out in the countryside about 2 km from home, to gain access and walk along the bank of a waterway called the New River, this was a canal which supplied fresh water into London. We reached a place, now roughly where the river crosses over the M25 Motorway, and proceeded to get undressed, down to our underpants Just then the air raid sirens wailed and we saw coming towards us from an easterly direction, low over Waltham Cross a single Heinkel Bomber that was machine gunning anything that moved across it’s track. The anti- aircraft guns were returning fire from all directions and we could see the shells bursting all around this aircraft. Then we realized that if it continued on this course, we would be underneath a lot of very hot, sharp, deadly shrapnel from these shell bursts. But as it reached about 1 km from us, we were about to jump into and under the water, the plane turn back the way it had come, disappearing in the distance over Epping Forrest. I believe it was eventually shot down. Another incident with a street gang was a stone and stick fight against another gang. Being about the youngest in the gang, I was told to be the first-aider. I was given a small white cotton bag with a red cross marked on it, strung on a piece of string to carry on my shoulder. It contained a handkerchief to use as a bandage and a bottle of water. The main ‘weapon’ was a catapult, made from a ‘Y’ shaped stick cut out from the hedgerow bushes, 5mm square rubber elastic band tired to the prongs and with leather cup, made from a tongue of an old leather boot fixed  to the mid point of the rubber band. The missiles were small round stones. The other ‘weapon’ was a stick, probably part of an old broomstick about 30 cm long, sharpened to a point at both ends. This stick was thrown, at the opponents, end over end, like a boomerang. But in our case the fight never took place, probably some parent heard about it and stopped it. <br/>
+In 1944, where I lived came into range of the ‘doodlebug’ — German V1 pilot less aircraft bombs. These weapons were probably aimed at the small arms factory, but usually over or under shot their target, landing and exploding on the surrounding houses etc.  The bombs, powered by a primitive jet engine, would drone across the sky and we were warned that they were harmless as long as we heard the engine running. But if the engine stopped you were advised to immediately take cover by lying face down on the ground, preferably in a slight depression and stay there until it was ‘all clear’. This was due to the fact that the bomb would glide down to explode at ground level, sending the blast outwards and upwards only. So if you were lying low, the blast would pass over you. This is what happened to me, I was running an errand, for my Mother, even though I was only 6 years old at the time, everybody had to share queuing for food, and was on my way home with a bag of groceries, when this doodlebug flew over, so I laid down in the gutter, with the kerb stone as protection, but it just flue on, so I got a ‘telling off’ from my Mum for getting soaking wet. Another tale about doodlebugs was, when one came down near our home, in Homewood Road. Late afternoon, I was playing with my younger sister and baby brother in the ‘living room’, my Mum was talking to a neighbour, when this doodlebug flew over, the air raid siren may or may not have sounded, they appeared and disappeared so quickly that there was not time for the alarm to operate, when the engine cut out. Us, children dived under the heavy wooden dining table, as was the practice in those times, closely followed by our large rotund lady neighbour. My siblings and I went sent sprawling out the sides, and the neighbour was stuck under the body of the table with her backside sticking out. The bomb exploded, but though the roof of our house was blown off, we survived unharmed and the neighbour beat an undignified retreat! The devastation from the resulting explosion was extensive; every house within 500 metre radius was flattened to the ground. I do not remember if there were any casualties, but recall that the emergency services cordoned off the area and barred everybody from entering until declared safe. The next day, a friend and I went down a back alley to see the damage and, as was the then custom of little boys, try to obtain trophies, like bits of doodlebug or shrapnel, but the whole bombsite was guarded by army soldiers.<br/>
+By the end of the war, I had a box full of shrapnel, busted steel fragments of anti aircraft shells, but it disappeared, probably in one of my Mother’s clearout sessions.<br/>
+War time for a child was scary at first, but as time went on, you accepted the situation and carried on with the hope that nothing would happen to you put to the back of your mind. At the end of the war, everything outside the home was unkept, unpainted and dirty. There was no one cleaning the roads, no one painting and decorating, the only paint available was for camouflage or blacking out. The grime was every where. In every road in Enfield there was a bomb site, with gaps in the houses, like broken teeth. I remember the blast walls built around door entrances, sand bags and concrete blocks for stopping tanks lining the roads and bricked up empty shops.<br/>
+These are some of my boyhood memories of those times ….</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/95/a4064195.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-695">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-768"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-768" id="name-768">
+                    The Crane Family&#39;s Story: Enfield <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-768" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Crane Family (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a2777033.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Crane Family</p>
+<p>The Crane family comprised our parents Alf and Olive, plus Tony, Peter, Ted, John, Jean and Kathleen aged respectively 8, 7, 5, 4, 3 and a baby. At the beginning of the war, we lived at 38 Ferndale Road, Enfield Lock. </p>
+<p>HARPENDEN, Herts.</p>
+<p>It seems likely that early in 1940 the three elder boys were evacuated to Harpenden and were taken in by the Seagrave family, at 33 Grove Road.</p>
+<p>Apart from the kindness of our new parents , some memories of our stay remain to this day. There were the 3 ponds on the common, containing crayfish, and they gave us much fun, particularly when they froze over. There was also rabbit hunting with the family dog, on the common. Schooling was a bit disjointed and we seem to recall two classes in a back to back arrangement in a local hall. Showing more attention to the class behind than to his own teacher, Tony was at some stage invited to transfer! All in all we probably spent some 6 months at Harpenden and then returned home more through homesickness than because the bombing had eased.<br/>
+Occasional visits by our dad entailed a 60 mile round cycle trip!</p>
+<p>1940</p>
+<p>The start of bombing led to the use of Anderson shelters sunk in the garden. Having a high water table (over gravel) they quickly filled with water. Waterproof cement solved this problem and they soon became our home during long nights of bombing. They were fitted out with bunks but we don’t recall much sleep, the sound and excitement of the local AA guns stopped all that. Trooping out into the shelter in the middle of a cold night was no joke either. Jimmy Newland, our neighbour used to crouch in the shelter entrance holding his pipe upside down to avoid giving away his position to low flying aircraft! Shrapnel could be heard falling around.</p>
+<p>At some point, a Morrison shelter was erected in the house and that gave a lot more comfort.  During our intervals at home between evacuations life went on as normally as possible. School was at St Joseph’s, Waltham Cross, where the school hall was heavily sand bagged to provide emergency shelter. One of the daily highlights was the collection of shrapnel - usually on the way to school - which entailed walking along with one foot in the gutter, gathering the jagged and highly treasured lumps, later swapped at school.</p>
+<p>Food soon became short and most basic items were rationed.<br/>
+Diets were supplemented by keeping chickens, rabbits and ducks in the garden. The chickens provided our eggs, but one always finished up on the table at Christmas, a very rare treat and the only time chicken was ever eaten.</p>
+<p>NORTHAMPTON</p>
+<p>Following a period of heavier bombing, we were again evacuated, this time Northampton with the Lester family, but we can’t recall the address or much about our schooling.<br/>
+We do recall street shelters being brick built and above ground, but not actually using them. A Saturday morning job was to take an array of shoes to the cobblers for repair, and bring home those delivered the previous week.<br/>
+Saturday afternoons were always spent at the pictures where the cowboy serial was most absorbing. The highlight was going back to a meal of crinkle cut chips!</p>
+<p>We believe that Mrs Lester worked in the local bakery.<br/>
+Other recollections include walking to school past white marble lions and through a park with friendly squirrels. At school we were taught by nuns. (Can anyone identify the school please?)</p>
+<p>MILLOM</p>
+<p>In 1944 we (Peter, Ted and John) were evacuated aged 12, 10 and 9 to Millom in Cumberland.  We believe we may have been there for six/seven months. Initially we (Ted and John) were housed some distance from our elder brother Peter, and we were unhappy at not seeing him each day. A postcard was sent home to mum and dad which we still have saying “we don’t like it here, we want to come home”. We were eventually all rehoused with a very kind family with 3 girls. We must have been quite a shock to them to suddenly have 3 noisy boys under their roof. But they treated us very well. </p>
+<p>We used to help local milkman with deliveries by horse and cart and recall ladling milk from a churn into enamelled tin containers, which were then returned to the respective doorstep. We all three liked milk and at school we regularly drank extra bottles (1/3 pint) which were not wanted by other pupils (school milk was free). </p>
+<p>There was an American airbase nearby at Haverigg and American airmen were part of the local community. We attended a party given by ‘The Yanks’ at the airbase and the food they gave was eye boggling for children on wartime rations, needless to say we ate our share.</p>
+<p>We still have many of our letters which we sent home to our parents and which serve as a reminder of our time away.</p>
+<p>WARTIME EXPERIENCES</p>
+<p>Living at Enfield Lock, we were but a stone’s throw away from the RSAF, (Royal Enfield Small Arms Factory), in Ordnance Road, where Dad worked during part of the war - a popular target for German bombers.<br/>
+One near miss was a ‘Molotov Cocktail’ basically a large container filled with incendiary bombs scattered in mid air.<br/>
+Note: Some contained sawdust.</p>
+<p>Word quickly spread that one had fallen in Salisbury Road nearby, and all four of us boys went off to investigate. The scene was chaotic, many bombs had failed to detonate and were being dismantled by groups of children, some hitting the detached detonators (to make them go bang!).  Others lit fires to burn the flammable body! Some bombs had caused a three inch hole to penetrate the pavement, but did not explode.<br/>
+We each selected a bomb , tucked it down our jumper and ran home with our prizes. Dad took hold of one, the guidance fin rattled, he thought it would ‘go off’, grabbed the lot and shot around to the warden’s hut to get rid of them. Thus we lost the rare chance to cause absolute mayhem! </p>
+<p>On another occasion during the Doodle Bug saga (V1’s) we stood on the doorstep around mid-day, and watched and heard one approaching. The engine cut out and it fell, apparently directly towards us. It actually hit a local school (Chesterfield Road) during the lunch hour, the children had just gone home. There was a tremendous explosion which  broke most of the glass in our house, and took the roof off. Our mum (Olive) was home at the time and escaped with some cuts to her face from flying glass. We were unhurt apart from minor cuts.  Our aunt, Mrs Baker - who lived next door had  been in Ordnance Road at the time and arrived home pushing a pram full of dust and rubble - and her son Christopher.  Our house was uninhabitable for some weeks, and we all slept in the public shelter at the end of Malvern Road with 30/40 others similarly afflicted.</p>
+<p>One of our ‘nice little earners’ at that time was to collect bark and wood off-cuts from the local sawmill and sell it around the neighbours. A popular ‘war game’ was to climb to the top of the cherry tree outside the house in Ferndale Road, and spot approaching aircraft. The sight of a V1 (Doodle Bug) always provoked a very rapid descent!</p>
+<p>Another memory was the sight of the ‘Lockies’ (workers at the RSAF) going home at the end of their shift on their bicycles, totally filling Ordnance Road on both sides of the road for almost a mile. A large concrete bridge was built over the railway at Enfield Lock station to keep the ‘Lockies’ moving when the railway crossing gates were closed for a passing train. </p>
+<p>There were 2 prisoner of war camps close to where we lived, one at Bullsmoor Lane, and the other in Sewardstone Road<br/>
+near the Royal Oak pub. The latter POW camp had a mounted machine gun which we lads assumed was there to shoot any prisoners who tried to escape. </p>
+<p>After the war ended Dad transported POW’s in the back of a lorry to areas of London damaged by bombing. The POW’s helped to clear away the rubble. They were taken back at the end of the day by Dad, to their POW camp.</p>
+<p>During school summer holidays after the war ended, we helped a local farm harvesting potatoes for pocket money. There were 3 or 4 German POW’s also helping, but we were paid a great deal more than they were. We got on well with them, and recall on pay-day buying them some cigarettes.</p>
+<p>Dad</p>
+<p>Dad had an allotment situated in Ferndale Road, next to what was then the first bungalow occupied by the ‘Long’ Family, and kept us supplied with many vegetables throughout the war. Dad’s hobby was shoe repairing and we all suffered cuts and bruises trying to copy him in his absence.</p>
+<p>Mum</p>
+<p>Mum, towards the end of the war did night work at Enfield Cable canteen,  Brimsdown about a mile away. She cooked meals for the night workers. We recall her saying that one early morning when she was cycling home she saw a parachute mine floating in the sky, fortunately, too far away to cause her any harm.</p>
+<p>Cooking was one of Mum’s talents and she filled us up with rice puddings, tapioca, fruit cakes, porridge and bread pudding. In the summer she made jam with blackberries, blackcurrants and crab apples. She bottled fruit for winter use and preserved eggs (from our chickens) in isinglass (like gelatine) in a bucket. She also made many of our clothes with her Singer treadle sewing machine.</p>
+<p>LOCAL BOMBING</p>
+<p>The following are some brief recollections of local damage resulting from the bombing and various other attacks:-</p>
+<p>1. A parachute mine fell in Willow road (Enfield) and a number of people including air raid wardens were killed.  Nos 293, 295, were demolished and rebuilt. Our brother Peter and his wife Jeanne later lived at No 293.</p>
+<p>2. A bomb in Ashton Road (next to Ferndale Road) in Enfield Lock fell on or near an air raid shelter and killed  Mr Walton.</p>
+<p>3. An Oil bomb fell in a field behind Ashton Road, the contents were meant to cause a fire, but this one did little damage. This location was then an area of allotments but is now occupied by flats.</p>
+<p>4. A high explosive bomb fell in the centre of the main Liverpool St. to Cambridge railway line near the junction with Ashton Road. It was repaired and service resumed the same day. </p>
+<p>5. Houses in Park Road , close to us, were hit by enemy bombs and 3 or 4 were destroyed.</p>
+<p>6. A V2 rocket fell in Highbridge St. Waltham Abbey and again a number of people were killed.  Another fell in a farm field along Sewardstone Road. As children, we searched both sites for souvenir rocket parts. In post war years the Gunpowder Mills, situated in Highbridge St. participated in the development of the rocket motor. </p>
+<p>7. 1944 saw the skies often filled with our bombers on their way to Germany.</p>
+<p>8. Maintenance work on (King George?) reservoir in 1956 revealed a German bomber in its depths.</p>
+<p>WAR END PARTY</p>
+<p>Huge street parties held in the street marked the war’s end.<br/>
+After the pounding taken in and near Ashton Road, it is perhaps appropriate that Ferndale Road joined them in their celebrations.</p>
+<p>Dad lit a celebratory evening bonfire  in Ferndale Road, outside our house (there was no passing traffic), and chairs were brought out for family and neighbours to join in the celebrations. Dad’s wireless set (a Murphy - 3ft tall) was moved to the front porch to keep family and passing neighbours up to date with information; Churchill’s speeches and general rejoicing. There was a great spirit among neighbours during wartime.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a2777033.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-768">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Enfield Lock: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>31</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Enfield Lock </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

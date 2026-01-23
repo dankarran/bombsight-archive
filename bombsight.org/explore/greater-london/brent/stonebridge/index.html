@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Stonebridge - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[[-922579200000, 3], [-922406400000, 2]] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.28839127566002198, 51.532027458054493], [-0.28731316247869099, 51.532362000907582], [-0.28648006190113001, 51.532650379732203], [-0.28591659918351298, 51.532813419652534], [-0.28578554840832399, 51.532907895556839], [-0.28567154232459702, 51.53306387290386], [-0.28529380198399501, 51.533080415059693], [-0.28403876523905802, 51.533517443583534], [-0.28353881837815198, 51.532818000245037], [-0.28162187235797298, 51.53324348415785], [-0.281152809449566, 51.532634133225869], [-0.28055220944822901, 51.532801520489066], [-0.27984298710088301, 51.532934015404642], [-0.27953052521905702, 51.533023577473834], [-0.279293430233857, 51.533121822478485], [-0.27907435074774001, 51.533291989040741], [-0.27894644600928997, 51.533445518505971], [-0.278882270514488, 51.533558527761507], [-0.27847352380245999, 51.534563878921233], [-0.27809745812498499, 51.534583369149452], [-0.277963799562567, 51.53496077348936], [-0.27788265117970901, 51.534985853145756], [-0.27788054963915398, 51.535029800374829], [-0.278137497188092, 51.535098351153316], [-0.27840196924939298, 51.535206201626224], [-0.27866450042007102, 51.535353792968557], [-0.27878754426791902, 51.535484300421857], [-0.27902076265008302, 51.53565674642779], [-0.27978479660042499, 51.536330155047096], [-0.280751232580981, 51.537146046423715], [-0.28160199663401903, 51.537815373003575], [-0.282563286685243, 51.538625685492505], [-0.28228029919055297, 51.538769213319156], [-0.28149640526866498, 51.539099299902553], [-0.27993166965712102, 51.540024217580537], [-0.27873068268595003, 51.540766173154331], [-0.27858480358027199, 51.54089414372077], [-0.27835976979570698, 51.541197140962936], [-0.27815874734551099, 51.541329071607279], [-0.27768574214189801, 51.541587120377102], [-0.27726988993290602, 51.541453463842487], [-0.27690049493311297, 51.54196296711833], [-0.27641682208451701, 51.542502991288259], [-0.27567608053575798, 51.543130976212012], [-0.27503427593595098, 51.543644922786441], [-0.27451115555493399, 51.543963769204439], [-0.27415015991620501, 51.544130854155391], [-0.27386129965018802, 51.544225803875847], [-0.27250573332002798, 51.544497823852673], [-0.27225462869724498, 51.544606806252737], [-0.27263958754218698, 51.54494983288474], [-0.27210654531309603, 51.545315723488912], [-0.27196471447012399, 51.545442760257401], [-0.27080487112208101, 51.547291580013869], [-0.27057799503164298, 51.547557583091518], [-0.26975300399338398, 51.548204381261257], [-0.26934312397556898, 51.548553392354165], [-0.26916881247757202, 51.548740361207344], [-0.26904528297742702, 51.54891936810683], [-0.268992929835281, 51.549099434196066], [-0.26900094919502099, 51.549363273338997], [-0.26918502597312199, 51.54995231652353], [-0.26920830089007902, 51.550170303180572], [-0.26916301107676099, 51.550449101764301], [-0.26907628789071097, 51.55060813591647], [-0.26887529008882499, 51.550809185807388], [-0.26767629813917598, 51.551688048175414], [-0.26693155422109299, 51.552165025745332], [-0.26670446106241402, 51.552329010537719], [-0.26625746944395001, 51.552727904837575], [-0.26596957397390902, 51.553067887114274], [-0.26592338220007899, 51.553144902631672], [-0.26590058135599598, 51.553293921478762], [-0.26592949498773899, 51.553386945721542], [-0.26598082642363702, 51.553447842612101], [-0.26613353451599597, 51.553568819687221], [-0.26666847089860002, 51.553868832697717], [-0.266820559056618, 51.553970840164951], [-0.26689637052508902, 51.554039823854858], [-0.26697831772091302, 51.554160739860514], [-0.26698029139923302, 51.554286809821278], [-0.26691256980021899, 51.554443728896288], [-0.26650250891057498, 51.555020766667269], [-0.266391739254624, 51.555195603814411], [-0.26634066151000402, 51.555329600824095], [-0.26635069793196098, 51.555492594779871], [-0.266410671549003, 51.555610654250749], [-0.26651053618151999, 51.555912673590718], [-0.26663244626367399, 51.556144622401177], [-0.26679769502727801, 51.556303583099954], [-0.267030585221255, 51.556450476260359], [-0.26713951401783398, 51.556490446033351], [-0.267354622577329, 51.556488420027023], [-0.26768340355784997, 51.556401524772063], [-0.26800449148648398, 51.556386458089769], [-0.268100528280522, 51.556397571790235], [-0.26818241039802898, 51.556437555741816], [-0.26828232492972498, 51.556537538842065], [-0.26861538263589202, 51.556776386075164], [-0.26868457253153699, 51.556865501070419], [-0.268722701603821, 51.556965400846082], [-0.26869233725336, 51.557017356229103], [-0.268586670097203, 51.557057528262007], [-0.26808864463132398, 51.557090362647976], [-0.26802755606766798, 51.557108429685016], [-0.267976068645085, 51.5571583972173], [-0.26795630576646301, 51.5572633358817], [-0.267995583760474, 51.557380398371428], [-0.26800705197609398, 51.557505475783856], [-0.267990333763033, 51.557542319311878], [-0.26795447577377401, 51.557572425422151], [-0.267762777496306, 51.557658389463292], [-0.267687655209224, 51.55774875387624], [-0.26780455028336098, 51.557994393440644], [-0.26780175672233703, 51.55812740950892], [-0.26774493291580698, 51.558210870959883], [-0.26763050574321201, 51.558256391650218], [-0.26721264556472601, 51.558338324954839], [-0.265317803314781, 51.558873330607071], [-0.26273309087047703, 51.557599489726634], [-0.260929235109913, 51.556930520048127], [-0.25820473730544202, 51.556041735387836], [-0.25569182560112802, 51.555339817547228], [-0.252961262189909, 51.554590912230836], [-0.25269808768440799, 51.554529948992602], [-0.25245229722635698, 51.554391960152692], [-0.25193515961653501, 51.554158942868561], [-0.25145123175143902, 51.553907062660535], [-0.25106635306490599, 51.553670054703318], [-0.25085644997729301, 51.553513205018817], [-0.25058256423964997, 51.553238089236523], [-0.250418152956353, 51.553000148681988], [-0.25030430783304503, 51.552748219707375], [-0.25023834856485, 51.552458210814869], [-0.25023411899345399, 51.552157326822389], [-0.25029515550202602, 51.551847296360833], [-0.25039108905596602, 51.551602427427326], [-0.250531185376143, 51.551381393816627], [-0.25071311935019402, 51.551174335617276], [-0.25106510906610802, 51.550846441366119], [-0.25153393825880699, 51.550468445412982], [-0.25192522462105299, 51.55012652087445], [-0.25219782321855999, 51.549858425958277], [-0.252768908188302, 51.549293531222617], [-0.25308497107302902, 51.548949644682793], [-0.253642927955603, 51.548279586590226], [-0.25415373123646001, 51.54755769137418], [-0.25486463782246599, 51.546375941286705], [-0.25543137609621003, 51.545356988845285], [-0.25559364036875898, 51.545003082940902], [-0.25575120518876099, 51.544607099356533], [-0.25623344280162302, 51.543180263902258], [-0.25639019121783202, 51.542581236715307], [-0.25647132006538398, 51.542156289064792], [-0.25662002962740998, 51.541083492991262], [-0.25669032291837501, 51.539786546677583], [-0.25665498838196399, 51.538623758767613], [-0.25655791668814898, 51.537779852571056], [-0.25636713533720201, 51.536710997698698], [-0.25566295187601001, 51.53398568656965], [-0.25605037335615399, 51.533952385420967], [-0.25622019313075101, 51.534590273162443], [-0.25629731813169199, 51.534741484984643], [-0.25644744912677297, 51.534927631005161], [-0.25721925279562302, 51.535129625179096], [-0.25780882106242903, 51.535336633744464], [-0.258044560805957, 51.53521663447944], [-0.25845560704743598, 51.535072119254906], [-0.26012857871221701, 51.534588734925826], [-0.26031898464123499, 51.534499237616018], [-0.260434370383059, 51.53453369284523], [-0.26054588238684501, 51.534362242105061], [-0.26062562737349099, 51.534303709553981], [-0.262908173906647, 51.532932760500024], [-0.26337837546238302, 51.532676828985977], [-0.26386989081523499, 51.53248880812864], [-0.26443995888108002, 51.532296173864914], [-0.26485377791704301, 51.532184274300732], [-0.26475743508125998, 51.531980665737862], [-0.26487443552977302, 51.531640966966826], [-0.26509280030962001, 51.531443412597618], [-0.26528472210015103, 51.531301387964653], [-0.26661048255583603, 51.530512093994567], [-0.26696990458971898, 51.530360598502455], [-0.26752599559175699, 51.530155532884748], [-0.26818251876537602, 51.530010667756201], [-0.268798142924003, 51.529958068893947], [-0.26870420263061701, 51.529833606312451], [-0.26902225495012999, 51.529739100264784], [-0.26914665741399402, 51.529725622647284], [-0.26924601998362502, 51.529754234287033], [-0.26967679644220699, 51.530002505663582], [-0.27041702974611598, 51.529764589650028], [-0.27059301088212401, 51.530042995988694], [-0.27146127633253597, 51.529945497478529], [-0.27719691479247199, 51.529232075559726], [-0.27885730655184698, 51.528808517585567], [-0.27909018358235599, 51.528666518973807], [-0.279247289557845, 51.528729514467443], [-0.27958303116118599, 51.528571454547397], [-0.27973219633674001, 51.52855804343217], [-0.28013861598641498, 51.528461156761793], [-0.28047949615423201, 51.528405591850202], [-0.28063569391322002, 51.528457061984554], [-0.28212713682839202, 51.528714539095716], [-0.28298050106120398, 51.528844215302094], [-0.2833602613997, 51.528928880200183], [-0.28430443688914903, 51.529075888509922], [-0.28433348248079399, 51.528950419586515], [-0.28570294430641702, 51.52919342419203], [-0.28606242491482298, 51.529542352200053], [-0.28625396889530202, 51.52968481036541], [-0.28767877641168199, 51.530555112592872], [-0.28877508739786001, 51.531188063651214], [-0.28938790551650001, 51.531666569826015], [-0.28839127566002198, 51.532027458054493]]]]}, "type": "Feature", "id": 1101, "properties": {"pk": 1101, "name": "Stonebridge"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Stonebridge, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Stonebridge, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Stonebridge</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Brent</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Stonebridge
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Stonebridge, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Stonebridge: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>92</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <div id="week_stats_plot_mobile" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Stonebridge</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-455"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-455" id="name-455">
+                    Chemistry and My Recollections of my Father and the War
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-455" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by marionclarion (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/09/a2306909.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>It was wartime when I was born in October 1942, so I was only 3 years old when the war ended, yet I still distinctly recall the pride and the pleasure I felt whenever my father returned home from his exercises with the home guard in his neatly pressed khaki uniform, shoes and belt, buttons and buckles all highly polished (sometimes to my delight I had been allowed to help him with the polishing beforehand). I would stand smartly to attention, saluting correctly, the way he had taught me, the long way up and the short way down, exclaiming loudly as I did so, <br/>
+"Salute Captain Daddy". </p>
+<p>At that time we lived in Potters Bar, Middlesex, which my parents considered to be rural and safe enough so that I did not have to be evacuated.</p>
+<p>My father and the War:</p>
+<p>A research chemist, my father was in a reserved occupation and so was not called up to fight with the forces, but he was happy to serve as an officer in the Home Guard, specialising in teaching others both first aid and how to save people from gas attacks. </p>
+<p>After my father died in December 2000, I felt very proud to find this letter from his commanding officer amongst his papers, written when his Battalion split up in December 1944, as follows :-<br/>
+     ___________________________________</p>
+<p>56TH ESSEX BATTALION HOME GUARD<br/>
+TELEPHONES:				<br/>
+WALTHAM CROSS				<br/>
+2137, 2306, 2494								<br/>
+70 HIGH BRIDGE STREET, <br/>
+WALTHAM ABBEY, <br/>
+ESSEX<br/>
+								29TH DECEMBER 1944</p>
+<p>STATION:<br/>
+WALTHAM CROSS<br/>
+L.N.E.R.</p>
+<p>REFERENCE NO. 56 ESX./H.G.?3…….<br/>
+ <br/>
+Dear Apley</p>
+<p>Before we finally stand down, I would like to convey my appreciation of the help which you, like all other officers, have given me during my period of command.</p>
+<p>In many ways we have had to overcome greater difficulties than have other battalions.</p>
+<p>We started late which entailed a rapid expansion to catch up with older units. We have lost large numbers of trained officers and men to the regular forces and on re-direction to other industries. Several times we have had to carry out thorough re-organisations including formation of an L.A.A. Troup. And our operational role has constantly altered, by progressive stages, as we became more efficient and better armed.</p>
+<p>All of these facts have meant much extra work for officers, both in the matter of keeping up-to-date in military knowledge and in administration.</p>
+<p>Yet, with very few exceptions, there has been no faltering of purpose; and the spirit of co-operation has enabled us to rise above our difficulties and to stand down as a Battalion, which is second to none.</p>
+<p>Without the loyal support of all officers this proud result could not have been achieved. </p>
+<p>I hope that our Association will enable us to keep in touch with each other in the future. In the meantime, I wish you all good fortune, wherever you may be. </p>
+<p>Yours sincerely,</p>
+<p>Signed (?) E. W. Chansfield<br/>
+     ___________________________________</p>
+<p>Being Chief Chemist at a firm in the fledgling plastics industry and involved in research, especially focusing on phenol-formaldehyde resins and foams, my father put his inventions to good use for the war effort, for example creating a method of coating the containers full of equipment, food and supplies to be parachuted down to the troupes abroad, (the MOD needed to solve the problem, however, that these containers were being destroyed on impact, splitting into fragments, their contents wasted, strewn and scattered all over the countryside - they needed the containers to be lightweight yet strong enough to resist and stay whole) — my father applied his skills to solving the problem and invented a suitable coating ..... these new, coated containers were so strong and water-resistant that, after safe delivery, they could even be used like onoe-man rafts or coracles upon the water.</p>
+<p>Another of his coating inventions helped the air force in the tropics. The problem here was that, until then, the glue used to hold the Mosquito aircraft together, whilst completely satisfactory in Europe, was dissolving in the high heat and humidity of the jungles and the planes were literally falling apart on the ground. He invented a new type of “glue” so that even in those adverse conditions the layers of wood of the plywood frames plus their covering substances no longer fell apart.</p>
+<p>His materials were also crucial to the success of the bouncing bombs, designed by Barnes Wallis and used by the "Dambusters" to destroy the hydroelectric dams in the upper Ruhr in 1943. The problems were that the spherical metal bombs became dented on impact and would not properly bounce but if the metal was thick enough not to dent, the bomb became too heavy for air transport. My father devised a liquid resin, which was used to fill the hollow metal spheres (built to contain the explosives and detonators) which on curing and drying in huge ovens solidified to produced a light, impact resistant foam, thus when dropped, on impact the bombs kept their shape and were able to bounce as required.</p>
+<p>Some more recollections of mine :</p>
+<p>I recall with far different emotions the sounds of the bombs passing overhead during the war before exploding nearby. Although I was never actually involved in any bombings, for very many years after the war had ended I continued to have dreadful nightmares that a plane would drop bombs specifically on our house! Throughout my children’s childhood and even nowadays, at firework time, I always avoid bangers, chiefly because I hate the loud explosions, I think because they remind me of wartime bombs.</p>
+<p>The wail of the siren before an attack was a terrifying lament that signalled us scurrying into the Nissan shelter in the garden or in really bad weather under the Anderson Bed in the living room. I really disliked my “siren suit” because it had a loose bum-flap at the back, closed by buttons that were both uncomfortable to sleep on and let the draughts in, but to be fair one could go to the toilet without getting undressed. My only comfort in wearing it was that my mother used to wear one too.</p>
+<p>On a train journey to Manchester during or just at the end of the war to visit some friends, my mother gave me a journal to look at and I still remember the feel, the smell (the taste) and the colours of it. It was a glossy illustrated magazine with soldiers on the front cover, an orange-red-golden glow all around them as fires from dropped bombs burned nearby. When clearing out old papers in our loft after my father had died, I found that very magazine and it was just as I had remembered it.</p>
+<p>Friends of ours used to keep chickens in their back garden, so during the war we saved all the kitchen scraps, sometimes cooking them to a pulp, sometimes raw (potato and carrot peelings, outer cabbage leaves, old bread crusts and other kitchen leftovers) and every few days my mother and I would walk down the hill to their house and feed their chickens. In return our friends gave us the luxury of one egg a week, which my mother always gave to me. In times of rationing eggs were hard to come by. </p>
+<p>On one occasion, in spring, when hens lay most plentifully, my parents managed to buy several eggs at once from the market and planned to conserve them by using Isinglass, a type of pure gelatin, which my father had obtained through his chemical suppliers at work, but it was very smelly, (probably from being made of the swimming bladder of sturgeon and other fish from the Caspian and Black Seas), so they were reluctant to use it. </p>
+<p>Instead they acquired some waterglass from the chemist’s (liquid sodium silicate) which they diluted with boiled water and placed into large glass jars, into which they then gently plunged the precious cargo of eggs, topping up the jars to the brim. So that the levels of waterglass solution would not drop, they melted sealing wax around the jar lids to keep them airtight. In theory sodium silicate works by sealing the eggs and should keep them fresh for up to a year because the alkali is supposed to retard growth of micro-organisms by forming a protective shell. When my parents tried to use their preserved eggs, however, something had gone horribly wrong, the clear liquid had turned to a milky jelly and even before breaking open their shells, the eggs stank with the unmistakeably strong sulphuric stench of rotten eggs.   </p>
+<p>My father then decided to experiment by inventing a protective coating for the eggs from mixtures of resins and hardeners that would both prevent air entry and toughen the shells. He succeeded in this, but then needed a hammer or a chopper to open the “strengthened” steel-like shells and the contents became totally inaccessible and unusable! More precious eggs wasted!!</p>
+<p>I remember once when we visited my grandparents in Varden Street in the East End of London, the magnificent spectacle of seeing what seemed like millions of barrage balloons filling the sky. The seemed to go on forever and ever, parallel rows of grey oval bodies, becoming increasingly like tiny dots and minute specks in the distance. </p>
+<p>On another occasion, whilst visiting elderly friends of my grandparents, Mr and Mrs Bristowsky, (despite the wartime frugalities, she managed to make the most delicious Cinnamon Balls I have ever tasted in my life), we watched the bright afternoon sky from their kitchen. They stood me on the draining board of their sink in front of the window so that I could see; she held on to me so tightly (so I would not fall) that I felt I was suffocating, (and she had a lot of hairs on her chin that felt rough and itchy to my young cheek). We gazed in admiration whilst hundreds of parachutists practiced their descents seemingly over and over again. Quite why they were doing this over the East End of London I am not at all clear.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/09/a2306909.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-455">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-820"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-820" id="name-820">
+                    My Life - Born in 1918, then a Soldier in WW2 - Part 10 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-820" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by robert beesley (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a3452933.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>On arriving at St Johns Wood, I reported to the duty N C O and he wrote my name down in the register. Then a Private took me to a billet, here I found another N C O, that had arrived earlier. We got talking, none of us knew each other. Then we were given some food to eat.  None of us left the camp that evening. During the evening there were more N C O's and Privates arriving at our billet.<br/>
+The next morning we were all paraded, and we were then informed that we had to do a six week refresher course. Over the next few weeks, we did all of the basic training such as rifle, map reading and everything that you learnt when you joined the Army.<br/>
+ After we had completed the training and passed out I had a weekend pass , which I used to go and visit my family. Then we were posted to other camps. Myself and eleven others were all posted to Hookwood in Surrey, which was a Royal Ordanance Store Depot. We unloaded all of our kit and was taken to the Dining room and given tea. The cook was A T S and there was five Italian Prisoners-of-War sitting at the top of the table and they were talking. Three of the N C O's went to the table and found out that they had been Prisoners-of-War in Italy. They could speak the language so they started speaking Italian, but two of them moved away and it nearly came to punch up, but it was the woman cook that stepped in to calm things down.<br/>
+There were some Ordanance group also working there and also civilians work, we never saw much of the Captain. He was always with a A T S Driver. Nearby was an<br/>
+R A F Aerodrome, which is now called Gatwick Airport. We spent our evening in the pub with the A T S. It was Christmas 1945 and we had leave. All of the N C O's had a chicken to take home for Christmas, but I cannot tell you how we won them?<br/>
+On returning back from our Christmas leave, the N C O started to get demobbed at one or two at a time. I spoke to Captain Gardener about signing on for 2 years, that was 1946. As the N C O got demobbed, we had a party at the Pub. Next, the A T S returned to Guildford in Surrey to the A T S camp. The R A O C  were to move to another camp. I was to take some stores from the Quarter Master's store and travel by road to Colchester in Essex. We arrived on the Tuesday afternoon and unloaded the stores. The Quarter Master Sergeant told us to put it into a large room and gave us the key. He then said that after we had finished doing this, to hand the key back to the storeman.<br/>
+I was shown my billet and unpacked my kit. Then on the Wednesday I reported to the Quarter Master, he told me to lay out the stores to go to Hookwood for checking.<br/>
+On Thursday afternoon I again reported to the Quarter Master, got ready to hand over but he said to leave it until the Friday. As the storeman had been working with me, we checked the stores together and he agreed that everything was in order and then signed the document. I also signed the document and handed the key to the storewoman. Next morning, the Quarter Master<br/>
+said " I  check the stores and then take them off your hands". At 10.00 a.m., the Quarter Master approached me stating that some stores were missing. I said to him "Bull, it was all present yesterday". he replied to me "Not now it isn't, then report the thief to the Company Commander"<br/>
+I was told to report to office, Quarter Master was stating stores stolen. The Company Officer turned to me and said"What do you have to say?" I replied "All the stores were present and correct yesterday when I locked up" He then said "What proof have you?" I then handed him the C/O my document which had been signed by myself and the storeman. Also stated that they key had been handed to the storewoman. I then said " Call in the Special Police. The C/O replied "No need for that" That was the case closed and shut. Two months later, having gotten to know the other stores across the way, they told me "You know those stores that you had lost earlier, they were in our stores. I asked them who had brought them to them and the reply that I got, was the QUARTER MASTER!<br/>
+C S M Simpson spoke to me about transferring to R A O C as a driver. I thought about it for two days. I then approached the C S M to sign my document and within the week I was in the R A O C. I took a driving test, which I passed. <br/>
+One Friday in September 1946, the Sergeants Mess was robbed of cigarettes, tobacco and spirits. On the Saturday at 12.00p.m. I was on my way to the station with others when two civilians stopped me. They asked me what I had in my back pack and I told them that it was none of their business. They then showed me their documents and they turned out to be Special Investigation Police. So I opened my pack, out came a Army boot, I was asked why I was taking this home, I told them, to give them a good clean. I asked them why had they stopped us. One of them said had we not heard and we did not know what he was talking about. But it was the news that the Sergeants Mess had been robbed. I could have turned round and said to the "Try the Quarter Master, he stole my stores" But I thought better of it so I held my tongue!<br/>
+It was 1947 and I had put in for an Overseas posting. I got the posting and I was then sent to Feltham in Middlesex,I had 7 days leave. At hat time, my wife had run off with an R A F Sergeant to Scotland. On my return, after my leave, at 6.00a.m., the draft for Germany came through. So I boarded a train to London, once in London I had to go across town to King Cross station. I waited there until 3.00 p.m. and then boarded another train for Hull up North. On the Monday, we boarded a ship for Germany. It arrived in Hamburg in Germany on Friday. We spent the weekend in Hamburg and we found the Germans were friendly. On the Monday we boarded a train which was to take us to Dusseldorf, When we arrived there a lorry was waiting for us so we got aboard. There were twelve of us. Off we went, along the way, the men were being dropped at different places. Everyone had got off except there were two of us left. When we stopped again, both of us reported to the Office. It was 145 Vehicle Park and I learnt that my other travelling companion was called Private Barr and he was Scottish. He went to the Quarter Master's stores. I just clicked my heels until Major Hurley read my documents and I was told to report to his office. He asked me questions such as "Was I a Prisoner-of-War?" I replied "Yes"."Can you speak and understand german" Once again I replied "Yes". So to se if I was telling the truth, he sent for a German to test me. This German had worked in the camp and he tested me and said I was alright. The Major then told me to report to the Special Police Unit in M I R. On arriving,no on was at home. The home address British Occupation of Rhine (BAOR). That afternoon I met Justeward N C O and Felix Kaufman, who was half Jew. He was the interpreter, he spoke to me in German, I replied, he then said "Are you Polish" I said "No" He said"Ex Prisoner-of-War good". Another interpreter was Alex, whose Father was English and the Mother was German. He had served with the German Air Force but he was not to be trusted by Felix. <br/>
+My Mother wrote to me to tell me that my wife was going to have a baby, so I then made enquiries about obtaining a divorce.<br/>
+Our duty was to recover War Department stolen property. We would check vehicles for wheels with loose nuts then we would lay in wait, at night.  Nine times out of ten, we always had a result. When we visited places on information obtained, it more or less always led us to an arrest and trial. We made road blocks on the Autobahns where we would stop lorries or cars. One night, we stopped an Ambulance, the Police said "No Ambulance". I stopped the vehicle and what was inside was a cow and two German civilians. This was going to be a German Police case. The Mayor, had given us a free hand  but it was only the Mayor that received our weekly reports. We received documents from the Mayor. Whenever we needed food or accommodation for the night at Army or Military, this was always available to us. We would always give them a telephone number so that it could be verified and that was that. But we never ever got freedom of the barracks. In the short time that we had been in operation, we had recovered quite a number of tyres and one vehicle. Saturday evenings were spent at the Cafe Belton which was in the town of Wermelskirenen. Here the Off Duty Officers and wives and other ranks would socialise with the Germans. The lads would be after the girls and when the cafe closed there would be no transport home, so they had to walk home. Christmas was nearly upon us. The lads had a good time with us that year. Officers and senior ranks waited on tables and after lunch, you could do as you wished. On the eve of the New year, there was one great party which was held at the Cafe Belton</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/33/a3452933.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-820">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-619"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-619" id="name-619">
+                    My Mother, a Nurse at Middlesex Hospital (nee Harperbury Hospital) <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-619" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Michael McEnhill (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/57/a1986357.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>A cold smack of rain across my face held me in check after I had scrambled onto an old Valor stove and pushed open the metal framed window of my boxroom in order to catch a final glimpse of my mother, as she cycled to work.</p>
+<p> She would be rounding the corner of St.Botolph's Church now, with its glassy- sharp flintstone wall, making for the square of staff houses, dubbed 'little Moscow,' with their bleak, depressing entities.  When she had passed these,I would be able to make her out, as if almost in miniature; she would cut on to the old cinder track, little more than the sweep of a scythe wide.She would have to be aware of the shifting cinder bank for under a deluge of rain the back-wheel would slip fast, sizzling into the ploughed field alongside and she would likely be up-ended. A farrago of noise would break out.The dropping of bombs by German aircraft would resonate through the night even from as far distant as London.The crow-black sky would be illuminated by brilliant searchlights issuing out of a wide brimmed base, as broad as Nelson's column, but reaching much higher still, seeking out enemy planes. Anti-aircraft fire would break out, peppering shells up above, whenever an aircraft was glimpsed, to blast and puncture  it, bringing the 'eagle' down with an almighty bang.These camouflaged gun emplacements were dug in around the country hedges and scattered amongst the poplar trees, which dwarfed the hangars of the hospital.</p>
+<p> With her nurse's navy cap pressed firmly down over her head and matching rainproof coat buttoned into place, she would crouch low over her handlebars, as she faced into the wind, pedalling so hard, the cornfield would, as it were ,part waist-high, and she would appear to ride above the damp ,dusky brown ears of corn, like a jockey in full flight along the rails of a racecourse.</p>
+<p> As the night pressed into her half-hours journey to work at Middlesex Colony, near St.Albans, she would be increasingly aware of the intense activity in the  hedgerows, the giant rods of light pin-pointing the gathering dark, the silver-white lights making a pin cushion above, while flabby, grey, barrage balloons with wires from their bellies, cheese-cuttered the sky, dragging for planes, and creakily holding the earth to the sky.</p>
+<p>She would now virtually disappear from sight pedalling furiously into the middle distance like a stick figure bent and ricketty, into the curtain of smoke and smell of cordite,to disappear out of view. Some nights her path to work was so lit up by a full moon and drifts of stars. I am sure she felt protected and safely covered under this nightly galaxy of pilgrims.<br/>
+Whatever the night, before she set off, she made sure to pep-up her bicycle batteries by putting them on the range, (by taking the cold and damp out of them appeared to restore their energy and boost the light, for during the winter months a cold battery soon became a worthless dud)<br/>
+  It seems that the mind stretches back to those days with ever more clarity as one gets older; one is more able to sharpen one's focus, almost like adjusting a television or computer screen.</p>
+<p>My mother was never one to fuss over her own safety for she had an indominitable spirit.  However, she never ceased to hurt me, when, departing for work, she would say: 'I have to put my boys to bed'.<br/>
+  That would sting my elder brother and sister too, but even so, we were all aware that in the war, life had to go on, in some way, and that there were others, even more deserving,- in need of individual help and support.</p>
+<p>She would be leaving what maybe could be described as a normal household during the war years to enter what has been called a 'world within a world.'<br/>
+Different rules applied in this world wherein the mentally handicapped were attended too.</p>
+<p>The first charitable homes for what were called the feeble minded( a term used as late as 1978,in a golden jubilee handout)were founded around 1890.The less afflicted were often looked upon as either lazy or wicked.The certification of large numbers of these so-called feeble minded together with a need for economy, led to the advocacy of large institutions with a population of up to two thousand patients.<br/>
+    The foundation of the Eugenics Society in 1909, followed soon after by the Mental Defficiency Act of 1913, expressed the belief of many that the segregation of the mentally handicapped was esssential. Increase in the the birth of the defectives would thereby be prevented and society would receive the protection which it requested against the likely dangerous consequences of having the mentally handicapped living in their midst.</p>
+<p>(One has an uncomfortable feeling, looking back to those times, regarding the segregation and dispossession to be employed with the inmates of the institutions, and at the same time hesitating to draw any comparison with the German experience or policy employed with such unfortunate beings,understanding that to be essentially a policy of brutal extermination)</p>
+<p> With this support the policy was enthusiastically implemented of building large institutions in isolated country areas where land was cheap to purchase.The Mental Defficiency Act of 1913 came into operation in 1914, but the outbreak of World War 1 held up the services it engendered.<br/>
+ </p>
+<p>(Paradoxically,it was after the termination of this war that the land on which First World War aerodrome hangars remained was made availabe for sale)</p>
+<p>Thus it was that in accordance with majority opinion in the community, Middlesex County Council in 1928 purchased the Porters Park Estate, so named after Roger Le Porter, the first owner, who took possession in 1340.The land thus acquired became the site for both Shenley and Middlesex Colony, the latter designed to house 2000,patients.<br/>
+On October 25th,1928, eight male patients, mainly high grade feeble minded adults were admitted to what was known as the Hangars Certified Institution.'-of course the name being adopted on account of the three hangars which were survivors of the aerodrome on that site in World War1.They formed the nucleus of the foundation.During the 1930's the name was changed to that of Middlesex Colony since the authority was at that time the County Council of Middlesex.<br/>
+(The word 'coloney' according to Faucault came into use in the Middle Ages with the formation of leper colonies.Later on 1st April,1950 the name Harperbury was assumed when the majority of my mother's work had been completed.<br/>
+ <br/>
+ In her early days at the hospital she worked from eight-o-clock at night, until eight in the morning, with maybe an extra night thrown in as overtime. She was paid three pounds a week, and she felt she was in clover when her wages were raised by half-a-crown a day. The hospital at which she worked was built in 1928, on an old aerodrome site, four miles from St.Albans City. At that time it was ostensibly set up for the care and protection of the mentally handicapped in the community but its primary aim was to be an institute for the prevention of the increase in the disabled.At that time the wards and gates were kept locked permanently.</p>
+<p>As a qualified nurse my mother had to be well turned out. A light blue one piece uniform was enfolded by a white starch apron. She also wore a hard, rigid collar not unlike a cleric's, but gold studded and unjoined at the throat, also white starched cuffs and cap. And of course thick dark stockings and sensible shoes.<br/>
+  A fair sized chrome whistle and a master key on a chain to a belt around her waist completed her ensemble.<br/>
+At this juncture it would be well mention the Regulations appertaining to this work, for they call to mind the spirit and tone equally noted in relation to the Poor Law Institutions and the Prison Service. For example, the loss of a key by any member of the staff was to be met by summary dismissal, twenty minutes being allowed to vacate room and leave hospital premises. This example highlights the fear on the part of society as a whole to the importance of custodial care for the mentally handicapped and one of the factors in the establishment of mental subnormality hospitals.</p>
+<p> There would be up to seventy patients on her ward and she had to cosset and comfort them as best she could.The dormitory was so crowded that it was said that one could cycle over all the beds. At that particular period in the care of mental patients, times were bad; there was not the financing of the hospitals to the extent of today. They were indeed a tragic looking set of patients young adults removed from their own hopes who suffered from immense medical problems along with being mentally deffective some would be highly disabled.They would be hard put to manage the ordinary affairs of life their toiletting and hygiene, diet and excercise all these things and more had to be catered for.Many in the social climate of the time would cast them out as lepers.Yet it was for these same people my mother was dedicated to and fighting for.Ironically while the war was raging on the Western Front some part of Hitler's philosophy was indeed set on doing away with these same poor infirm and crippled folk in order to create an Aryan master race. We were to understand that the Jewish race along with gypsies, and the suppposedly less genetically endowed members of humanity were to be killed off, which augured badly for such institutions as the Colony.</p>
+<p>.<br/>
+  Indeed, many people in those days were in awe of them, so frightened by their appearance that they were shunned like lepers. <br/>
+  Shambling about, they dribbled from both their noses and their mouths. Their hair was hacked off to prevent lice and they would congregate in corners like latter day punks. Cringing and gawkily awkward with arms and legs threshing about they were custodially subject to strict rules and kept under a regime of the hospital, which was more akin to that doled out to prisoner's-of-war.  We can consider now with the benefit of hindsight these poor vulnerable souls were in much need of human kindness and real time professional care. They had been variously categorised as suffering from Mongolism, Down's syndrome, Schizophrenia, Epilepsy, and all kinds of ailments which the outside community was not prepared to countenance. Truth to tell your emotions were distinctly put out of joint when encountering them for the first time having been told scare stories of various hair raising types and having been painted pictures of inordinate abhorrence about their so-called mongol like features at this time.<br/>
+ One can venture the opinion that the nurses had it none to easy either for they were working in a heavily defined pyramidal structure subject for the most part to a largely male management. Thus when care and succour was being called out for there was a rigidity and strictness employed by the regime which was not you could consider appropriate for highly sensitive young adults. That's not to say that some discipline was not called for in the majority of cases it could be overdone. I call to mind going to see 'The Miracle Worker' in which Helen Keller a greatly disturbed young woman featured.In the long run with a reasonably amount of discipline and human kindness she recovered.Today we have overactive or so-called hyperactive patients who treated with tolerance,understanding and discipline can make good.</p>
+<p>With the benefit of hindsight it can reasonably be assumed that the war-time  strict regime had a detrimental effect on the patients. This regime had a hierarchical basis with a Dr Beasley as male supervisor, at its head.It was said that when he did his medical rounds the nursing officers fled in all directions. He it was as the chief medical practitioner who determined a boundary line around the hospital to keep the female and male patients segregated and,it was to be many years before mixing of the sexes was tolerated. Indeed, it is only in the last few decades that I have known a couple from the Colony get married and happily to say, have kept this relationship  stable for a reasonably long period of time. </p>
+<p> However, there was a surfeit of human kindness in the hospital, a charity that my mother with her abundance of maternal warmth amply supplied. </p>
+<p> My mother would look after her charges throughout the long night. She would soothe any temper tantrums, quieten down and contain those with uncontrollable rages and reassure the sufferers of seemingly endless epileptic fits.<br/>
+   On occasion an air raid siren would shrilly cut through the incessant babble of the dormitory. It would then be time for my mother to usher her patients down the long corridors and into the dark, damp, musty brick shelters for safety. They would shuffle and sway out into the courtyard sideways and back on their heels like ill-kempt prisoners-of-war emerging into the early mist of the day. <br/>
+  When the all clear sounded she would redress them all the best way she could. They would wear ill-fitting old Grandad type shirts, a jacket and trousers nearly up to their knees. There was a small smile on their faces for the little they got. The whites of their eyes would fix on your face and the pupils tip back to the cast of their brows.<br/>
+   After a breakfast of porridge they would go to work at various therapy departments such as shoe-making, tailoring, carpentry and upholstery.<br/>
+   On her nights off work, my mother attended to the safety and care of her family with the same love and tenderness.<br/>
+   It was the time of the notorious V1 and V2 rockets,so-called Doodlebugs or flying bombs.Then the air was alive with the unremitting hum of these weapons, seeking out targets in London. Unfortunately for us, they did not always reach their destination. Air-raid patrolmen, ARP's would flash their torhlights in windows  with irritable cries of "Put that light out!' A fellow in our road was thought to be a spy for a chink of light showed through his black-out curtains. He was promptly marched down the stairs of his own house with a bayonet levelled at his back and called all the names on earth.<br/>
+Coincidentally, it was some time after the war that my father's brother Jack who worked at Harwell, the Atomic Energy Research Establishment spent time as a scientist looking into the workings of the V1 and V2 rockets. <br/>
+   Often there would be a shattering whizz and the house trembled as a bomb began its fall. Deafened, groping and praying hard, we would emerge from under the stairs. The plodding hum of the German bombers continued, then a rocket overhead cut off its engines, a paralysing silence followed as its deadly cargo rushed to the ground, heartstopping. We snuffed out the candles and made a dash for the Anderson Shelter.<br/>
+   As we were being carried in blankets by mother and father, a splinter or sliver of burning hot shrapnel glanced my arm. A further bomb would shiver the darkness, dust would rise at our feet, everything was a blur, and the shelter would seem to stretch and float an inch or two. Then in the grim surroundings, mother attended the scorch to my arm and it soon faded away.<br/>
+     If that were not enough to frighten mother and father a landmine was caught suspended by its filigree of lace and parachute straps on a high, royal oak tree above the wood, not far from our house. Just a brush with the ground and our street would have disappeared.<br/>
+     How my mother managed used to be a mystery to me, however, with the passage of time it has become clearer.<br/>
+     Being born in 1908, in Donegal, Ireland, she had experienced extreme poverty and hardship as a child (in comparison with the young children, today). Her difficult upbringing enabled my mother to equate more closely with the neglect,hurt and injury suffered by the mentally handicapped in the community before they were taken into the care of Middlesex Colony.<br/>
+   This in turn enabled my mother to bring up her own family in very difficult circumstances and at the same time to battle away for those less fortunate in society.<br/>
+    In retrospect, my mother felt she was privileged to be in at the birth of the hospital. To be there at the start and to influence the attitude to the disabled in mind and body and ensure the hospital's further development gave her great satisfaction. In point of fact as a 'pioneer nurse' she lived to see the evolution of Harperbury Hospital from its raw beginnings. She experienced great joy in its transformation. The original aircraft hangars for work therapy have given way to the world renowned Kennedy Galton Research Centre into sub-normality.<br/>
+    Behavioural modification and Makaton sign language is now practised along with art and music therapy. She was able to witness the retreat from a harsh policy of segregation of the sexes to the faltering but positive steps of full integration in the night-time socials and dances held for all.<br/>
+     My mother never boasted of her achievements but I know she is secretly proud of the contributions she made to help those in adversity when she worked at Harperbury Hospital during those dark years of the war.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/57/a1986357.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-619">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-605"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-605" id="name-605">
+                    War efforts, evacuation, first baby and rationing <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-605" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Irene Currington (formerly Gilham) (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/36/a2412136.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>The outbreak of war<br/>
+I was married in August 1938, the year that Chamberlain came back from seeing Hitler in Berlin waving his bit of paper saying that he had assurances from the fuehrer that he would not invade neighbouring countries. The Prime Minister declared “Peace in our time”! We believed him because we wanted to, but many of us had serious misgivings about the trustworthiness of Hitler. There were reports filtering through about the appalling atrocities being perpetrated on the Jews and other groups, such as the Jehovah Witnesses, gypsies etc. The SS (Storm Troopers) came into being straight away and they instigated a reign of terror and the introduction of concentration camps — places of hell!</p>
+<p>Our fears were realised in 1939. My husband and I, who lived in Middlesex, were in Cornwall when the news came through on the radio. Chamberlain was announcing in gravest of voices that Hitler had not kept his pledges and had that day invaded Poland. Therefore he said that England was now at war with Germany!</p>
+<p>Petrol rationing came into force immediately, and had it not been for our farmer host who filled up the car we would not have managed to get home to London in the car. We were fearful about what the war would mean, and we drove back in a state of anxiety. As the “blackout” was compulsory straight away, I remember finding blankets to cover up the windows. They were totally ineffective of course, and the next few days were spent finding an efficient method. The Air Raid wardens came round each evening to check that there was no glimmer of light. Car headlights had to be masked so that the light was directed downwards. Signposts disappeared in order to confuse possible invaders. </p>
+<p>A few days after the declaration of war, the air raid sirens went off, which caused a great deal of panic as we did not know what to do or what to expect. We took ourselves downstairs to the flat below knowing that the excellent sound proofing meant that there was 6’ of concrete above us. </p>
+<p>Nothing much happened then for the next year, except for the issue of gas masks for everyone including babies — ominous in itself.  By law we had to carry them with us at all times.</p>
+<p>My war effort<br/>
+It seems unthinkable now that in those days, once a female teacher married, they were unemployable, except for when they were needed for a bit of relief work every now and then. Thus my teaching career came to an end only two years after qualifying. I tried to do all sorts of other things to help the war effort. I think the first was answering an appeal for people to write ration books. I duly reported to the Town Hall where there must have been 200 souls all writing away. When the bell went for tea break I had only one address to finish, so I did it. To my amazement a union representative came along and said “unless you put your pen down immediately I shall call the whole room out on strike”. It seemed an odd reaction to a vital war effort! I did not go back to that job.</p>
+<p>Next came on appeal by the manufacturers for people to pick rose hips to make into the much needed rose hip syrup rich in vitamin C. We could not make it ourselves because we didn’t have sufficient sugar. I took a few children with me and we picked the hips till our hands were sore and scratched - we had pounds and pounds. I took them to the depot where we had been told to go but they would not accept them, in spite of all our remonstrance. I’m afraid that unbeknown to the children, I had to throw them away.</p>
+<p>Then there was a request over the radio for people to entertain the serving men with perhaps a meal and a bath. So down I went and said to a rather severe lady at the Citizens Advice Bureau that we would like to entertain the troops. We had an anti-aircraft emplacement two miles away. She told me to sit down whereupon she asked me whether I sang or danced. I said “No” and asked “Does it matter?” “Well what are you going to do for the men?” she asked. Rather weakly I said “give them a meal and a bath” and felt her unconcealed disdain. Considerably discouraged by my contributions to the war effort I wondered what to do next.</p>
+<p>Teaching<br/>
+Now came the emancipation of women in the teaching profession. With many men serving in the armed forces, women were badly needed and were compelled to go back to teaching. They were assured a permanent job and were never henceforth excluded.</p>
+<p>I was sent to a large modern primary school and by now the bombing had increased. Two things remain in my memory. When the sirens sounded in the daytime, it was my job, as the youngest member of staff, to run and lock the two gates some one hundred yards apart. This was apparently to stop the parents getting in, which seemed strange, since locking the parents out also served to keep out fire, police and ambulance services. The children were all ushered into the underground shelters. They were long and narrow with the children sitting side by side on the long seats. Teaching in those circumstances was limited in the extreme, and there is no doubt that the education of children suffered very much at this time. Air raids increased steadily and the next move was to evacuate children and pregnant mothers. I was very involved with it and I find it very difficult to write about it. It was quite one of the most harrowing experiences of my life. </p>
+<p>Evacuation<br/>
+On a very cold, dark, wet November morning, we assembled at a main line station. The children, aged 5 to 7, about 30 in number, were brought by their weeping parents, They carried gas masks round their necks, little suitcases cases and had name labels pinned on their coats. Neither we, the parents, nor the children were allowed to know where we were going. The poor little mites, were bewildered and frightened. The parents, though grief-stricken, were certain they were doing the right thing for their children. They were also fearful that they might not see them again if anything happened to them in the raids. So it was a very sad little gathering on that cold, cheerless November morning as we set off on our journey to the unknown.</p>
+<p>When we arrived in the dark, at the little Welsh mining village that proved to be our destination, it was foggy and drizzly and cold. The black-out meant that there was complete darkness — not a good start. We were assembled in the school hall where the local people were waiting to take in the children. Quite a few had already been spoken for, but for the remainder it felt a bit like a cattle market. “That one looks strong”, said some locals. Finally all but eight had been selected, among them a brother and sister, the brother had a protective arm around his sister, strongly declaring that they were not to be separated. In all the confusion no one had told them that the Director of Education was offering a home, so all was well with them.</p>
+<p>Then came the tragic business of taking the remaining eight little children to find somewhere for them. This meant knocking on doors and asking if it was possible to take a child, all this in a very foggy, drizzly night. Eventually all the children were housed and we teachers went to the only hotel in the district and spent the night, too tired to talk, almost too tired to eat. But it was not yet all over. In the morning we had to go round to all the billets and check that all was well. The village people were kind — the houses, although small were warm and welcoming. (We city dwellers had had a great shortage of coal for some time, but the miners did not have the same difficulty.) Not all the homes were equally suitable: we were appalled to find some children sleeping in outhouses, on mattresses spread on stone floors, the huts unheated. So we had to start again knocking on doors to find better accommodation. Finally we managed it but found it emotionally draining. I made up my mind that if I had children, I would prefer to keep them with me, even if it meant all perishing together.</p>
+<p>Illness and the Blitz<br/>
+When I returned from the evacuation, I was greeted with the bad news that my young, previously athletic and fit husband had contracted TB and had to go to a sanatorium in Bournemouth for an indefinite period. He had been troubled with a bad cough for quite a long time. Bournemouth seemed a million miles away. Because of the bombing he would not let me stay on in our little home and I moved to Epsom Common to stay with family, but I felt that I had lost everything, and it was so very difficult to visit him. There were no drugs for T.B. and the only treatment was either to collapse a lung or give constant fresh air. My husband said there beds were wheeled onto the veranda, which was open on two sides, and many a time they had to brush the snow off their beds! This lasted from November to March. In the event, he did not have to have the lung collapsed. I am happy to say that he finally came home completely cured and had no other trouble with T.B. for the rest of his life. We were able to set up a home again, living then in the same place for the next twenty years.</p>
+<p>The house where I stayed at Epsom was on the common and therefore safe in terms of air raids. However, as the house was high up we could see the raids on the London area. This was a spectacular and terrifying sight: we saw the explosions, the fires that were caused and even gasworks going up in flames. We knew that the loss of life was huge. It was dreadful to think about. Later, when I moved back to London I myself was in the midst of this mayhem. </p>
+<p>Rationing and a new baby<br/>
+On the home front, food and clothing, rationing was in force. Fresh fish was not rationed and the price was controlled so we were able to get things like turbot and halibut. (After the war I was not able to afford turbot and halibut.) We found dried egg particularly unpleasant. We were being urged to “dig for victory” and any ground that was in any way suitable for cultivation was made over for this: gardens, parkland and any waste ground. Every housewife had a large store of Kilner jars, and as soft-fruits and vegetables came into season, they were preserved in the jars in a weak solution of sugar and water (sugar was rationed). The jars were sealed and put into the oven at a very moderate heat for a controlled time. We were very proud of our jars all ready for the winter. Runner beans were salted in stone jars. Onions, cauliflower, gherkins and tomatoes were all preserved. If we could save enough from sugar ration, we made a limited amount of jam — a rare treat. Bread was not rationed, so it was usual to have one slice buttered, one with margarine and one slice with jam on unbuttered bread. </p>
+<p>We got very adept at making a can of Spam go a long way. This was to supplement a meagre meat ration. We made Spam fritters, fried Spam and dried egg, Spam hotpot, etc. Oxtails and offal were off ration, but it meant standing in one of the very long queues. Imported fruit, such as grapes and bananas, almost disappeared. I well remember queueing for one and half hours for three bananas, which I took home for my little daughter. She would not touch them!</p>
+<p>From 1941 there was rationing for canned meat and vegetables, followed by canned fruit, condensed milk, breakfast cereal and biscuits. Each person was given an extra sixteen points a month and these could be spent at any shop that had the items wanted. Then follwed was clothes rationing which was very hard on new mothers like me. I was able to buy only twelve towelling nappies when I had my first baby in 1943. By saving up coupons for material I made nightdresses, vests, dresses, rompers and knickers. </p>
+<p>For adults, clothes rationing gave its limitations. Law stipulated that mens' suits were allowed only three pockets, three buttons and a set trouser length. A woman's  nightdress took six coupons, a man’s overcoat sixteen coupons, a ladies dress eleven,  underpants four, pyjamas eight. We were given only sixty coupons each per annum, so I am afraid all our underclothing in particular got shabbier and shabbier. “Make do and mend” was the order of the day.  We were encouraged to make new clothes from old materials and I remember making several skirts out of old curtains. I was not knitter but those who were unravelled old jumpers and knitted the wool into something else. Like the other young women, I drew black lines down the back of our legs to pretend we were wearing stockings. These were imposable to get until the Americans Forces arrived.</p>
+<p>There was a great deal of sharing and bartering with coupons, so that for instance, a bride might have a wedding dress, although some girls were very clever at making parachute silk into wedding dresses. Little mishaps became of unreasonable importance. I remember managing to pick up a remnant of woollen material just enough to make my little girl a skirt. She was very pleased with it, but to my horror, while I was out of the room, she cut a hole two inches square in the front of it. I was devastated. </p>
+<p>With baths we were exhorted to have no more than five inches of water in order to save fuel for heating, and as many as possible in the family were to use the same bath. Our poor old daddy got the short straw, but he never complained.</p>
+<p>Also affected by rationing, were goods like furniture, as wood was very scarce. As people couldn’t replace or repair their homes they also grew shabbier as the war went on. Utility furniture was designed to use as little wood as possible. This was relaxed somewhat for newly weds and civilians who had lost everything due to bombing. Utility prams were dreadful — just boxes on four small wheels and were real bone shakers. On this front I was very lucky, and I bought a beautiful pre-war Marmet pram second-hand for five pounds from the nurse at the nursing home. It was “coach-sprung” and in excellent condition and I was the envy of all my friends. I used that pram for both my babies and then passed it on to another grateful mother. The police advised certain procedures in the event of a daytime bombing raid while out with the baby. This was to remove the baby from the pram and put him or her in the gutter and lie on top, thus shielding the baby. Fortunately such a contingency never occurred! The only time I was really frightened was when the V2s started, because there was no warning and no sound until they landed and exploded, causing a great loss of life. When that started I was preparing to evacuate to the country with the first baby. Mercifully, the allies invaded and destroyed the launching pads. </p>
+<p>Looking back<br/>
+And so the days and years passed, the war taking what would have been our carefree twenties. We lost a much-loved brother in law in Tripoli, killed in his prime. </p>
+<p>The Japanese raid on Pearl Harbour brought America into the war. Our captured troops were subjected to a treatment so savage and cruel by the Japanese, it was unbelievable. We’d had Germany inflicting evil and horror on millions for years. It always amazed me that the two nations of Germany and Japan with perhaps the greatest artistic cultures in the world could indulge in such bestiality. The dropping of the atomic bomb on Hiroshima and Nagasaki by the USA and UK made my heart feel like a stone. I was walking alone and heard the news coming from one of the radio shops and I remember saying out loud “God, what have we done? What have we released?” Certainly it stopped the war with Japan, but a new dread came into the whole world for posterity.</p>
+<p>Youngsters have said to me “didn’t you feel frightened?” The answer is yes for about the first two weeks, but you can’t live in constant fear indefinitely and we developed a kind of fatalism, got up and went about our lives. There was such a great feeling of community with everyone lending a hand, particularly when people were bombed out. Physically we were trimmer and healthier as a result of the limited ration, but God preserve us from another World War in spite of the fact that man-kind does not seem able to work things out without killing one another.</p>
+<p>I am now eighty seven years and disabled and I never expected to live so long. There are many times that I feel great sadness when I survey the world our brave boys fought for.</p>
+<p>Rene</p>
+<p>Appendix with acknowledgements to Lichfield Libraries Archive Department.</p>
+<p>Food rationing per week per person:<br/>
+In cost<br/>
+1s.10d meat (the equivalent of 7.5 p)<br/>
+In weight<br/>
+2oz butter<br/>
+2oz lard<br/>
+2oz margarine<br/>
+3 pints of milk<br/>
+2oz tea<br/>
+8oz sugar<br/>
+2oz sweets<br/>
+1lb of jam every month<br/>
+1 egg or packet of dried egg every two months<br/>
+4oz bacon or ham<br/>
+3oz cheese</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/36/a2412136.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-605">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-509"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-509" id="name-509">
+                    War Time Memories
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-509" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by BBC Scotland (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/45/a4587645.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the People’s War site by Nadine from the People’s War Team on behalf of Doreen Mackie and has been added to the site with her permission.  The author fully understands the site’s terms and conditions.</p>
+<p>1939, I was part of a team involved in keeping track of the number of enemy ships, aircraft and any other warlike vessels to be seen around Norway and as far south as the French coasts.  </p>
+<p>I was based at the Photographic Reconnaissance Unit in Wembley, Middlesex and was one of the C shift — three shorthand typists, employed in the task of taking shorthand dictations from archeologists, explorers and geophysicists, who had been called up into the RAF for the purpose of examining photographs, in order to assess the enemies strength and perhaps their purpose of intent.  One of the interpreters had during the 1930’s reached the then highest point on Mount Everest and another was the late Glyn E Daniel, the archaeologist, later Emeritus Professor at Cambridge, and famous broadcaster in the erudite television quiz programme “Animal, Vegetable or Mineral”.  </p>
+<p>Often we would work all night; sometimes we would come in for our shift duties, only to find that due to bad weather the aeroplanes had been unable to take off, or the deterioration in the weather had precluded any photographs being taken.  Then we would be able to get some sleep.  I remember a very small, stuff room with no window and a mattress on the floor — called a biscuit — where we were able to relax for a few hours.</p>
+<p>The photographs were interpreted in a special metal protected room and the Intelligence Officers would sit before a Swiss-made Wild photo-geometric machine, which would make prints to distort the images — to compensate for the errors in alignment of the aeroplane with the ground — and study the different types of craft and enemy activity.  They would dictate the results of their observations to the secretaries who would be expected to transcribe in quick time for the reports to be sent out by special delivery to the Coastal Command, Bomber Command, the Admiralty etc...<br/>
+Typing the correct spelling of the locations dictated to us took considerable concentration, as errors were severely frowned upon.  We typed on waxed sheets (mistakes amended by most noticeable red ink) and then rolled off on a Gestetner Duplicating Machine which hungrily used up many tubes of a black inky substance.</p>
+<p>An example:</p>
+<p>ST. NAZAIRE - General Shipping<br/>
+There has been no significant change in the Port since 15.12.40<br/>
+One M/V 400-500ft and a tanker 300-400ft have departed from the BASSIN DE PENHOUET, 1 motor patrol craft and a few small craft have left the BASSIN DE ST. NAZAIRE.  There has been no evidence in these photographs that ST. NAZAIRE is being used as a submarine base.</p>
+<p>When the bombing increased in Wembley we moved to Danesfield Court, Medmenham, Buckinghamshire, near Marlow to a stately home built in the style of The White House in Washington.  It certainly was very grand, surrounded by beautiful terraced gardens.  We secretaries boarded out in nearby cottages and enjoyed the respite from the bombing.  After a while, all civilians working in the RAF were expected to join the service.  Some of us did go into uniform while others went their own several ways into different war work.  I myself was directed by interest to Cheadle, Staffordshire, where I was secretary to a coal-mining office.  Here obsolete machinery around the disused mine was being dismantled to provide iron for the war effort.  Before the cage was removed, I persuaded the Colliery Manager to take me down to the coal face, 375ft underground where I hacked loose a piece of shiny black coal — which I still have!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/45/a4587645.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-509">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-816"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-816" id="name-816">
+                    Wartime Schooldays <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-816" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by epsomandewelllhc (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/78/a1980678.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Wartime Schooldays<br/>
+I was 9 years of age when the war started. I was in church with the Brownies on 3 September.  We had only just settled down when the Vicar said that he had been told to send us all home.  It was just after 11 o'clock when Chamberlain had made his announcement that we were at war.  At the same time there was a false alarm and all the air raid sirens went.  We filed out of church and I noticed many people kneeling at prayer.<br/>
+As soon as we got outside we were told to run as fast as we could to get indoors.  It took us about 20 minutes to get to where we lived, and every time we stopped some passers-by would tell us to run.  I got home and sank down in the kitchen, quite exhausted.<br/>
+My mother had gone upstairs where my grandfather was in bed and had said to him: "I don't know what to do.  War has been declared, there's an air raid on, and Pam's out".  He said: "Don't worry.  She's in church, so she'll be all right", little thinking that we would have been turned out.   <br/>
+For some weeks we were unable to go to school.  Apparently workmen had started to dig underground shelters on the school playing field, but had struck water, so they had to build brick shelters above the ground.  <br/>
+After some weeks those of us who would be taking the 11-plus the following year were allowed to go to school for one half-day a week.<br/>
+The school was used as an ARP (Air Raid Precautions) post where men and women were on duty all day, waiting for the siren to sound and being on the alert for any bombs that might fall.  There was a complete blackout.  We had to have heavy blackout curtains at our windows as well as our ordinary curtains, street lights and car lights and traffic lights were dimmed, and air raid wardens would go round the houses and if they saw so much as a chink of light through a curtain they would knock on the door and tell us to draw the curtain properly.<br/>
+Every man, woman and child was issued with a gas mask because it was expected that the Germans would use gas against us.  The masks were rubber, tightly fitting round the face, with some sort of substance in the lower part which would enable us to breathe.  For small babies there was a large mask which covered their whole bodies.<br/>
+For the first few months of the war life went on much the same. There was a large barracks where we lived and suddenly there many more man - and women as well, which was something new - being trained for the Army.  Anyone who had a room to spare was asked to have a soldier or AT (Auxiliary Territorial which was the women's service) billeted on them. Many of my friends' families did this, but we didn't at first because there were already five of us living in our house.<br/>
+Rationing didn't begin to bite until the beginning of 1940.  Every man, woman and child had a ration book which was marked out for every week of the year and items like meat and dairy products and sugar were strictly rationed.  The amounts per person were:<br/>
+1/2d (about 6d) of meat.<br/>
+2 oz bacon<br/>
+4 oz cooking fat<br/>
+4 oz margarine<br/>
+2 oz butter<br/>
+8 oz sugar<br/>
+2 oz cheese<br/>
+1 egg (if available)<br/>
+3 pts of milk<br/>
+Some other items like jam, tinned fruit, dried fruit, jellies, soap, sweets,  were on points.  You had a certain number of points and you could use them on any of these items until you had used them up.   <br/>
+Coal, which most people used to heat their houses, was also strictly rationed and I remember my mother having a furious row with the coalman because he said he hadn't any coal for her and my grandfather was seriously ill and there was no way of heating his bedroom.<br/>
+One day I had taken a large ball like a football to school with me.  As I was coming out of school with my friends one of the man on duty at the ARP post signalled me to throw it to him.  Soon we were having a game with the ball, but after some minutes we realised that someone was shouting at us and saw that our Headmistress was standing on the other side of the fence.  She told us to go home at once and we did.  the next day in assembly she told the whole school that she had seen "a sight that I hope I never see again - some girls playing netball with those men out there".  I as the owner of the ball had to own up and was told to keep it at home in future.  To this day I can't understand what the fuss was about.  It wasn't as if we were teenagers who might have been flirting with the men - it was all quite innocent, but that's teachers for you.<br/>
+As 1940 wore on we realised that things were getting very serious.  Norway and Denmark were invaded, then Belgium, Holland and Luxembourg, and the final disaster of the fall of France.<br/>
+In August the Blitz began.  My father was on holiday from work, but there was no question of going away.  We were discouraged from travelling, and anyway most of the South Coast was covered in barbed wire.  We had gone out for the day and were just getting off the bus when the air raid siren sounded.  I said "But we haven't got our gasmasks".  Although we were supposed to take them everywhere with us, most of us had got blase about carrying them and left them at home.  We got home without any further alarms, but I felt very frightened, expecting a bomb to fall at any moment.<br/>
+From then on there were  constant air raids.  School was often interrupted by the sound of the siren and we would have to go immediately to the shelter.  We were told to get together a tin of essential food and a first aid tin in case we had to stay for hours at a time in the shelter.  Of course, we ate the food, usually within a few minutes of going into the shelter.  Lessons would continue in the shelters.  Sometimes we weren't able to go to school at all - once a land mine had dropped near the school.  My father was in the Special Constables, so was often on duty in London all night, and we didn't know until he arrived home if he was safe.<br/>
+Many families had what was called an Anderson Shelter, named after the Home Secretary of the time.  This was made of corrugated iron and was put in the back garden.  It had to be sunk some way into the earth, and was fitted with bunk beds. We didn't have one because my grandparents were too infirm to climb into a shelter, but when the bombing got serious we moved out beds downstairs.  My grandfather had died by that time, so my grandmother and I slept together in the front room while my parents slept in the back room with a large mahogany table pulled over them.  We now had a soldier billetted on us and he slept upstairs.<br/>
+In November 1940 five bombs were dropped in our road.  My father was out.  I had been in bed, but couldn't sleep because of the noise, so had gone into the dining room with my mother and grandmother.  There was a heavy thump, and crash of glass, the light went off and then came on again, and then all went quiet.  My mother went outside and said that there was a fire down the road and I said "Was it just in incendiary bomb making all that noise?"  Then someone came knocking at the door.  It was an air raid warden who said that a mine had been dropped and might go off at any minute, so we would have to leave the house.  My mother said: "But we've nowhere to go" and he said that we could go to a Rest Centre, a place, usually a local Hall where people who had been bombed out could go.  She said:"But how can we get there?  My mother can't walk" and he said they could send a car for us.  Then she said: "But  my husband is on his way home from work.  He won't know where we are" but he said that they could leave a message for him at the ARP post.   <br/>
+Soon a car came along and we got in.  We were taken to a local church hall where we were shown into a room with one camp bed and several chairs.  Soon some neighbours of ours arrived.  while we were settling down my mother was trying to telephone some of the places where my father might be, but the lines were affected by the bombs and she couldn't get through.  She said that I had better get to sleep, so I settled down on the camp bed.  Some time later I woke up and asked where my mother was. My grandmother said: "she's just gone outside for a little while".  Almost immediately my mother appeared with one of the neighbours. She told me that my father was dead.  He had been making his way down our road when the bombs dropped.  He had been blown down an alleyway between two houses just ten doors from our home, and had been killed instantly.<br/>
+Some time between his body being found and his arrival at the hospital someone went through his pockets and took all his money, including his pay packet which he had just drawn.  My mother would say afterwards that this hurt her more than anything else.<br/>
+The next day we went to stay with my father's sister at Southall and stayed there for a week until the land mine had been removed and made safe.<br/>
+From then on our lives were drastically altered.  My mother's pension was quite inadequate to cover our needs, so she had to go to work full time.  My grandmother died a year after this, so I spent many lonely hours at home on my own.  I would stay at school until the last possible moment to put off going home to an empty house and I dreaded the school holidays and Saturdays</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/78/a1980678.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-816">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-672"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-672" id="name-672">
+                    Women&#39;s Land Army — Sept. 1939 - Dec. 1942 <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-672" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by MARJORIE PEARSON TOOMER  (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/01/a3878201.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>Mechanical teats or udder bliss!</p>
+<p>Expectations of a pending war loomed on the horizon one year prior to the actual outbreak on Sept. 3rd 1939. In 1938, being 18 years old, I knew that my “call-up” was inevitable and having been born into and living the first 8 years of my life within the atmosphere of a Cavalry regiment background, it was automatically assumed by my parents and myself that a female section of the army would be my choice.<br/>
+However, the months went by and in June 1939 it was again expectations of war and I became aware that the Women’s Land Army were recruiting and that one recruiting venue was in a private house not far from where I was living with my parents in Ealing, West London - so along I went and duly enrolled. What a change of ideas on my part - especially as I’d been scared of cows until an incident cured me of that fear. Although my father had finished his army career by then, we were living in a country location near an army garrison and in order to catch my ‘bus’ to take me to Grammar School 7 miles away - a walk of a mile from my home along a route also taken by cows making their way between milking shed and the grazing fields. We didn’t coincide until one morning - when they must have been either early or late and oh what horror, what was I to do? The answer was simple as in those days one wouldn’t consider missing one’s bus and being late for school. There was no choice even though no cowman in sight to provide confidence, so a question of braving it, holding my case of school books and lunch box close to my side as a shield, trembling somewhat and walking in amongst the cows, being bumped into by one and another of them until at last I emerged ahead of them - where upon a huge sigh of relief escaped my lips and fear miraculously fell away. Talk about feeling like a conquering hero(ine) and surprised at being quite safe. Maybe an ulterior motive of meeting a boy from my schooldays who I rather fancied and a desire to return to country living was the reason for joining the W.L.A. - although I was happy in my office job at Head Office of Gregg Publishing Co./Schools in Russell Square, London and the travelling by tube train Monday — Saturday was no burden. A couple of weeks after the war started I was instructed to go to Oaklands Agricultural College near St. Albans, Hertfordshire for 4 weeks training where I met up with several other W.L.A. trainees and kitted out with our uniforms - Breeches, short sleeved Aertex blouses, knee length woollen socks, Wellington boots, sturdy lace up shoes, long sleeved pullover, dungarees and jacket, thick riding style short overcoat, gabardine ‘mac’ and felt hat plus tie and badge. Underwear was our own. The first evening was in classroom where the Principal explained the various courses: Dairy - which included hand milking and various jobs in the cowshed, plus young bullocks and also the piggery: Poultry: Horticulture. We were given a choice and yours truly the only one to opt for Dairy etc. so the Principal asked for a volunteer to keep me company and only one girl offered. Next morning it was up early to start in the cowshed at 6.00 a.m. and learn to milk - not with a real cow but a contraption consisting of a make believe udder filled with water and fitted with valve controlled teats - this set up was  slung from a cross beam between wooden uprights. What excruciating agony in fingers, wrists and forearms in trying to “milk” the water into the pale clasped between one’s knees whilst sitting on a three legged stool. This agony lasted for 3 or 4 days and oh what a relief when the pain subsided as one became proficient at milking and then transferred to a real cow. Utter bliss by comparison with the wooden cow, although that didn’t have a tail to swish and catch one’s face a stinging blow - however, all part of the job along with swilling clean the cowshed floor afterwards. Then off to feed the pigs and clean out their pens and take about 6 for a walk! Yes that’s right, preparing them for a show ring apparently - I cannot remember whether young boars or gilts. A couple of land girls and a pigman, each with a light stick, just used to guide them along the track. Another job was to go, armed with a halter, into a field of young bullocks, catch one and proceed to take it for a walk also - “in a string as though with racehorses”. This was for the benefit of a documentary film being made at the time. Mine would insist upon trying to push me into the hedge and one had to be tough to prevent that happening but I had my foot trodden upon which resulted in me repeatedly losing, regrowing and losing a toenail for many years afterwards. Never mind, all part of the course! In spite of it all - such a difference to London office life and I took it all like a duck to water and was rather surprised at the end of the 4 weeks to hear the lady supervisor tell me that when she first saw me, didn’t think I’d stay the course - must have appeared pale and willowy I suppose. Rather on a par with my Father who had said “I’ll give you three months and that will be it”. Apparently he’d worked on a farm for a while before joining the Army - but that was way back about 1900 when conditions would have been much harsher. To round off the 4 weeks I was thrilled to be asked to stay on an extra week-end in order to help in the show ring. How important I felt, leading a heifer or two in front of prospective buyers. Then it was down to earth with a bump from near perfect conditions to the reality of the usual farm conditions of those days when I was sent to one near Potters Bar in Middlesex and had ‘digs’ with a family on a new housing estate nearby. After paying the stipulated ‘digs’ money and insurance stamp - you were left with the princely sum of 6 shillings per week. Two incidents stand out from this posting - having ‘a go’ on the bottle washing machinery — thinking that it would be much better than milking. Once was enough for me - this shed was open to the elements on one side, it was November, the bottles and the water so cold as one removed them from the moving belt into crates. Soon became stone cold from head to toes - ugh! The other incident was when detailed to stand almost at one end of a longish passageway between two rows of cattle pens in a large shed — wave my arms about and deflect a young bull into one of the pens whilst a cowman was driving it from the other end. Hair raising to say the least. Once again, as in the experience with the herd of cows in my school days I ended up unscathed and not trodden down. I was happy enough in my work here but did want to get into the area of my latter schooldays in Hampshire and found an advertisement for a W.L.A. girl - milking and general farm work in a village close to that location and moved in late January 1940.</p>
+<p>Hides, shrapnel and romance!</p>
+<p>Everything about this new job was a great improvement even though hard work and I did soon meet up with the boy afore mentioned! a bonus indeed and by now a young man of 20 and still working his apprenticeship and not yet called up. So romantic - I remember it well - being busy washing the pails etc. in the dairy and being brought a letter which turned out to be a Valentine card and having been in the same form for 4 to 5 years, I recognised the handwriting. How did the sender know I was there? via another boy from our form whom I’d bumped into inside the Post Office a week or so earlier when I’d cycled into Andover on my free Saturday afternoon and who had obviously relayed the fact to our mutual schoolfriend.<br/>
+The next year passed happily with varied farm work - milking being the main one and various unforgettable incidents - two of which could have been very serious but thankfully fate ordained otherwise. A bomb, one of several meant for a nearby airfield fell exactly where my boyfriend and myself had been sat on our bicycles at the driveway entrance gates to the farm chatting away after an evening at the cinema. The village air raid warden had come along and asked my boyfriend to help him remove an airman who was blind drunk and lying in the middle of the road some quarter mile away. We said Goodnight and went our separate ways - boyfriend to help with the airman and on then back to Andover and myself to the farm and bed. Before I had undressed there was such a lot of noise, the room shook and crump, crump --------bombs. My first experience and I didn’t know whether to dive under the bed or what. The noise died away and I ran downstairs again to join the farmer, his wife and the cowman. The cows were in a field close by so the men went out to investigate. Two or three were killed outright, another one or two had to be humanely shot and the remainder were brought into the cowshed. Next morning before milking we were picking bits of shrapnel out of their hides. The other incident was when I thought it would be a good idea to clean the gulley between the two sloping roofs of the cowshed, so put up a ladder and as I was about to step into the gulley, the ladder slid away and me with it. Landing on the concrete yard I didn’t stop to see if I was hurt - disentangled the foot still on a rung, jumped up and ran straight through the cowshed - obviously reaction to shock. Thankfully no-one was around to witness my ignominy and I pulled myself together but abandoned the original idea and found another job to get on with. Goodness knows how I didn’t break a leg or worse. On another occasion the wind changed direction and blew flames from a bonfire in my direction, resulting in singed eyebrows and hairline.<br/>
+During these 12 months I’d met and become friendly with the land girl on farm just a couple of hundred yards along the road. She hailed from the Isle of Wight, but became homesick and returned there and I took her place as I’d become friendly with that farmer and his wife - their son and daughter were attending the school I’d been at and I lived in the farmhouse en famille. The farm that I’d come from belonged to someone termed “gentleman farmer” who lived in the large country manor with farm and parkland. My first ‘digs’ there was in the farm bailiff’s house, occupied by a bachelor and his sister-in-law with her young son, she acting as housekeeper and whose husband was in submarine based on Malta - after a couple of months she was able to join him out there and then an older housekeeper was employed who didn’t stay long so I was moved into the ‘big house’ having a large pleasant bedroom in the attics and meals with the cook/housemaid.</p>
+<p>High fashion in the rain and fire watching duties</p>
+<p>I spent another 12 months on this second farm in the village but unfortunately developed milkers neuritis and had to give up milking so was sent to a market garden at Staines, Middlesex. However, life continued to have it’s incidents whilst still on the farm - one dark winter’s morning, milking alone in the cowshed, with a hurricane lamp in the feed bin when the door opened and all I could see were three tiny points of light - I was petrified as there was always the fear of enemy parachutists - but then a disembodied voice announced that “George couldn’t be milking as he were bad”. It was the boy’s father the carter from another nearby farm and the points of light were from his hurricane lamp hidden inside his overcoat and the light coming through the button holes!<br/>
+The market garden was nowhere near as interesting as farm work and the animals but one can usually find compensations. I could be with my parents every week-end as it was not all that far from Ealing-and travelled using tube to Hounslow and bus from there to Staines. There were about 10 W.L.A. girls here in addition to ‘civilian’ men and women who lived close by. Our first day was spent mending wooden boxes - used for packing vegetables - armed with hammers and nails. I don’t remember anybody missing a nail and hammering themselves. We were billeted in various houses close by - in pairs as I remember. Work was varied according to the seasons. Potato planting and harvesting, frozen brussel sprout picking, trying to get swedes out of the ground and resorting to kicking them out, indoor and outdoor tomatoes, indoor and outdoor flowers, washing carrots in a special contraption. On particularly wet days, it was the fashion to tie sacks around our shoulders, waists and legs on top of all our other clothing in a vain endeavour to keep dry. Then there was fire watching duty on a rota basis in pairs - using the shed cum office which contained two large old sagging armchairs and a tortoise stove with a limited supply of fuel for it - plus fuel for ourselves in the shape of thick slices of cheese and thick slices of bread which we toasted on the stove - delicious to ever hungry land girls and washed down with cocoa. We dozed in the armchairs in cosy comfort until the stove burned low and then to ashes and we’d wake feeling decidedly chilly. The owner told us to look to ourselves first if incendiaries were dropped as, with all those glasshouses around, it would be lethal to attempt any heroics with water buckets and stirrup pump. Luckily nothing nasty happened but we were glad to be in pairs on this duty. One memorable occasion during my twelve months here was when our area social overseer had received a consignment of clothing from America - known as ‘Bundles for Britain’ and invited us to her home in Laleham, Middlesex for a social evening and to distribute the clothing. We were able to choose a garment in order of length of service. I had my eye on a warm full length coat lining - probably sheepskin - but was pipped at the post by a girl who had enrolled about a week before me and she too had her eye on that garment. However, I came next and chose the next item of warmth - a two-piece ski suit made from a thick blanket type material which was just my size. Another year had passed and my father’s prognosis of 3 months had turned into 3¼ years! Reason for leaving? Marriage - to the “boy” from my schooldays.<br/>
+I’m still in contact with the “girl” I met at the market garden — and shared those “sagging armchairs and tortoise stove” on fire watching duties.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/01/a3878201.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-672">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Stonebridge: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>92</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                        <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                        <div id="week_stats_plot_desktop" style="width:90%;height:100px; margin: 15px 0 15px 0;"></div>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Stonebridge </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

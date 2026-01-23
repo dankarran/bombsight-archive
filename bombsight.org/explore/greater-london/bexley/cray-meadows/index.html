@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Cray Meadows - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[0.106009576303361, 51.42259102524504], [0.106079412366023, 51.422760924189582], [0.10637861138533899, 51.42289394513373], [0.106604118599154, 51.423066939203935], [0.106647136620969, 51.423063918960317], [0.1070640812106, 51.423137920531275], [0.107121431059275, 51.423133942559808], [0.107239129275123, 51.423229908724288], [0.10747252812890799, 51.423242011123996], [0.10759298456756999, 51.423300263505503], [0.107726828842855, 51.423258930867277], [0.108162769960071, 51.423530860711303], [0.109017024714685, 51.422910004732763], [0.11061644509237301, 51.423906973625144], [0.110736529064083, 51.42384002716237], [0.11108998844508, 51.424018857807411], [0.111349048835546, 51.424177894922586], [0.111411715745221, 51.424113814753987], [0.111787241809281, 51.424244332537953], [0.111578844194412, 51.424423864620834], [0.111476632234319, 51.424546838356505], [0.112187734505379, 51.424740852723396], [0.11222202683626201, 51.424626847129154], [0.112540252862861, 51.424703870189809], [0.112517794257894, 51.424996828286417], [0.11244036494048899, 51.425442813953488], [0.11317850133327501, 51.425267772693907], [0.113719548750624, 51.425068876440498], [0.11405512316458299, 51.425404836901869], [0.113463481773252, 51.425734757759237], [0.11358636757801401, 51.42584566199573], [0.113392483360425, 51.425949626232132], [0.113262399735907, 51.426131266687364], [0.112888718920737, 51.426547601096125], [0.112824185662287, 51.426532612399583], [0.112629438395177, 51.426871524833992], [0.11217113981473301, 51.427851448112051], [0.112787143710076, 51.427990410215344], [0.112661644453443, 51.428154406140365], [0.112566641644491, 51.428219493419753], [0.112658636568453, 51.428381391842052], [0.113447387847242, 51.428308436811839], [0.114647085680396, 51.42921039751338], [0.114843008177601, 51.429403303436182], [0.11575747695757301, 51.430494188189954], [0.11583295067315701, 51.430629124494871], [0.11590483389776, 51.43084225270443], [0.116002674338398, 51.431617107030242], [0.116004066633509, 51.431861160072778], [0.115978523640807, 51.431931036882979], [0.115870793010694, 51.432110029509516], [0.115661340181352, 51.432364068008596], [0.114645605417816, 51.433189372363934], [0.114613386351893, 51.433231825913559], [0.114533136073852, 51.433752758166314], [0.116000991962403, 51.433876754940428], [0.116109042999045, 51.433412929609162], [0.11888317196862, 51.433666880821157], [0.118889129527266, 51.433639938781589], [0.11939055102152001, 51.433691014657754], [0.119743225252965, 51.434199903487155], [0.12012152973568101, 51.434232824007985], [0.120332002253836, 51.434272859290701], [0.120101551529117, 51.434500727565499], [0.12005112201098, 51.43457681093259], [0.11998419907583099, 51.434859892472218], [0.12691818612354, 51.435458760079641], [0.12815492148300101, 51.435599866425612], [0.12951547946528499, 51.435792811504101], [0.13144267339975099, 51.436122832778075], [0.131889028372773, 51.43595578929412], [0.132037561506333, 51.435881848259406], [0.13420908337442999, 51.434373100904835], [0.13449530078243099, 51.434532992680985], [0.134931525071039, 51.434207067818541], [0.13462291651699701, 51.434049122802399], [0.134828486519324, 51.433945196058765], [0.13466698712655001, 51.43370223566361], [0.13460907436788999, 51.433540156917225], [0.136720415675506, 51.432672357451132], [0.13767766695738101, 51.432972327829773], [0.13822075105853701, 51.433260306504245], [0.13841225340097299, 51.433317240503889], [0.13900427041718399, 51.433440203713502], [0.13924030469183299, 51.433661280614324], [0.13954284953791399, 51.433997210419633], [0.13976124943448201, 51.434341140350604], [0.13983150053443799, 51.434401123770435], [0.14009518859675299, 51.434444222299156], [0.14022718216296501, 51.434440126740121], [0.14037085448528799, 51.434397168459], [0.14061348322876199, 51.434259246492417], [0.140763069789064, 51.434227156575901], [0.14102728648768201, 51.43424312346437], [0.14118587410052699, 51.434269307549535], [0.14140525469000301, 51.434326141758511], [0.14192700272810299, 51.434407240255396], [0.14201553390667401, 51.434435274513646], [0.14211129363438901, 51.434502240274568], [0.142282799716974, 51.434766077454832], [0.142421529724403, 51.434925137359087], [0.142559003703187, 51.435038130066737], [0.14282349466055599, 51.435213151366867], [0.143115971407205, 51.435583116911864], [0.14316886746701701, 51.435618119168815], [0.14328868497278499, 51.435661032705262], [0.143452338327341, 51.435680104017628], [0.14368484312528201, 51.435633131911494], [0.14390259612877601, 51.435559033039084], [0.14410384540291399, 51.435459101135315], [0.145010114182307, 51.435148140252686], [0.145313508852627, 51.435117152308166], [0.14553122078311001, 51.435138177967552], [0.14566604148020201, 51.435175197053773], [0.14601816717944799, 51.435378249879534], [0.14712662765334, 51.436215093095036], [0.14772894361594499, 51.435885091827977], [0.148597421530588, 51.435229124971315], [0.14893268830814901, 51.435053232230423], [0.149376908245933, 51.434938300947344], [0.150501520437057, 51.434969239706149], [0.15079464219187, 51.434949246371488], [0.150872774407037, 51.434966220867693], [0.151242194098102, 51.435192266641536], [0.152137236903021, 51.435829659117672], [0.15238659288589901, 51.435969243680454], [0.15254076856566001, 51.436035128178737], [0.152792948974699, 51.436043278021586], [0.152880222534761, 51.436006128899955], [0.15302173250786899, 51.436185209821218], [0.15326940405667699, 51.436040142522515], [0.15356420149201699, 51.435960116150845], [0.15376156145075701, 51.435835227882251], [0.15421048167535301, 51.435189313430172], [0.154260264929279, 51.435024279008005], [0.15427427971749899, 51.434844302327356], [0.154434804793288, 51.434567343454631], [0.15453479688924601, 51.434456472974887], [0.15468083023010901, 51.434349378759649], [0.15491740673603399, 51.434217440985584], [0.15518432395462001, 51.43409942102285], [0.15555418400691601, 51.433971495427507], [0.15571170938907899, 51.433879511982283], [0.155861672823284, 51.433760547478428], [0.15614274040034801, 51.433198510800239], [0.15646766295883699, 51.432632157843997], [0.156639527134524, 51.432405580289419], [0.15672614033159801, 51.432220749417773], [0.15674100875424701, 51.43213574550056], [0.15664713628281199, 51.432070727525669], [0.15643750019407199, 51.431991687385199], [0.15584840393235, 51.431931700599307], [0.15586816960918801, 51.431014756180545], [0.15584819747281001, 51.430876853239603], [0.15560907793919601, 51.430438915577803], [0.15546735668328401, 51.43008334542823], [0.15538786968646201, 51.429693469571212], [0.155402948888195, 51.429364391483034], [0.15538428002663701, 51.429235037881071], [0.155274931475686, 51.428974984481918], [0.15518647263205099, 51.428852964526975], [0.15477091056937101, 51.42841011083334], [0.154463911974007, 51.428172099099505], [0.15373745079169199, 51.427522785914455], [0.153498141292428, 51.426295845266303], [0.15333424496039599, 51.425639984483659], [0.15329203644685099, 51.425315882164277], [0.15329197370505901, 51.425008437704193], [0.153319589128418, 51.42473546895188], [0.15350355738691701, 51.423906002001416], [0.153491141575404, 51.423603701986302], [0.15345296710651801, 51.423422713460141], [0.15310817478797201, 51.422322774834605], [0.15297790709583101, 51.421980196551367], [0.15282554505799401, 51.421703369825543], [0.15197111019360901, 51.421005950943851], [0.15143941268865499, 51.420671874835143], [0.15113232608964999, 51.420430485743225], [0.151626802030841, 51.420202062696106], [0.152269772732471, 51.419996059554883], [0.15308074379447001, 51.419539663165779], [0.15314027113801201, 51.419467182594978], [0.15395622884693499, 51.418983153965506], [0.15460674991978801, 51.418479811652354], [0.154351878094871, 51.418182807221143], [0.15407987368130499, 51.417770058306765], [0.15350355013192199, 51.417710249651513], [0.15314031925690899, 51.417651302278266], [0.15247404476515, 51.417704715495574], [0.15210854918434, 51.417712275844238], [0.15175610936598, 51.417691766239862], [0.1510289507756, 51.417616306622925], [0.151110823944133, 51.416718315234441], [0.151094306348698, 51.41573445262145], [0.15114293160269399, 51.415487518502196], [0.15115699745470601, 51.41525104461374], [0.151128417005085, 51.415063561830834], [0.15107054309958701, 51.414922145239764], [0.150749058856602, 51.414373149919058], [0.150598426264721, 51.4141897304956], [0.15051775846399501, 51.414137109111699], [0.15023412025480701, 51.414107191789647], [0.150132681299641, 51.414071674530234], [0.149970388900447, 51.413907714716153], [0.14985617638923401, 51.413695668109455], [0.149765981079377, 51.413420790947235], [0.14966458894146001, 51.412983813493312], [0.14958718952710301, 51.412809307905135], [0.14946255801178601, 51.412681758886826], [0.14913285349837399, 51.412435862073536], [0.14972555186189099, 51.411658483582627], [0.151603730499834, 51.411442035299189], [0.15247601673139699, 51.411356046155568], [0.15374446383892601, 51.411265992585413], [0.15353910759693001, 51.410989155265746], [0.153333184466099, 51.41048961225443], [0.152906193565372, 51.408708972891034], [0.15242699334535201, 51.408724103112796], [0.15160683182340501, 51.408713031680755], [0.15156921713648799, 51.408677743449765], [0.15069804794476099, 51.408805311223205], [0.15004141935978599, 51.408946773523596], [0.14928572614511701, 51.409141480620683], [0.14896226891293199, 51.408740907696185], [0.14880314885924201, 51.408510004338204], [0.14796338990512101, 51.408809245360438], [0.147346009428383, 51.40900224233669], [0.14588634220625801, 51.409364111218345], [0.14520864174220999, 51.409555116509978], [0.14398259041783301, 51.410031984509892], [0.14209578863467101, 51.410678999291335], [0.14093743472209899, 51.411124806773842], [0.14023861854654601, 51.411345821146476], [0.13890109521984001, 51.41170874134329], [0.13849340702417301, 51.411966726734327], [0.13722105486698399, 51.412513636559815], [0.13417418766884001, 51.413885522660792], [0.133868886889626, 51.413988456641761], [0.13350768666813101, 51.414068381828521], [0.132877494080618, 51.414278405298681], [0.132322095223011, 51.41441539219776], [0.13177498571787699, 51.414518226729463], [0.130299477957948, 51.414739255700695], [0.12955903300232799, 51.414898287209688], [0.12883614546394101, 51.414971279522923], [0.12766487713086, 51.415008290216889], [0.12741719062486501, 51.414978226638397], [0.127174367755537, 51.414917151105925], [0.12691015178669501, 51.41480223276978], [0.12673334656600299, 51.414672227333945], [0.126191519604757, 51.414831150289487], [0.12589032610648701, 51.414868228756298], [0.12570379971819701, 51.414858121701364], [0.124936573114144, 51.414692180090775], [0.12459888402105899, 51.414601205718448], [0.12307318922987801, 51.414108248399351], [0.122013844458619, 51.413825333328035], [0.120728117958134, 51.413564205361162], [0.119986242844282, 51.413440206829243], [0.118855093757541, 51.41327532987772], [0.118350073231919, 51.413219262462945], [0.117853478324263, 51.413190298607546], [0.116146736408077, 51.413173219962559], [0.11477494116914, 51.413071235617181], [0.11383160352416299, 51.413080244966586], [0.113653223015589, 51.413071242643255], [0.11347834193751501, 51.413060206252432], [0.113074944180072, 51.41292725004341], [0.11271878842788401, 51.413000269927956], [0.112655769704242, 51.4130761630134], [0.112493919854807, 51.413172098834409], [0.111965354141423, 51.413307252745248], [0.11181478295688101, 51.413336100964095], [0.11130601088158, 51.413374212178098], [0.110349610213687, 51.413529148489467], [0.108879455044953, 51.413809382276206], [0.109068793052448, 51.414329953913949], [0.109230084292015, 51.414689996238003], [0.109492697159664, 51.414907992384833], [0.110403858068074, 51.416482770251228], [0.11161905543825, 51.41774869820199], [0.111532996707451, 51.417792682954548], [0.111472019020422, 51.417893549542626], [0.110510376919364, 51.419673348692314], [0.109977921371821, 51.419940358919199], [0.10966027590596999, 51.420128742942119], [0.109770265695894, 51.42023328059269], [0.10927004411920301, 51.420439279251674], [0.10912801533634101, 51.420517292215287], [0.10897579439084901, 51.420667298384906], [0.10827952976940899, 51.420871765102184], [0.108065855874134, 51.421327087139353], [0.107981523110754, 51.421409116381049], [0.10770144989932801, 51.421496075202555], [0.107407535044986, 51.421536068939055], [0.107621497322653, 51.421849076113148], [0.106403776917085, 51.422190081679268], [0.105798221248941, 51.42231534671371], [0.106009576303361, 51.42259102524504]]]]}, "type": "Feature", "id": 1073, "properties": {"pk": 1073, "name": "Cray Meadows"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Cray Meadows, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Cray Meadows, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Cray Meadows</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Bexley</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Cray Meadows
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Cray Meadows, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Cray Meadows: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>126</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Cray Meadows</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-876"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-876" id="name-876">
+                    Mum&#39;s War: In London   <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-876" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by J. Betson (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/30/a2057230.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>My mother died in January 2000, at the age of 88.  During the War she and my father and my elder brother, born in 1938, lived in Bexleyheath, which is on the outskirts of South East London, and not far from the rivers Thames and Medway.  <br/>
+Mum said that, at the time of the fall of France and the Dunkirk evacuation, for several days they, in Bexleyheath, could hear the guns all the way from the French coast.<br/>
+	She remembered how, during the Battle of  Britain in the summer of 1940, a year when the skies seemed to be permanently clear and blue, she and the other women in her road used to stand on their back steps and watch the “dog fights” going on overhead between the Hurricanes and Spitfires of the RAF and the Luftwaffe fighters.<br/>
+The women would jeer at the enemy and cheer our lads on enthusiastically, especially when they shot down one of the German planes.<br/>
+ 	 When talking about the War, my mother and brother used to say: “Do you remember next door’s dog?” and they’d laugh.  Apparently, they always had advance warning of when the air raid siren was going to go off, because a couple of minutes before, the said dog would come tearing out of  next door’s back door, barking wildly in warning, charge along the garden path, and bolt straight down into the shelter.  He always got down there before any body else.  It used to amuse my brother as a little boy, and he still laughs about it now.<br/>
+My parents remembered that at some point during the War, a neighbour who had been on duty down by the River told them that a large number of  bodies had been washed up.  He’d seen them, he said.  Other local people had whispered of it too.  They said that there had been some kind of disaster but nobody knew what it was, and nobody was allowed to talk about it.  <br/>
+	My father was a mechanical engineer, working in the inspection department of Molins Machine Company’s war time premises at Ruxley Corner, Sidcup. Until 1940 he had worked at their normal base in Evelyn Street, Deptford.  During the War they made machines for weighing and packing amunition,  machinery for loading shells, and other items in the munitions field, so he was in a reserved occupation, and wasn’t called up, despite being only in his thirties.  <br/>
+He said that they had a lot of women working in the factory.  He remembered one of them felling a foreman with a shifting spanner, because he’d been rude to her sister.  <br/>
+Dad also said that the employees of the firm voluntarily raised the money to buy a Spitfire for the RAF.<br/>
+He was in the Home Guard for a while, in 1943 and 1944.  One of his “spare time” occupations was driving a munitions truck from Woolwich Arsenal to the anti-aircraft guns at Erith docks<br/>
+I still have his wartime National Registration Identity Card, issued by the National Registration Office on 15 May 1943.  Everybody had to carry identity cards during the War.<br/>
+His sister worked as a clippy on the buses, and did fire watching at night.  Their mother, who also lived in South East London, but a bit further in, was “bombed out” three times during the War.  Amazingly, she survived unscathed.  They didn’t have a shelter in the garden, as my parents did.  I don’t think they had a garden to have a shelter in.  They had to make do with getting underneath a big strong table shelter in the kitchen.  Dad’s father was a locomotive engineer, and around sixty, so he continued to do that during the War, it being vital to keep the trains running.  He’d done similar work in Sheerness dockyard during the First World War.<br/>
+	Mum was hard of hearing from as early as her fifties, and she always blamed it on the deafening and continual noise made by the “Ak-Ak gun at the end of the road”, and also the bombs exploding nearby.  <br/>
+She spoke of barrage balloons overhead.  They were there to make things difficult for enemy aircraft.<br/>
+	My parents kept chickens in the back garden, to supplement the meagre egg ration, and of course they grew vegetables in the rest of the garden.<br/>
+When I was small, I came across a bag of different coloured balls of knitting wool with kinks in it, in the bottom of the wardrobe.  Mum said that it had kinks in it because it was left over from the War, and during the War it was very difficult to obtain knitting wool, so if you wanted a new jumper you had to unravel an old one and re-knit it.  She said that often people would knit multi-coloured striped garments, combining bits of wool from several different old garments, just to try to introduce a bit of variety to their clothing.<br/>
+At that time she still had their old gas mask cases too.  They were the size of a hand bag, black, the shape of a semi-flattened bucket, with a lid, and a shoulder strap.<br/>
+	Our American cousins offered to have my brother for the duration of the War, but my mother said “No.  If we are going to die, we are all going to die together”.  So my brother stayed.  The American cousins frequently sent my family parcels of things which were unavailable here, to try to make life a bit easier.  Both my mother and her sister said that they were very generous, and couldn’t speak too highly of them.<br/>
+	The house opposite my parents’ bungalow received a direct hit one day, and was destroyed, but the people who lived there were all in the shelter in the garden, and survived.  The explosion blew out all the windows in my parents place, and the neighbours houses.<br/>
+	On one occasion, my brother, who suffered badly from croop, had been sleeping on the settee in the living room for several nights, because it was warmer in there than in the shelter.  The first night he wasn’t on the settee, the tip of a shell came through the roof and landed right on it.  If he had still been sleeping there, he would have been killed.  We had that shell tip up until 1970, when it disappeared in a move.  It was made of  thick polished steel, about six inches across, and very heavy.   We used it as a door stop.<br/>
+	Mum spoke of a terrifying incident which happened one day when she was out shopping, with my brother strapped in his push chair or pram.  A German plane swooped down and chased people along the road, machine-gunning them.  She was running, and wanted to dive for cover, but couldn’t get my brother out of his pram because he was strapped in.  If she’d stopped to unstrap him, they’d both have been hit by the bullets, so she just had to keep running and pushing the pram.  She made it to cover and they both survived.<br/>
+	Another time, my father was on his motor-bike and Mum was in the side car, and they were going along a country road in the Dartford area, when a Nazi plane came along shooting up any body on the road.  They both had to jump in to a ditch.  My father pointed out the spot to me one day, when I was a child, but I can’t remember its exact location now.<br/>
+	Mum spoke of  the “doodlebugs”, V1 flying bombs which made a buzzing noise and then their engines cut out and they dropped. There was dead silence, then an explosion.  She said they were called doodlebugs because they doodled around all over the place, so you couldn’t work out where they were going.  They used to have lots of them coming over Bexleyheath.   She said that when you heard one buzzing overhead you’d just hold your breath and pray that it kept buzzing until it was clear of you.  The RAF fighters used to chase them and try to shoot them and make them explode in mid air, so that they didn’t do so much damage.<br/>
+	After that, towards the end of the War, she said, came the V2 rockets, which were even worse, because they were faster, struck more suddenly and were much more difficult to shoot down.  Lots of those passed over, or dropped on the Bexleyheath area as well.<br/>
+When my parents were demolishing their Anderson shelter at the end of the War, they found a small plain pottery gnome which they had never seen before, about one and a half inches tall, buried in the earth near the entrance.  Mum always kept it, because, she half-jokingly said, it must have looked after them during the Blitz — something to do with the old country belief  that if you had a goblin living beside your hearth it would keep the house safe.<br/>
+</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/30/a2057230.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-876">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Cray Meadows: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>126</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Cray Meadows </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

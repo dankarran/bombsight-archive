@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Wembley Central - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.30731803369227501, 51.547369489301097], [-0.30725881293319701, 51.547338008817938], [-0.307138574333014, 51.547335012544039], [-0.30707486926423999, 51.547363872343134], [-0.30703556158550999, 51.547426960708755], [-0.30693976757671998, 51.54743344216061], [-0.30663055823663699, 51.547652948297802], [-0.30639368942484202, 51.547513940304164], [-0.306439837007563, 51.54775191734133], [-0.30641376660337899, 51.5484297537404], [-0.30636906536972103, 51.548710820806981], [-0.30639058861933, 51.548968819870545], [-0.30637290650284998, 51.549068739442198], [-0.30674982448941401, 51.549065754068629], [-0.30681588277302801, 51.549568723129376], [-0.30667567193858603, 51.549569655502523], [-0.30680172718288901, 51.550872540526179], [-0.30629676264733302, 51.55088843843069], [-0.306200791389379, 51.551235523877132], [-0.30616182022906302, 51.551621470705363], [-0.306290710869354, 51.551840402710283], [-0.30595091699351901, 51.551911371952627], [-0.30572705273821399, 51.551931463715029], [-0.30545810413416302, 51.551939384636427], [-0.30479827628089101, 51.551925498126927], [-0.30434938174856901, 51.551960457410786], [-0.30294409004998701, 51.55217436664303], [-0.30214320995190203, 51.552280515083538], [-0.30194958086694701, 51.552287409185809], [-0.30153048337982902, 51.552272494336748], [-0.30069081926463997, 51.552173504517995], [-0.30055585726895501, 51.553702348744316], [-0.300862612691562, 51.553720271904581], [-0.30100353690465298, 51.554511252288151], [-0.30322534227766701, 51.554404157597126], [-0.30322532982851602, 51.555325021091434], [-0.303431496224634, 51.55650795352414], [-0.30337241407561799, 51.558519681738943], [-0.30328085127848797, 51.559550647818256], [-0.302035719249648, 51.559791586615937], [-0.301183955440951, 51.558343727764928], [-0.30035384548901001, 51.557005908508373], [-0.29972792327207398, 51.557180900811801], [-0.29942605996703903, 51.556729013404649], [-0.299262494150975, 51.556763033108311], [-0.296809123131337, 51.556151104154189], [-0.29663745177870599, 51.556149035747367], [-0.29646620009593999, 51.556208087273049], [-0.29606731292935501, 51.556158179522455], [-0.29567712155869502, 51.556153074371544], [-0.29415946225454798, 51.556185109019012], [-0.293841387219617, 51.556228117923268], [-0.29355435670368601, 51.556285067307989], [-0.29347866267287798, 51.556272161690607], [-0.29310964690163099, 51.556267217848088], [-0.29305668492464099, 51.556285130630378], [-0.29294348025245098, 51.556371015894491], [-0.292795754101073, 51.556271076700185], [-0.29349475760571098, 51.555866199160739], [-0.29383066540170999, 51.555599205814879], [-0.29393375803857602, 51.55548226110669], [-0.29400169959817701, 51.555329252792973], [-0.29401444480421701, 51.5551571822906], [-0.29397850114081497, 51.555009274941334], [-0.293788594202263, 51.554639230363918], [-0.287156455584967, 51.554335504095008], [-0.28651937591031301, 51.554327463913694], [-0.28672522713737902, 51.553743582154411], [-0.28667834349881699, 51.553611525553521], [-0.286555403577398, 51.553464592186444], [-0.28627732211887902, 51.553283634124831], [-0.28592917588944999, 51.553155602162519], [-0.28544754205357797, 51.552945683067875], [-0.28507015835251098, 51.55272055457781], [-0.28463233302820801, 51.552304725294789], [-0.28352949568953001, 51.551342859747791], [-0.28399940576196703, 51.551168904294649], [-0.28370145184902501, 51.550893791015106], [-0.28688497857329598, 51.549755020053688], [-0.286786238118172, 51.549684029485199], [-0.28645089129554702, 51.549072152218727], [-0.28631414704110503, 51.548465145317714], [-0.28629804034887701, 51.548258224786856], [-0.28622002214897801, 51.548151145907369], [-0.28604192024845698, 51.547973194232505], [-0.28626100975265101, 51.547060306945824], [-0.29011465974202999, 51.547333188812566], [-0.29044863140698601, 51.547369243306868], [-0.29081132109179703, 51.547432694956591], [-0.29062438099306298, 51.547646214784514], [-0.29080242439827603, 51.547754048034001], [-0.29113254063195299, 51.547833184378227], [-0.29118548859237903, 51.547803182040646], [-0.29124266369921298, 51.547793195211248], [-0.291281464311205, 51.547804156239714], [-0.29140146847696402, 51.547861124865484], [-0.29199071380751401, 51.548229538566652], [-0.29213145655658201, 51.548334994343641], [-0.29238567084737499, 51.548346558154961], [-0.29256140066206598, 51.54839604929203], [-0.29278371768683198, 51.548416991515559], [-0.29299854086381, 51.548337078418363], [-0.29303922599161403, 51.548334014709056], [-0.29323437269318098, 51.548490988066291], [-0.29338123734300597, 51.548577000983776], [-0.29345241713119902, 51.548602060243368], [-0.29364627565632401, 51.548624971796059], [-0.29390605699493699, 51.548331023931119], [-0.29416110152188302, 51.547934999252028], [-0.29433796530793399, 51.547460130308281], [-0.29464005798923698, 51.547481105347799], [-0.29532192240314598, 51.547241060149453], [-0.29757499906477097, 51.546815274451738], [-0.297447877835612, 51.546348245747922], [-0.29742590422278897, 51.546043157093962], [-0.29697267769622099, 51.544783439189523], [-0.29690952928367398, 51.544543378844551], [-0.29687031054837498, 51.544239494528831], [-0.29733147455015502, 51.54340551544886], [-0.29780051494106902, 51.542224641257853], [-0.29792551531800898, 51.541555828199876], [-0.29803962071407802, 51.541323818546573], [-0.29820848631982799, 51.54114586280128], [-0.29837647713876198, 51.541027746838814], [-0.29929301119650498, 51.540485897918259], [-0.30242984215421898, 51.541649605562561], [-0.302762209981634, 51.541800537533589], [-0.30315983257786899, 51.542014659106471], [-0.30365474076684501, 51.54235157635847], [-0.304080011332861, 51.542731471982492], [-0.304419733557803, 51.543133444608308], [-0.30536468666281802, 51.544737188306925], [-0.30560980515965802, 51.545090166491605], [-0.30588761046216001, 51.545437142806072], [-0.30618872194741198, 51.545751167622328], [-0.30662251098292698, 51.54615799969411], [-0.30718279896224798, 51.546605025398037], [-0.30762549275600898, 51.546917995107123], [-0.30780535959965, 51.547026243019573], [-0.30731803369227501, 51.547369489301097]]]]}, "type": "Feature", "id": 1105, "properties": {"pk": 1105, "name": "Wembley Central"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Wembley Central, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Wembley Central, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Wembley Central</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Brent</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Wembley Central
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Wembley Central, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Wembley Central: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>21</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Wembley Central</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-528"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-528" id="name-528">
+                    My Glen Miller Orchestra Story
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-528" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by WMCSVActionDesk (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/68/a4163168.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the Peoples War site by Anastasia Travers from CSV Action Desk on behalf of Ashley Leather and has been added to the site with his permission. Ashley Leather fully understands the sites terms and conditions.</p>
+<p>1st and 2nd parts of Starborad Watch were stationed in the R.N.Barracks at Chatham. We were on weekend leave from 12 midday Saturday to 07.00 hours Monday. There was insufficient time to travel to my home in Ossett (West Yorkshire) so my pal Jeff Clements whose home was in Annerly (London suburb) invited me to go home with him. On arrival his mother immediately informed us there was a rumour that the Glen Miller Orchestra might be passing through London on the way back to an American airbase. The destination and time was not known but she thought that the Hammersmith Palaise seemed a likely venue.</p>
+<p>After tea we duly set forth, I hadn’t a clue which direction I was travelling, just trusted Jeff to lead the way. People were gathering in small groups so the whispers had travelled far and wide. Eventually a large coach (American style) was seen approaching. A band with instruments at the ready soon piled into the Palaise and straight onto the stage. With their attractive vocalists and their overcoats still on, it soon began to feel like a Wembley football crowd.  </p>
+<p>No sooner had the orchestra struck up with ‘In the Mood’ I grabbed the young lady standing beside me and pulled her quickly onto the floor with the words ‘come on girl lets make history’. ‘Wha Eah’ (typical cockney girl) she replied. We only managed to dance once around the floor but it was of no consequence. We had danced to the music of the Glen Miller Orchestra. I said to the girl ‘stand still where you are and don’t attempt to move off, you won’t get on the floor again.’ Dancing was now impossible due to the increase in crowd.  Within 45 minutes the Orchestra waved the crowd goodbye. I dragged the girl to the nearest exit and we were able to watch the Orchestra mount the coach steps one by one with a smile and half salute/wave from each member.</p>
+<p>I believe this route of the orchestra was a deliberate attempt to raise people’s morale. On reflection, so much for the slogan ‘careless talk costs lives.’ I was pleased to think that my impulse to pull a young lady onto the dance floor had given her an experience to talk of for the rest of her life.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/68/a4163168.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-528">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-490"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-490" id="name-490">
+                    My Teenage War Years - from Wembley to Singapore
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-490" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by sarahbateson (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/02/a4143502.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the Peoples War website by Sarah Bateson on behalf of John Dyer.</p>
+<p>I was 11 when the war broke out attending Wembley Hill School and often when the registar was call there would be no answer and someone would say 'he was bombed out last night sir'.The school had a direct hit one night just before I was 14 so that was the end of my education.I started work learning plumbing with R.J.Audrey of Kilburn Park Road.One of my first jobs was at Euston Fire Station,I would cycle there from Wembley in the blackout.The crews often worked through  the night and would fall asleep on the floor still in their wet uniforms.Another job was at either Caledonian School or the Brecknock installing a sinks and slop hoppers for a mortuary.I often saw the bodies coming in,some had to be hosed down,there were mothers still clutching babies.Everyone had to have a post mortem.The school was still open and the children played in the playground around a pile of clothes from the<br/>
+bodies.The mortuary attendants coped by being comedians and casual but when I was sent for the sandwiches and tea and gave them brawn they,not surprisingly threw it back at me.They used to try and frighten me with their tales of blood and gore.I also worked at Northolt Aerodrome which was a fighter command at the time.One airman crashed landed and his plane went 15 feet into the ground,I can still see the rescuer's tears when they dug him out.I stole some dark chocolate,a rare treat in the war,but unbeknown to me it was to keep the pilots awake on missions,I didn't sleep for a week.I was still just a kid witnessing unimaginable horrors. About 1940 the IRA bombed the reservoir supplying the water for the cooling station for the Bakerloo Line,it didn't do too much damage but all Wembley had to be evacuated.An aerial torpedo bombed the Grand Union Canal in Wembley where it goes over the road in a viaduct.It caused terrible flooding and many people lost their lives in Tokington Avenue,where I lived.They were drowned in their garden Anderson shelters.I did lots of war damage work in London and I was on a roof in Finchley Road when I saw the doodle bug hit  the London Zoo.I worked at many British Restaurants which were subsidised by the government,you could get a good meal and a cup of tea for a shilling (5p).Well then my war began and I was called up and did my initial train ing at Whitby,I enjoyed that as I was trained to be a dispatch driver and had the moors to ride on.Although I had seen some terrible things I was still quite naive.One day,whilst queuing for dinner at the old Metropol Hotel,which was now our canteen,wanting to light my cigarette I asked a girl in the queue if she had a match.When she replied 'yes my face and your a**** I was quite shocked.It was VE day whilst I was there but I can't remember any celebrating,infact we were all quite disappointed we wouldn't be in the war.I was sent to India and had a wonderful tour of the country by rail,I witnessed the beginning of the riots in Calcutta and saw the British Flag come down over India for the last time.I can't leave India without mentioning Curly.He was an ol d soldier who couldn't read or write,he had no teeth but a lovely head of hair.He had lots of girl penfriends and he proposed to them all.We would write the letters he dictated and he even included samples of material for the wedding dress.He would sit on his bed roaring with laughter at the replies saying 'read it again kid'.He received lovely food parcels which he shared among us.If we went out in the evening we had to take condoms with us whether we wanted to or not.A very upperclass officer used to say to us 'if you don't go out with a pecket,you'll come back with a pecket'.I was then sent to Japan with the occupational forces,we had to guard the officers who were considered war criminals.The Japanese civilians were so polite and humble in defeat it wa s impossible to imagine the atrocities they committed.They were starving when we arrived,it wasn't the bomb that finished the war it was the starvation.We had to escort the prisoners to Singapore for the war trials.They were kept in the hold of the ship.One soldier closed his eyes in the heat for a moment and a Japanese officer threw himself on the soldier's fixed bayonet,the blade went through his throat.There was a big enquiry but I don't know the outcome. That was my war and all before I was 21.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/02/a4143502.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-490">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-509"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-509" id="name-509">
+                    War Time Memories
+ <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-509" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by BBC Scotland (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/45/a4587645.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This story was submitted to the People’s War site by Nadine from the People’s War Team on behalf of Doreen Mackie and has been added to the site with her permission.  The author fully understands the site’s terms and conditions.</p>
+<p>1939, I was part of a team involved in keeping track of the number of enemy ships, aircraft and any other warlike vessels to be seen around Norway and as far south as the French coasts.  </p>
+<p>I was based at the Photographic Reconnaissance Unit in Wembley, Middlesex and was one of the C shift — three shorthand typists, employed in the task of taking shorthand dictations from archeologists, explorers and geophysicists, who had been called up into the RAF for the purpose of examining photographs, in order to assess the enemies strength and perhaps their purpose of intent.  One of the interpreters had during the 1930’s reached the then highest point on Mount Everest and another was the late Glyn E Daniel, the archaeologist, later Emeritus Professor at Cambridge, and famous broadcaster in the erudite television quiz programme “Animal, Vegetable or Mineral”.  </p>
+<p>Often we would work all night; sometimes we would come in for our shift duties, only to find that due to bad weather the aeroplanes had been unable to take off, or the deterioration in the weather had precluded any photographs being taken.  Then we would be able to get some sleep.  I remember a very small, stuff room with no window and a mattress on the floor — called a biscuit — where we were able to relax for a few hours.</p>
+<p>The photographs were interpreted in a special metal protected room and the Intelligence Officers would sit before a Swiss-made Wild photo-geometric machine, which would make prints to distort the images — to compensate for the errors in alignment of the aeroplane with the ground — and study the different types of craft and enemy activity.  They would dictate the results of their observations to the secretaries who would be expected to transcribe in quick time for the reports to be sent out by special delivery to the Coastal Command, Bomber Command, the Admiralty etc...<br/>
+Typing the correct spelling of the locations dictated to us took considerable concentration, as errors were severely frowned upon.  We typed on waxed sheets (mistakes amended by most noticeable red ink) and then rolled off on a Gestetner Duplicating Machine which hungrily used up many tubes of a black inky substance.</p>
+<p>An example:</p>
+<p>ST. NAZAIRE - General Shipping<br/>
+There has been no significant change in the Port since 15.12.40<br/>
+One M/V 400-500ft and a tanker 300-400ft have departed from the BASSIN DE PENHOUET, 1 motor patrol craft and a few small craft have left the BASSIN DE ST. NAZAIRE.  There has been no evidence in these photographs that ST. NAZAIRE is being used as a submarine base.</p>
+<p>When the bombing increased in Wembley we moved to Danesfield Court, Medmenham, Buckinghamshire, near Marlow to a stately home built in the style of The White House in Washington.  It certainly was very grand, surrounded by beautiful terraced gardens.  We secretaries boarded out in nearby cottages and enjoyed the respite from the bombing.  After a while, all civilians working in the RAF were expected to join the service.  Some of us did go into uniform while others went their own several ways into different war work.  I myself was directed by interest to Cheadle, Staffordshire, where I was secretary to a coal-mining office.  Here obsolete machinery around the disused mine was being dismantled to provide iron for the war effort.  Before the cage was removed, I persuaded the Colliery Manager to take me down to the coal face, 375ft underground where I hacked loose a piece of shiny black coal — which I still have!</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/45/a4587645.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-509">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Wembley Central: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>21</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Wembley Central </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+
+
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.00, maximum-scale=1.00, user-scalable=no" />
+    <meta name="description" content="Bomb Sight makes you discover London during WW2 Luftwaffe Blitz bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives.">
+    <meta name="author" content="University of Portsmouth, in collaboration with the National Archives and funded by JISC.">
+
+    <title>Bombs dropped in Marlborough - Bomb Sight - Mapping the World War 2 London Blitz Bomb Census</title>
+
+    
+
+    <link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/af36c546f0d6.css" type="text/css" /><link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/f346201c4912.css" type="text/css" media="print" />
+
+    <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/leaflet.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Zoomslider.ie.css" />
+     <link rel="stylesheet" href="http://static.prod.bombsight.org/static/lib/leaflet/L.Control.Pan.ie.css" />
+    <![endif]-->
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://static.prod.bombsight.org/static/lib/flot/excanvas.js"></script><![endif]-->
+
+    <!--jasia -->
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,700,900' rel='stylesheet' type='text/css'>
+
+    <link rel="shortcut icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="../../../../../static.prod.bombsight.org/static/img/favicon.ico" type="image/vnd.microsoft.icon" />
+
+
+
+    <script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/69277132e140.js"></script>
+
+<link rel="stylesheet" href="../../../../../static.prod.bombsight.org/static/CACHE/css/dfcd2c7d6b09.css" type="text/css" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    
+    <script>
+        var first_day_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell around %x:00",
+                dateFormat: "%h"
+            },
+            series: {stack: 0, 	color: '#0f78b6', // jasia 221112
+	fill: 1, // jasia 221112
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000, align: 'center',color: '#0f78b6', fill: 0.6}},// jasia 221112
+            yaxis:{},
+            xaxis: {
+                mode: "time",
+                timeformat:"%Hh",
+                tickSize: [2, "hour"],
+                twelveHourClock:false,
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-09-07T00:00:00")).getTime(),
+                max: (new Date("1940-09-08T00:00:00")).getTime()
+            }
+        };
+
+        var first_week_options = {
+            grid:   {show:true, hoverable: true, clickable: true,
+                borderWidth: 1,
+                color: "rgb(48, 48, 48)",
+                backgroundColor: "rgb(255, 255, 255)"
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%y bombs fell on the %xth",
+                dateFormat: "%d"
+            },
+            series: {stack: 0,color: '#0f78b6', fill:1,
+                lines: {show: false, steps: false },
+                bars: {show: true, barWidth: 60*60*1000*24, align: 'center',color: '#0f78b6', fill: 0.6}},
+            yaxis:{},
+            xaxis: {mode: "time", tickSize: [1, "day"],
+                tickColor: "rgba(255, 255, 255, 0)",
+                min: (new Date("1940-10-06T00:00:00")).getTime(),
+                max: (new Date("1940-10-15T00:00:00")).getTime()
+            }
+        };
+
+        var first_day_stats = [{data:[] }];
+        var first_week_stats = [{data:[] }];
+
+        var boundaryGeoJSON = {"crs": null, "type": "FeatureCollection", "features": [{"geometry": {"type": "MultiPolygon", "coordinates": [[[[-0.34779208216871998, 51.597182491035881], [-0.34770807839343998, 51.597234549111782], [-0.346161385569972, 51.597619529463039], [-0.34531934876186299, 51.597175476895629], [-0.339898603569116, 51.594615975714738], [-0.33818414377767098, 51.593825131535709], [-0.33527518594038502, 51.594500052974084], [-0.33525155232817999, 51.595455000920197], [-0.33528231955816301, 51.595748941998394], [-0.33532259975330098, 51.596041903800305], [-0.33556526901755002, 51.596660742689828], [-0.33388249006902299, 51.597013696681742], [-0.32944404812483302, 51.598047800035971], [-0.32706057405817801, 51.598745540000053], [-0.32384794078458901, 51.599709559170641], [-0.32371973694836997, 51.599821530053724], [-0.32366605087573302, 51.599980522126181], [-0.32346084065210901, 51.599965648562069], [-0.32317382965200597, 51.599966604088301], [-0.32273404343620599, 51.600035633037358], [-0.322292211303986, 51.600160542068977], [-0.32205109494357997, 51.600250529175632], [-0.321683330782431, 51.600434532706075], [-0.321202023741752, 51.60063855006144], [-0.320887537851825, 51.600723240557592], [-0.31966391917982001, 51.600964567657329], [-0.32027847415875699, 51.600243583384525], [-0.320710264308601, 51.599608654421566], [-0.32087938165438501, 51.59928074591145], [-0.32103893487290402, 51.598881752701267], [-0.321101079845868, 51.598701676722058], [-0.32109320975575301, 51.598596749470303], [-0.32115834035204699, 51.598555812238423], [-0.32124830295788898, 51.598171836092078], [-0.32149787513553901, 51.59549011177878], [-0.32180576290415103, 51.595436209089996], [-0.32187766436792298, 51.594195325604105], [-0.32198665487961903, 51.593882301415363], [-0.32228290815471899, 51.593274360306545], [-0.32254278295439798, 51.592882415656355], [-0.322841778376252, 51.592530375250583], [-0.32331956635404302, 51.592076497061093], [-0.32372258956445499, 51.591753472358711], [-0.32423730692462499, 51.591423615686431], [-0.32475655525867297, 51.591178544336771], [-0.32554377751767699, 51.590875646338162], [-0.325771346288935, 51.590891645725499], [-0.32651025587062998, 51.590892625402731], [-0.32752794755551601, 51.590857536760055], [-0.32817196467823101, 51.59091251232482], [-0.32829323295891399, 51.590619601806665], [-0.32874381587851798, 51.590401076084262], [-0.32957271265858401, 51.590445610159918], [-0.330129795321284, 51.590533490219762], [-0.33039197568951301, 51.590531593884798], [-0.33124763268945001, 51.590793575418942], [-0.33179542120737299, 51.590741510294556], [-0.33329437426411201, 51.591460403103198], [-0.333301580693178, 51.591066393846795], [-0.33327049798029701, 51.590966478447505], [-0.33295942214775898, 51.590529588529719], [-0.33281031276501299, 51.590178607101159], [-0.33278255657217198, 51.59004965072274], [-0.332832487167949, 51.58952361618713], [-0.332805601799815, 51.589321615874248], [-0.33254826886140598, 51.588784743274829], [-0.33209134337798302, 51.587415935831501], [-0.33207562426355902, 51.587167869746722], [-0.33213058827696801, 51.586799971428427], [-0.333043195570077, 51.586761933256327], [-0.33320554876406799, 51.587144999236891], [-0.333726525089169, 51.587109404396315], [-0.33497081468398499, 51.587129309438787], [-0.335238016662945, 51.587038818955769], [-0.33552893433832398, 51.586891906059911], [-0.33531516213692902, 51.586693010820632], [-0.33468223417091397, 51.585620986311064], [-0.33525397763327902, 51.585553085181239], [-0.33527820024360999, 51.585384130355948], [-0.33557175991893801, 51.585362014114907], [-0.335600725007001, 51.58539614458865], [-0.33573696213746201, 51.585396115181716], [-0.33575990425841601, 51.585521061638524], [-0.33617308841042898, 51.585521164700964], [-0.33714060329524898, 51.585460963646035], [-0.33925239457732198, 51.585218012669927], [-0.33920438882631898, 51.584926065858859], [-0.33963368262695898, 51.584868070439228], [-0.33976442302024301, 51.585142080813498], [-0.34073950254172503, 51.585047114070356], [-0.34074630599942601, 51.585331028448671], [-0.34092865372050601, 51.585971913915692], [-0.34121134866027297, 51.585925891758208], [-0.341287285049301, 51.585995951275812], [-0.341397229324225, 51.585986961846153], [-0.34090854354568201, 51.584889054307993], [-0.34104051555012499, 51.584844971839857], [-0.34100659500913599, 51.584711013200632], [-0.34153107242669001, 51.584603076884029], [-0.34199421462881802, 51.585646956764101], [-0.34233004834938602, 51.586346904236471], [-0.34341629900769199, 51.588144660007018], [-0.34661008546751998, 51.593054042701887], [-0.34724808533123802, 51.593971938621188], [-0.34811099768779602, 51.595294694314681], [-0.34840075604148601, 51.595739668147225], [-0.34884807713681698, 51.596144703595911], [-0.349044796266056, 51.596393489328833], [-0.34927005236900699, 51.596813530004098], [-0.34779208216871998, 51.597182491035881]]]]}, "type": "Feature", "id": 1297, "properties": {"pk": 1297, "name": "Marlborough"}}]} ;
+
+        var map;
+        $(document).ready(function(){
+            map = new L.Map('smallMap', {dragging: false, scrollWheelZoom: false, doubleClickZoom: false, zoomControl: false, panControl: false, zoomsliderControl: false});
+            //var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/1714/256/{z}/{x}/{y}.png',
+                    //cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+                    //cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+    cloudmade = new L.TileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '<a href="https://carto.com/location-data-services/basemaps" target="_blank">CartoDB</a> – Map data OpenStreetMap.org contributors', subdomains: '1234' });
+            map.addLayer(cloudmade);
+
+            var bombs = new L.TileLayer(GEOSERVER_URL + GWC_PATH + AGG_BOMBS_ID + "@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png', {
+                tms:true,
+                transparent: true,
+                opacity:1
+            }).addTo(map);
+
+
+
+
+
+
+
+
+
+            var boundaryLayer = L.geoJson(boundaryGeoJSON,{
+                style: function style(feature) {
+                    return {
+                        fillColor:  ' #464f6a',
+                        weight: 2,
+                        opacity: 1,
+                        color: ' #464f6a',
+                        fillOpacity: 0.4,
+                        clickable: false
+                    };
+                }
+            }).addTo(map);
+            map.fitBounds(boundaryLayer.getBounds());
+
+            if(first_day_stats[0].data.length){
+                $.plot($('#day_stats_plot_desktop'), first_day_stats, first_day_options);
+                $.plot($('#day_stats_plot_mobile'), first_day_stats, first_day_options);
+            };
+            if(first_week_stats[0].data.length){
+                $.plot($('#week_stats_plot_desktop'), first_week_stats, first_week_options);
+                $.plot($('#week_stats_plot_mobile'), first_week_stats, first_week_options);
+            };
+
+            //Map layer switching on
+            $('a[data-toggle="tab"]').on('shown', function (e) {
+                var layerName;
+                switch(e.target.id){
+                    case 'agg_bomb':
+                        layerName = AGG_BOMBS_ID;
+                        break;
+                    case 'week_bomb':
+                        layerName = WEEK_BOMBS_ID;
+                        break;
+                    case 'day_bomb':
+                        layerName = DAY_BOMBS_ID;
+                        break;
+                }
+
+                bombs.setUrl(GEOSERVER_URL + GWC_PATH + layerName +"@EPSG:900913@" + 'png' + "/{z}/{x}/{y}." + 'png'
+                );
+                bombs.redraw();
+            });
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var hash = '#' + zoom + '/' + center.lat + '/' + center.lng;
+            $('#explore-main-map-link').prop("href", "http://" + window.location.host + hash)
+
+        });
+    </script>
+
+    
+    <meta property="og:title" content="Explore what happened in Marlborough, London during the Blitz." />
+    <meta property="og:description" content="Explore what happened in Marlborough, London during the Blitz. Discover London during WW2 bombing raids, exploring maps, images and memories. The Bomb Sight web map and mobile app reveals WW2 bomb census maps between 7/10/1940 and 06/06/1941, previously available only by viewing them in the Reading Room of The National Archives. " />
+    <meta property='og:site_name' content='Bomb Sight'/>
+    <meta property="og:image" content="http://static.prod.bombsight.org/static/img/bombsight_social_logo_square.jpg" />
+
+
+
+
+    <script type="text/javascript">
+
+        var AGG_BOMBS_ID = 'prod_agg_bomb';
+        var WEEK_BOMBS_ID ='prod_week_bomb';
+        var DAY_BOMBS_ID = 'prod_day_bomb';
+
+        var AGG_BOMBS_MAPS_ID =  'agg_mosaic_auto_contrast_sharpen_15';
+        var WEEK_BOMBS_MAPS_ID = 'weekly_mosaic_auto_contrast_sharpen_15';
+        var DOB_ID =  'defence_site';
+
+        var WMS_PATH = 'geoserver/sit/wms';
+        var GWC_PATH =  'geoserver/gwc/service/tms/1.0.0/sit:';
+
+        var STATIC_PREFIX = 'http://static.prod.bombsight.org/static/';
+        var GEOSERVER_URL = 'http://geoserver.bombsight.org/';
+
+        $(document).ready(function(){
+
+            //todo: this is a temporary fix for dropdown menu not working on android browser. see https://github.com/twitter/bootstrap/issues/4550#issuecomment-8525357 for more explanations. Waiting to see if Bootstrap 2.2.2 will fix this for good
+            $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+            //todo: fix for bootstrap modal on IE7
+            $('.modal').modal({show:false}).on("shown",function(){
+                $(".modal-backdrop").insertAfter($(this))
+            });
+
+            $('.footer-heading').click(function(){
+                $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                return false;
+            });
+        });
+
+        //todo: set to right domain once we go live!
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-35707171-1'],['_setDomainName', 'www.bombsight.org']);
+        _gaq.push(['_trackPageview']);
+
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        var addthis_config = {
+            data_ga_property: 'UA-35707171-1',
+            data_ga_social : true
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div id="header" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href='../../../../index.html'><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_mappingww2.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="hidden-phone"><img src="../../../../../static.prod.bombsight.org/static/img/bombsight_responsive.png" alt="Bomb Sight - Mapping the WW2 Bomb Census" class="visible-phone"></a><!-- jasia 231112 -->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="../../../../index.html">Map</a></li>
+                    <li><a href="../../../index.html">Explore London</a></li>
+
+                    
+                    
+                    
+                        <li ><a href="../../../../about/index.html">About</a></li>
+                    
+                        <li ><a href="../../../../faq/index.html">FAQ</a></li>
+                    
+                        <li ><a href="../../../../data/index.html">Data</a></li>
+                    
+                        <li ><a href="../../../../androidapp/index.html">Android App</a></li>
+                    
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+<div id="content">
+    
+
+    <div class='container'>
+        <div class="row">
+            <div class='span7'>
+
+              
+            
+                <h1 class="bombtitle">Bombs dropped in the ward of: Marlborough</h1>
+
+                       
+            
+
+                <div id='top-bar' class="bombwards">
+                    Explore statistics for the local area
+                    <ul class="breadcrumb">
+                        
+                        
+                            <li>
+                                <a href="../../../index.html">Location Index</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a href="../../index.html">Greater London</a>
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <a class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Local Authority" href="../index.html">Harrow</a><!-- jasia 201112 -->
+                                <span class="divider">/</span>
+                            </li>
+                            <li>
+                                <div class='elements-tooltip' rel="tooltip" data-placement="bottom" data-original-title="Present-day Ward">
+                                    Marlborough
+                                </div>
+                            </li>
+                            
+                        
+
+                    </ul>
+                </div>
+
+                <div id="smallMap" style="height: 400px; width: 100%; margin-bottom: 20px;">
+                </div>
+
+                <div class='clearfix'>
+                    <div class="pull-left"> <a class='bs-btn' id='explore-main-map-link' href="../../../../index.html"><i class="bs-icon-arrow-left"></i>Explore Main Map</a></div><!-- jasia -->
+                    <!-- AddThis Button BEGIN -->
+                    <div class="addthis_toolbox addthis_default_style addthis_32x32_style pull-right"
+                         addthis:title="Explore what happened in Marlborough, London during the Blitz. via @bombsightuk"
+                            >
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50a658c6091b0ca9"></script>
+                    <!-- AddThis Button END -->
+                </div>
+
+                <div class='well visible-phone' style='margin-top: 10px;'>
+                    <h2>Description</h2>
+                    <ul class="nav nav-tabs">
+                        <li class='active'><a href="index.html#agg_tab_mobile" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                        <li><a href="index.html#week_tab_mobile" data-toggle="tab" id='week_bomb'>First week</a></li>
+                        <li><a href="index.html#day_tab_mobile" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="agg_tab_mobile"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Marlborough: </h3>
+                            <dl class="dl-horizontal">
+                                
+                                    <dt>High Explosive Bomb </dt>
+                                    <dd>3</dd>
+                                
+                            </dl>
+                        </div>
+                        <div class="tab-pane" id="week_tab_mobile">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                        <div class="tab-pane" id="day_tab_mobile">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                        <h2>Memories in Marlborough</h2><!-- jasia -->
+                        <p>Read people's stories relating to this area:</p><!-- jasia -->
+                            
+    <div class="accordion" id="story-accordion">
+    
+        <div class="accordion-group">
+            <div class="accordion-heading" id="name-830"><!-- jasia 201112 -->
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#story-accordion" href="index.html#collapse-830" id="name-830">
+                    A Journey Into Memory - Reminiscences of a Conscientious Objector <i class="bs-icon-arrow-right"></i>
+                </a>
+            </div>
+            <div id="collapse-830" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h5>Contributed originally by Herts Libraries (<a href="http://www.bbc.co.uk/history/ww2peopleswar/stories/89/a3506889.shtml">BBC WW2 People's War</a>)</h5>
+                    <div id="body">
+<p>This is Mr D Barkshire's story; it has been added by Herts Libraries, with permission from the author, who understands the terms and conditions of adding his story to the website.</p>
+<p>Part One — In Prison as a Conscientious Objector</p>
+<p>Having been a member of the Peace Pledge Union since its inception, when the war started in 1939 I registered as a conscientious objector.  I was 27 years of age at the time and into my confident, rationalist period.  In due course I received an appointment to attend before a tribunal to have my conscientious objection tested.  These tribunals were always of a standard type with a legally qualified Chairman, either a barrister or a retired judge; a member of the working classes, generally a trade unionist; and a member of the employers’ organisation, the CBI.  My tribunal application was refused.</p>
+<p>Then, after I had refused to attend medical examinations, a very pleasant police constable appeared on my parents’ doorstep with a summons for me.  “You are a very silly chap,” he said.  “You might very well fail the medical examination.”  I said to him, “That really isn’t the point”.</p>
+<p>In Wealdstone Magistrates Court the clerk read out the charge — ‘that you were ordered to attend for a medical examination for army purposes…  How do you plead?  Guilty or not guilty?’  Full of my own confidence I said “I admit the facts mentioned in the charge sheet but I feel no sense of guilt”.  “Take him down for twelve months” said the magistrate, so I was taken to the cells beneath the court and in due course a police vehicle, popularly known as a Black Maria.  Eventually we arrived at Wormwood Scrubs prison — actually quite a nice location because if you stood on a chair in your prison cell, as I did, you could look over the open meadowland of Wormwood Scrubs.</p>
+<p>Now the first thing that happens as a prisoner is you are taken to see either the Governor or Deputy Governor who reads you the rules which you must obey and these include the fact that you will be prohibited from holding arms for five years after the end of your sentence.  I didn’t feel this a terrible loss, I must say.  After that I saw the Chaplain — always, of course, the Church of England Chaplain — in this case a very pleasant chap called Tudor Rees.  He said to me ”you know many men have spent useful times in prison.  John Bunyan wrote wonderfully well in Bedford Prison”.  I suggested that Voltaire was the better for having the freedom of Europe in which to write.  Well, we shook hands and I was taken then to the showers.</p>
+<p>You may have had a good bath that very morning but you are still pushed into the shower.  You are thrown some grey flannel underwear and clothes.  A pair of grey flannel trousers and a grey flannel coat.  You are not measured for it to any extent so when taken to your cell you may be quite a comic sight actually, with trousers halfway up your leg or like concertinas around the ankles.  But you do have a chance during your stay in prison to improve this garb because in the wash house during the week prisoners quite frequently change their clothing with the chap in the adjoining shower to find a better fit.  Some look comparatively smart, with clothes that fit their frame.  </p>
+<p>For the first six months I was in Solitary confinement.  The only time I was out of the cell was when I was released in the morning to clear the po and to wash.  The cell was small with a hard bed and a flock sort of mattress and a couple of blankets, a table and a chair.  There was a bell in the cell to ring if you were in dire trouble.  In theory a warder should call and unlock you and deal with the problem.  In practice, I heard from other prisoners, this did not always work out.</p>
+<p>On the first day some porridge was passed in to me and I could only eat perhaps a quarter of it and the rest was taken away.  But by the end of the week I was eating everything that was given to me.  I remember that, perhaps about 6 O’clock in the evening you were given a small cob loaf and there would be no more food for the day.  Even though hungry, I always put that cob up on the shelf by the window for a little time before I started eating it, so that I wasn’t absolutely starving in the morning.</p>
+<p>Anyway, a special workshop was set up for conscientious objectors.  Their sole enterprise was the production of mailbags.  Newcomers were given a big ball of black wax and a whole skein of thread.  They had to run the thread through the wax to coat it.  This was done for a week or two, perhaps a month, then you moved on to the sewing, stitching pieces of hessian to make the mailbags.  The next pressing job was collecting up the finished bags.  Finally, if you were lucky, you were given the job of handing round the cut pieces of hessian and the wax to men who did not come to the workshop but stayed working in their cells.</p>
+<p>After six months you came ‘off stage’ and this meant that not only could you take your meals in communion in the main hall but you were allowed out for some hours in the evening where there were games available, chess and drafts and what-have-you.  I was not very fond of board games but I remember how nice it was to lose a game to another prisoner because it made him happy.  That suited me very well.</p>
+<p>Either every week or month, I can’t remember now, you were allowed either a visitor or a letter but not both.  I generally chose a visitor because, although I had not then joined the Quakers — the Society of Friends, I had very strong contacts with Maurice Rowntree.  Before going into prison I used to visit his house every Friday.  I was visited frequently by Maurice and by John Lord, another Quaker, who was a member of the Golders Green Meeting.</p>
+<p>One good thing about prison is that there was time to think, time to read.  I had taken in to prison with me, J W Dunn’s ‘Experiment with Time’ and I remember Maurice Rowntree asking me, when I came out of prison at Christmas 1942, whether I had made any progress on it.  Well I had, but right then the big thing as far as I was concerned was that I was out of prison.  Now it was time to do something more useful.</p>
+<p>Part Two — The Volunteer Relief Service Unit</p>
+<p>After my stint in prison for being a conscientious objector I went back to the Volunteer Unit in Poplar where I had previously been working at weekends.  There I found that quite a few of the members were working as nursing orderlies for terminally injured ex-servicemen of the First World War at a residential nursing home in Ealing.  This establishment was run by one of the nursing orders of the Roman Catholic Church, the Sisters of St Vincent.  I worked there from the beginning of 1943 until after the end of the war.</p>
+<p>There were times when one felt extremely low and extremely sad.  I remember going in, the first day I was there, to feed a badly injured man.  Feeding him was very difficult.  I almost dropped the plate of food.  After, I went straight into the kitchen and sat down, right out.  But I was soon back doing everything.</p>
+<p>Another memory I have of that is the time when I had the job of laying out, after he had died, one of the patients there who had an awfully badly damaged back.  I can’t describe it.  And for about seven days after it was as if I didn’t see any sunshine at all, it was so awful.  But apart from that I enjoyed the work there and the company was definitely good.</p>
+<p>As part of the relief service unit at Poplar, I took round buns and tea to the people in underground shelters and also tried to find accommodation for those who were bombed out of their homes.  We all of us knew what accommodation was available, where church halls were, where the vacant property was.  Our unit was based in Plimfole Street, Poplar, in the first floor and basement of a bombed out Baptist Chapel.  I remember that one of the members of our team was a very good pianist and he liked Chopin sonatas particularly.  By great luck there was a grand piano on the stage in the basement of that old Baptist church and there he would sit down after he had been on his rounds and be perfectly happy.</p>
+<p>Epilogue</p>
+<p>The First World War was a war fought on the same lines, really, that had been in use over centuries.  And those men who were not willing to fight because they were conscientious objectors were regarded as criminals.  Indeed, many of them were sent abroad under armed guard and on one occasion a number of them were lined up, blindfolded and stood ready expecting to be shot, though they were not, in fact, killed.  (The record of that I read in a book dealing with conscientious objectors of the First World War.)  During the First World War a procedure of “cat and mouse” was regularly employed: a man who did not attend for a medical was given a year’s sentence.  Out he came to receive another appointment for a medical examination and in due course he was back in the same cell within a month or so.  England wasted a large proportion of her mankind in the First World War.</p>
+<p>In the Second World War a better culture prevailed and those who did not take part in military endeavours were still used in hundreds — Bevin’s boys, those who worked on the land, some in my position who voluntarily took up relief work.</p>
+
+</div>
+                    <p><a href='http://www.bbc.co.uk/history/ww2peopleswar/stories/89/a3506889.shtml'>Copyright BBC WW2 People's War</a></p>
+                    <p><a href="index.html#name-830">Back to Top &#94;</a></p>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+            </div><!-- end span 7 -->
+
+            <!-- between main cols -->
+
+            <div class='span5'>
+
+            <div class='well hidden-phone'>
+                <h2>Description</h2>
+                <ul class="nav nav-tabs">
+                    <li class='active'><a href="index.html#agg_tab_desktop" data-toggle="tab" id='agg_bomb'>Aggregate</a></li>
+                    <li><a href="index.html#week_tab_desktop" data-toggle="tab" id='week_bomb'>First week</a></li>
+                    <li><a href="index.html#day_tab_desktop" data-toggle="tab" id='day_bomb'>First 24h</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="agg_tab_desktop"><h3>Total number of bombs dropped from 7th October 1940 to 6th June 1941 in Marlborough: </h3>
+                        <dl class="dl-horizontal">
+                            
+                                <dt>High Explosive Bomb </dt>
+                                <dd>3</dd>
+                            
+                        </dl>
+                    </div>
+                    <div class="tab-pane" id="week_tab_desktop">
+                            <h4>Number of bombs dropped during the week of 7th October 1940 to 14th of October: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                    <div class="tab-pane" id="day_tab_desktop">
+                            <h4>Number of bombs dropped during the first 24h of the Blitz: </h4>
+                            <p>No bombs were registered in this area</p>
+                        
+                    </div>
+                </div>
+            </div>
+                <h2>Images in Marlborough </h2>
+                <p>See historic images relating to this area:</p>
+                
+
+    <p>Sorry, no images available.</p>
+
+
+
+                <div id="google_ad"><!-- jasia 221112 google ads -->
+                    <h3>Google Ads</h3>
+
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-1952517583355649";
+                    /* BombSight2 */
+                    google_ad_slot = "9519032897";
+                    google_ad_width = 180;
+                    google_ad_height = 150;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                            src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+
+                    <div><a href="../../../../about/funding/index.html" class="why_ad">Why is this site using Google ads?</a>   </div>
+                </div><!-- end google_ads -->
+
+
+
+            </div><!-- end span 5 -->
+        </div><!-- end main row -->
+    </div>
+
+
+</div>
+
+<div id="footer">
+    <div class='container-fluid'>
+        <div class="row-fluid">
+
+            <div class="span2"><h3 class='footer-heading'>Elsewhere Online</h3>
+                <ul class="socialist">
+                    <li><a href="http://twitter.com/BOMBSIGHTUK" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_twitter.png" alt="Twitter"></a></li>
+                    <li><a href="http://blitzbombcensusmaps.wordpress.com/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_wpress.png" alt="Blog"></a></li>
+                    <li><a href="http://www.youtube.com/user/bombsightuk/" target="_blank"><img src="../../../../../static.prod.bombsight.org/static/img/social_youtube.png" alt="YouTube"></a></li>
+                </ul>
+
+
+
+            </div>
+
+            <div class="span5"><h3 class='footer-heading'>Disclaimer</h3>
+                <p>
+                    The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
+
+                    <br>The  Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+                </p>
+            </div>
+            <div class="span2"><h3 class='footer-heading'>Browse Bomb Sight</h3>
+                <ul>
+                    <li><a href="../../../../data/index.html">Data Sources</a></li>
+                    <li><a href="../../../../data/terms_of_use/index.html">Terms of Use</a></li>
+                    <li><a href="../../../../data/citation/index.html">Citation Guide</a></li>
+                    <li><a href="../../../../about/cookies/index.html">Privacy & Cookie Policy</a></li>
+                    <li><a href="../../../../about/team/index.html">Project Team</a></li>
+                </ul>
+
+
+
+
+
+
+
+            </div>
+
+            <div class="span3"><h3 class='footer-heading'>Project Sponsors</h3>
+                <ul class="logolist">
+                    <li><a href="http://www.port.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_upo.png" alt="The University of Portsmouth"></a></li>
+                    <li><a href="http://www.nationalarchives.gov.uk" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_nationalarchive.png" alt="National Archive"></a></li>
+                    <li><a href="http://www.jisc.ac.uk/" target="_blank"><img src="../../../../../static.bombsight.org/static/img/logo_jisc.png" alt="JISC"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="../../../../../static.prod.bombsight.org/static/CACHE/js/2395bfa544ff.js"></script>
+</body>
+</html>

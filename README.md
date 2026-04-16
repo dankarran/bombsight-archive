@@ -29,14 +29,14 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
   
 ## Data snapshot
 
-| Dataset                                                | Layer Name                             | Type   | File                                        | Size    |
-|--------------------------------------------------------|----------------------------------------|--------|---------------------------------------------|---------|
-| First Night of the Blitz (7 Sep 1940)                  | day_bomb                               | Point  | [day-bomb.geojson](data/day-bomb.geojson)   | 332Kb   |
-| Aggregate Bomb Census points (7 Oct 1940 - 6 Jun 1941) | agg_bomb                               | Point  | [agg-bomb.geojson](data/agg-bomb.geojson)   | 13.9Mb  |
-| Aggregate Bomb Census map (7 Oct 1940 - 6 Jun 1941)    | agg_mosaic_auto_contrast_sharpen_15    | Raster | TBC                                         | TBC     |
-| Weekly Bomb Census points (7-14 Oct 1940)              | week_bomb                              | Point  | [week-bomb.geojson](data/week-bomb.geojson) | 810Kb   |
-| Weekly Bomb Census map (7-14 Oct 1940)                 | weekly_mosaic_auto_contrast_sharpen_15 | Raster | TBC                                         | TBC     |
-| Defence Sites                                          | defence_site                           | Point  | TBC                                         | TBC     |
+| Dataset                                                | Layer Name                             | Type   | File                                                    | Size    |
+|--------------------------------------------------------|----------------------------------------|--------|---------------------------------------------------------|---------|
+| First Night of the Blitz (7 Sep 1940)                  | day_bomb                               | Point  | :world_map: [day-bomb.geojson](data/day-bomb.geojson)   | 332Kb   |
+| Aggregate Bomb Census points (7 Oct 1940 - 6 Jun 1941) | agg_bomb                               | Point  | :world_map: [agg-bomb.geojson](data/agg-bomb.geojson)   | 13.9Mb  |
+| Aggregate Bomb Census map (7 Oct 1940 - 6 Jun 1941)    | agg_mosaic_auto_contrast_sharpen_15    | Raster | TBC                                                     | TBC     |
+| Weekly Bomb Census points (7-14 Oct 1940)              | week_bomb                              | Point  | :world_map: [week-bomb.geojson](data/week-bomb.geojson) | 810Kb   |
+| Weekly Bomb Census map (7-14 Oct 1940)                 | weekly_mosaic_auto_contrast_sharpen_15 | Raster | TBC                                                     | TBC     |
+| Defence Sites                                          | defence_site                           | Point  | TBC                                                     | TBC     |
 
 ## Terms of use
 

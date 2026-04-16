@@ -9029,8 +9029,8 @@ function LMap(container, mapState, options) {
         attribution: BACKGROUND_ATTRIBUTION
     });
     this.osmBaseLayer.name = OSM_BASE_TEXT;
-    this.aerialBaseLayer = new L.BingLayer("As3TZ_SSRPWJvy8_OxrA9kDk66ngRxEGTZPcQ6u6kKZj3YOIypvjXvCwGEJSq3jm");
-    this.aerialBaseLayer.name = HYBRID_BASE_TEXT;
+    //this.aerialBaseLayer = new L.BingLayer("As3TZ_SSRPWJvy8_OxrA9kDk66ngRxEGTZPcQ6u6kKZj3YOIypvjXvCwGEJSq3jm");
+    //this.aerialBaseLayer.name = HYBRID_BASE_TEXT;
     this.ajaxClusterMarkers = new L.MarkerClusterGroup({
         iconCreateFunction: function (cluster) {
             var childCount = cluster.getChildCount();

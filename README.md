@@ -16,16 +16,16 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
 
 ### Remaining issues
 
-* AddThis needs removing/updating
-* Google Analytics may need updating
-* Google Ads needs updating
 * Mapping
-  * Map provider
-    * Base map provider (OpenStreetMap) should be replaced with new provider
-    * Nominatim geocoder (OpenStreetMap) should be replaced with new provider
   * Geoserver needs restarting/replacing
-  * Error from `http://dev.virtualearth.net/REST/v1/Imagery/Metadata/AerialWithLabels?include=ImageryProviders&jsonp=_bing_metadata_1&key=[...]`
-    `Got metadataThe request was forbidden.  Your credentials may be denied or suspended.`
+* Map provider
+  * Base map provider (OpenStreetMap) should be replaced with new provider
+  * Nominatim geocoder (OpenStreetMap) should be replaced with new provider
+  * Aerial imagery layer to be re-added if available (Bing credentials expired)
+* Third party services
+  * AddThis needs removing/updating
+  * Google Analytics may need updating
+  * Google Ads needs updating
 
 ## Terms of use
 

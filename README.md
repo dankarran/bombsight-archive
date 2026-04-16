@@ -29,14 +29,14 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
   
 ## Data snapshot
 
-| Dataset                                                | Layer Name                             | Type   | File                                                                                                                                                        |
-|--------------------------------------------------------|----------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| First Night of the Blitz (7 Sep 1940)                  | day_bomb                               | Point  | :notebook: [CSV](data/csv/day-bomb.csv)<br>:world_map: [GeoJSON](data/geojson/day-bomb.geojson), :world_map: [GeoPackage](data/geopackage/day-bomb.gpkg)    |
-| Aggregate Bomb Census points (7 Oct 1940 - 6 Jun 1941) | agg_bomb                               | Point  | :notebook: [CSV](data/csv/agg-bomb.csv)<br>:world_map: [GeoJSON](data/geojson/agg-bomb.geojson), :world_map: [GeoPackage](data/geopackage/agg-bomb.gpkg)    |
-| Aggregate Bomb Census map (7 Oct 1940 - 6 Jun 1941)    | agg_mosaic_auto_contrast_sharpen_15    | Raster | TBC                                                                                                                                                         |
-| Weekly Bomb Census points (7-14 Oct 1940)              | week_bomb                              | Point  | :notebook: [CSV](data/csv/week-bomb.csv)<br>:world_map: [GeoJSON](data/geojson/week-bomb.geojson), :world_map: [GeoPackage](data/geopackage/week-bomb.gpkg) |
-| Weekly Bomb Census map (7-14 Oct 1940)                 | weekly_mosaic_auto_contrast_sharpen_15 | Raster | TBC                                                                                                                                                         |
-| Defence Sites                                          | defence_site                           | Point  | TBC                                                                                                                                                         |
+| Dataset                                                | Layer Name                             | Type   | File                                                                                                                       |
+|--------------------------------------------------------|----------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------|
+| First Night of the Blitz (7 Sep 1940)                  | day_bomb                               | Point  | [CSV](data/csv/day-bomb.csv)<br>[GeoJSON](data/geojson/day-bomb.geojson)<br>[GeoPackage](data/geopackage/day-bomb.gpkg)    |
+| Aggregate Bomb Census points (7 Oct 1940 - 6 Jun 1941) | agg_bomb                               | Point  | [CSV](data/csv/agg-bomb.csv)<br>[GeoJSON](data/geojson/agg-bomb.geojson)<br>[GeoPackage](data/geopackage/agg-bomb.gpkg)    |
+| Aggregate Bomb Census map (7 Oct 1940 - 6 Jun 1941)    | agg_mosaic_auto_contrast_sharpen_15    | Raster | TBC                                                                                                                        |
+| Weekly Bomb Census points (7-14 Oct 1940)              | week_bomb                              | Point  | [CSV](data/csv/week-bomb.csv)<br>[GeoJSON](data/geojson/week-bomb.geojson)<br>[GeoPackage](data/geopackage/week-bomb.gpkg) |
+| Weekly Bomb Census map (7-14 Oct 1940)                 | weekly_mosaic_auto_contrast_sharpen_15 | Raster | TBC                                                                                                                        |
+| Defence Sites                                          | defence_site                           | Point  | TBC                                                                                                                        |
 
 ## Terms of use
 

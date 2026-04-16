@@ -16,12 +16,6 @@ wget -rH -Dbombsight.org,static.prod.bombsight.org,static.bombsight.org -l 5 -p 
 
 ### Remaining issues
 
-* wget
-  * Some stylesheets don't get retrieved by wget, e.g. `http://static.prod.bombsight.org/static/lib/*`
-  * Remove querystring from some file extensions, e.g. `http://static.prod.bombsight.org/static/lib/leaflet/images/zoom-slider.png?bbc23851612b`
-* Content
-  * About page (including Team subpage)
-    * missing images (`static.dev.bombsight.org`)
 * AddThis needs removing/updating
 * Mapping
   * Geoserver needs restarting/replacing

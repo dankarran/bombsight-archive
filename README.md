@@ -8,10 +8,11 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
 
 ## Website access
 
-| Label       | URL                                                       |
-|-------------|-----------------------------------------------------------|
-| Original    | https://bombsight.org                                     |
-| Temporary   | http://bombsight-web.s3-website-eu-west-1.amazonaws.com   |
+| Label                         | URL                                                       |
+|-------------------------------|-----------------------------------------------------------|
+| Original                      | https://bombsight.org                                     |
+| Temporary (S3 http)           | http://bombsight-web.s3-website-eu-west-1.amazonaws.com   |
+| Temporary (S3 via CloudFront) | https://d3i7uuksfqccvr.cloudfront.net                     |
 
 ### Remaining issues
 

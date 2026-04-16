@@ -11,7 +11,7 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
 All pages with static content with URLs rewritten:
 
 ```
-wget -rH -Dbombsight.org,static.prod.bombsight.org,static.bombsight.org -l 5 -p --convert-links -i seed-urls.txt
+wget -rH -Dbombsight.org,static.prod.bombsight.org,static.prod.bombsight.org -l 5 -p --convert-links -i seed-urls.txt
 ```
 
 ### Remaining issues

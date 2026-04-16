@@ -4,9 +4,15 @@ Static archive of the Bomb Sight project.
 
 ## About the project
 
-The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. Previously available only by viewing in the Reading Room at The National Archives, Bomb Sight is making the maps available to citizen researchers, academics and students. They will be able to explore where the bombs fell and to discover memories and photographs from the period.
+The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. 
+
+Previously available only by viewing in the Reading Room at The National Archives, Bomb Sight is making the maps available to citizen researchers, academics and students. 
+
+They will be able to explore where the bombs fell and to discover memories and photographs from the period.
 
 ## Website access
+
+NOTE: the website is gradually being rebuilt as a static snapshot, and not all functionality is available yet.
 
 | Label                         | URL                                                       |
 |-------------------------------|-----------------------------------------------------------|
@@ -16,8 +22,13 @@ The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 a
 
 ### Remaining issues
 
+* Website
+  * Bombs datasets missing address reverse geocoding
+  * Missing /bombs/* pages
 * Mapping
   * Geoserver needs restarting/replacing
+  * Raster layers need to be recovered
+  * Defence sites layer needs to be recovered
 * Map provider
   * Base map provider (OpenStreetMap) should be replaced with new provider
   * Nominatim geocoder (OpenStreetMap) should be replaced with new provider
@@ -68,3 +79,29 @@ The Bomb Sight project was funded as part of JISC's Content Programme 2011-13
 ```
 wget -rH -Dbombsight.org,static.prod.bombsight.org,static.prod.bombsight.org -l 5 -p --convert-links -i seed-urls.txt
 ```
+
+### Geoserver
+
+To pull:
+```
+docker pull docker.osgeo.org/geoserver:2.28.0
+```
+
+To run:
+```
+docker run  -it -p 8080:8080 \
+  --mount type=bind,src=<path>/geoserver/data,target=/opt/geoserver_data \
+  --env SKIP_DEMO_DATA=true \
+  --env ENABLE_JSONP=true \
+  docker.osgeo.org/geoserver:2.28.0
+```
+
+To login: http://127.0.0.1:8080/geoserver/web (admin/geoserver)
+
+TODO:
+  * Dockerfile
+  * security
+    * set admin login
+    * ensure details are left out of repo
+  * styling
+  * deployment

@@ -6,18 +6,19 @@ Static archive of the Bomb Sight project.
 
 The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. Previously available only by viewing in the Reading Room at The National Archives, Bomb Sight is making the maps available to citizen researchers, academics and students. They will be able to explore where the bombs fell and to discover memories and photographs from the period.
 
-## Archival using wget
+## Website access
 
-All pages with static content with URLs rewritten:
-
-```
-wget -rH -Dbombsight.org,static.prod.bombsight.org,static.prod.bombsight.org -l 5 -p --convert-links -i seed-urls.txt
-```
+| Label       | URL                                                       |
+|-------------|-----------------------------------------------------------|
+| Original    | https://bombsight.org                                     |
+| Temporary   | http://bombsight-web.s3-website-eu-west-1.amazonaws.com   |
 
 ### Remaining issues
 
 * AddThis needs removing/updating
+* Google Ads needs updating
 * Mapping
+  * Nominatim geocoder needs to be replaced
   * Geoserver needs restarting/replacing
   * Error from `http://dev.virtualearth.net/REST/v1/Imagery/Metadata/AerialWithLabels?include=ImageryProviders&jsonp=_bing_metadata_1&key=[...]`
     `Got metadataThe request was forbidden.  Your credentials may be denied or suspended.`
@@ -42,3 +43,14 @@ Commercial exploitation of the maps, datasets, and background material provided 
 
 The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
 The Bomb Sight project was funded as part of JISC's Content Programme 2011-13
+
+
+## Dev notes
+
+### Archival using wget
+
+`wget` can be used to retrieve all the pages from the original site and rewrite the URLs for local use, though it will still require a little manual fixing.
+
+```
+wget -rH -Dbombsight.org,static.prod.bombsight.org,static.prod.bombsight.org -l 5 -p --convert-links -i seed-urls.txt
+```

@@ -8968,7 +8968,9 @@ function newAlert(type, message) {
     $(".alert").delay(2000).fadeOut("slow", function () {
         $(this).remove();
     });
-};var STATIC_PREFIX = (typeof STATIC_PREFIX === "undefined") ? 'http://static.prod.bombsight.org/static/' : STATIC_PREFIX;
+}
+
+var STATIC_PREFIX = (typeof STATIC_PREFIX === "undefined") ? 'http://static.prod.bombsight.org/static/' : STATIC_PREFIX;
 var HYBRID_BASE_TEXT = (typeof HYBRID_BASE_TEXT === "undefined") ? 'Satellite View' : HYBRID_BASE_TEXT;
 var OSM_BASE_TEXT = (typeof OSM_BASE_TEXT === "undefined") ? 'Street Map View' : OSM_BASE_TEXT;
 var BOMBS_TEXT = (typeof BOMBS_TEXT === "undefined") ? 'Bomb Incidents' : BOMBS_TEXT;

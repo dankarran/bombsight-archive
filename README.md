@@ -1,12 +1,12 @@
 # Bomb Sight - Mapping the World War 2 London Blitz Bomb Census
 
-Static archive of the Bomb Sight project.
+Static archive of the Bomb Sight project (2011-2013).
 
 ![Screenshot](screenshot.png)
 
 ## About the project
 
-The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. 
+The Bomb Sight project was mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. 
 
 Previously available only by viewing in the Reading Room at The National Archives, Bomb Sight is making the maps available to citizen researchers, academics and students. 
 
@@ -36,7 +36,7 @@ NOTE: the website is gradually being rebuilt as a static snapshot, and not all f
   * Nominatim geocoder should be replaced with new provider (currently OpenStreetMap, previously Mapquest)
   * Aerial imagery layer to be re-added if available (previously Bing)
 * Third party services
-  * AddThis needs removing/updating
+  * AddThis needs removing
   * Google Analytics may need updating
   * Google Ads needs updating
   

@@ -71,6 +71,10 @@ Commercial exploitation of the maps, datasets, and background material provided 
 The Bomb Sight Project gives no warranty to the accuracy, completeness or fitness for purpose of the information provided. Commercial exploitation of the images, maps, datasets, and background material provided on this website is prohibited. Material should be used only for purposes of non-commercial research, private study or education.
 The Bomb Sight project was funded as part of JISC's Content Programme 2011-13
 
+## External resources
+* [The National Archives](https://www.nationalarchives.gov.uk/)
+  * [Bomb Census survey 1940-1945 - research guide](https://www.nationalarchives.gov.uk/help-with-your-research/research-guides/bomb-census-survey-records-1940-1945/)
+  * [London Bomb Census Maps - scanned maps](https://images.nationalarchives.gov.uk/search/?searchQuery=London+bomb+census)
 
 ## Dev notes
 

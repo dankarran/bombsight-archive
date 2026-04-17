@@ -114,7 +114,7 @@ TODO:
 
 ### GWC to TMS static tile caching
 
-To grab a copy of tiles cached by GeoWebCache and drop them into a static TMS directory structure:
+To copy tiles cached by GeoWebCache into a static TMS directory structure:
 
 ```
 python scripts/gwc_to_tms.py geoserver/data/gwc/sit_prod_agg_bomb static/tms/sit_prod_agg_bomb

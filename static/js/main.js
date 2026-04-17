@@ -8984,6 +8984,8 @@ var WEEK_BOMBS_MAPS_ID = (typeof WEEK_BOMBS_MAPS_ID === "undefined") ? 'weekly_m
 var DOB_ID = (typeof DOB_ID === "undefined") ? 'defence_site' : DOB_ID;
 var WMS_PATH = (typeof WMS_PATH === "undefined") ? 'geoserver/sit/wms' : WMS_PATH;
 var GWC_PATH = (typeof GWC_PATH === "undefined") ? 'geoserver/gwc/service/tms/1.0.0/sit:' : GWC_PATH;
+var TMS_URL = (typeof TMS_URL === "undefined") ? 'https://bombsight-static.s3.eu-west-1.amazonaws.com/tms/' : TMS_URL;
+var TMS_SOURCE = (typeof TMS_SOURCE === "undefined") ? 'gwc' : TMS_SOURCE;
 
 function LMap(container, mapState, options) {
     var that = this;
@@ -9024,7 +9026,23 @@ function LMap(container, mapState, options) {
     };
     this.overlayLayerControl = {};
     this.baseLayerControl = {};
-    this.bombMapSheets = new L.TileLayer(GEOSERVER_URL + GWC_PATH, {tms: true});
+    this.getTMSUrl = function() {
+        if (TMS_SOURCE === 'tms') {
+            return TMS_URL;
+        }
+        else if (TMS_SOURCE === 'gwc') {
+            return GEOSERVER_URL + GWC_PATH;
+        }
+    }
+    this.getTMSPath = function(name, format) {
+        if (TMS_SOURCE === 'tms') {
+            return name + "/{z}/{x}/{y}." + format;
+        }
+        else if (TMS_SOURCE === 'gwc') {
+            return name + "@EPSG:900913@" + format + "/{z}/{x}/{y}." + format;
+        }
+    }
+    this.bombMapSheets = new L.TileLayer(this.getTMSUrl(), {tms: true});
     this.bombMapSheets.name = BOMB_MAPS_TEXT;
     this.osmBaseLayer = new L.TileLayer(BACKGROUND_URL, {
         maxZoom: 18,
@@ -9071,9 +9089,9 @@ function LMap(container, mapState, options) {
         }, maxClusterRadius: 35, showCoverageOnHover: false
     });
     this.defenceSiteMarkers.name = DOB_TEXT;
-    this.defenceSiteWMSLayer = new L.TileLayer(GEOSERVER_URL + GWC_PATH, {tms: true});
+    this.defenceSiteWMSLayer = new L.TileLayer(this.getTMSUrl(), {tms: true});
     this.defenceSiteWMSLayer.name = DOB_TEXT;
-    this.bombsWMSLayer = new L.TileLayer(GEOSERVER_URL + GWC_PATH, {tms: true});
+    this.bombsWMSLayer = new L.TileLayer(this.getTMSUrl(), {tms: true});
     this.bombsWMSLayer.name = BOMBS_TEXT;
     this.refreshClusterMarkers = function (json, layer, clickCallback) {
         var clickAction = (typeof clickCallback === undefined) ? function (e) {
@@ -9176,7 +9194,7 @@ function LMap(container, mapState, options) {
         });
     };
     this.refreshTMSLayer = function (layer, name, format, toFront) {
-        layer.setUrl(GEOSERVER_URL + GWC_PATH + name + "@EPSG:900913@" + format + "/{z}/{x}/{y}." + format, {
+        layer.setUrl(this.getTMSUrl() + this.getTMSPath(name, format), {
             tms: true,
             transparent: true,
             opacity: true

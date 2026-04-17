@@ -117,5 +117,5 @@ TODO:
 To copy tiles cached by GeoWebCache into a static TMS directory structure:
 
 ```
-python scripts/gwc_to_tms.py geoserver/data/gwc/sit_prod_agg_bomb static/tms/sit_prod_agg_bomb
+python scripts/gwc_to_tms.py geoserver/data/gwc/sit_prod_agg_bomb static/tms/prod_agg_bomb
 ```

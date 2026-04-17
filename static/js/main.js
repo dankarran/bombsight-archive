@@ -8970,7 +8970,7 @@ function newAlert(type, message) {
     });
 }
 
-var STATIC_PREFIX = (typeof STATIC_PREFIX === "undefined") ? 'https://bombsight-static.s3.eu-west-1.amazonaws.com/' : STATIC_PREFIX;
+var STATIC_PREFIX = (typeof STATIC_PREFIX === "undefined") ? 'https://bombsight-static.s3.eu-west-1.amazonaws.com/static/' : STATIC_PREFIX;
 var HYBRID_BASE_TEXT = (typeof HYBRID_BASE_TEXT === "undefined") ? 'Satellite View' : HYBRID_BASE_TEXT;
 var OSM_BASE_TEXT = (typeof OSM_BASE_TEXT === "undefined") ? 'Street Map View' : OSM_BASE_TEXT;
 var BOMBS_TEXT = (typeof BOMBS_TEXT === "undefined") ? 'Bomb Incidents' : BOMBS_TEXT;

@@ -5,16 +5,16 @@
   xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <NamedLayer>
-    <Name>bomb_generic_small</Name>
+    <Name>defence_generic_sml</Name>
     <UserStyle>
-      <Title>bomb_generic_sml</Title>
+      <Title>defence_generic_sml</Title>
       <FeatureTypeStyle>
         <Rule>
-          <Title>bomb_generic_sml</Title>
+          <Title>defence_generic_sml</Title>
           <PointSymbolizer>
      <Graphic>
         <ExternalGraphic>
-          <OnlineResource xlink:type="simple" xlink:href="icons/bomb_generic_sml.png" />
+          <OnlineResource xlink:type="simple" xlink:href="icons/defence_generic_sml.png" />
            <Format>image/png</Format>
         </ExternalGraphic>
      </Graphic>

@@ -23,16 +23,16 @@ NOTE: the website is gradually being rebuilt as a static snapshot, and not all f
 ### Remaining issues
 
 * Website
-  * Bombs datasets missing address reverse geocoding
   * Missing all /bombs/* detail pages ([sample](http://bombsight-web.s3-website-eu-west-1.amazonaws.com/bombs/10016/))
-* Mapping
-  * Geoserver needs restarting/replacing
+* Mapping and data
+  * Geoserver needs restarting/replacing (possibly with static)
+  * Bombs datasets missing address reverse geocoding
   * Raster layers need to be recovered
   * Defence sites layer needs to be recovered
-* Map provider
-  * Base map provider (OpenStreetMap) should be replaced with new provider
-  * Nominatim geocoder (OpenStreetMap) should be replaced with new provider
-  * Aerial imagery layer to be re-added if available (Bing credentials expired)
+* Background mapping provider
+  * Base map provider should be replaced with new provider (currently OpenStreetMap, previously Carto)
+  * Nominatim geocoder should be replaced with new provider (currently OpenStreetMap, previously Mapquest)
+  * Aerial imagery layer to be re-added if available (previously Bing)
 * Third party services
   * AddThis needs removing/updating
   * Google Analytics may need updating

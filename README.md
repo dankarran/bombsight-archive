@@ -104,15 +104,22 @@ docker run  -it -p 8080:8080 \
 
 To login: http://127.0.0.1:8080/geoserver/web (admin/geoserver)
 
-TODO:
-  * Dockerfile
-  * security
-    * set admin login
-    * ensure details are left out of repo
-  * styling
-  * deployment
+#### Docker compose
 
-### GWC to TMS static tile caching
+Once Geoserver is configured as desired using the mounted data directory (see above), you can run the following to build and run using a snapshot of that data directory.
+
+Copy the `.env.example` file to `.env` and configure appropriately.
+
+```
+docker compose up --build
+```
+
+#### TODO
+  * deployment and security/stability review
+
+### GeoWebCache to TMS static tile caching
+
+To seed the tiles using GeoWebCache (GWC), go to the Tilesets page, click seed, choose zoom levels 5-14, and start.
 
 To copy tiles cached by GeoWebCache into a static TMS directory structure:
 

@@ -24,7 +24,7 @@ NOTE: the website is gradually being rebuilt as a static snapshot, and not all f
 
 * Website
   * Bombs datasets missing address reverse geocoding
-  * Missing /bombs/* pages
+  * Missing all /bombs/* detail pages ([sample](http://bombsight-web.s3-website-eu-west-1.amazonaws.com/bombs/10016/))
 * Mapping
   * Geoserver needs restarting/replacing
   * Raster layers need to be recovered

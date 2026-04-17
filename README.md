@@ -2,6 +2,8 @@
 
 Static archive of the Bomb Sight project.
 
+![Screenshot](screenshot.png)
+
 ## About the project
 
 The Bomb Sight project is mapping the London WW2 bomb census between 7/10/1940 and 06/06/1941. 

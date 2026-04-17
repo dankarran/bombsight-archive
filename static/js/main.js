@@ -9195,10 +9195,12 @@ function LMap(container, mapState, options) {
             content += "<h5 class=\'visible-phone\'>" + that._bombType[prop.type] + "</h5>";
         }
         var id = (typeof prop.id === 'undefined') ? prop.pk : prop.id;
-        content += "<span class=\'hidden-phone\'>";
-        content += "<p>" + "recorded close to: </br>" + prop.address + "</p>";
-        content += "</span>";
-        content += "<a href=\'/bombs/" + id + "/\'>" + "Read more" + "</a>";
+        if (typeof prop.address !== 'undefined' && prop.address) {
+            content += "<span class=\'hidden-phone\'>";
+            content += "<p>" + "recorded close to: </br>" + prop.address + "</p>";
+            content += "</span>";
+        }
+        //content += "<a href=\'/bombs/" + id + "/\'>" + "Read more" + "</a>";
         e.target.bindPopup(content).openPopup();
     };
     this._defenceMarkerPopup = function (e) {
